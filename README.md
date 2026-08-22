@@ -165,14 +165,51 @@ drawn grid.
 It lives inside the Live TV tab as a view toggle rather than a sixth tab, which
 would have pushed search under "More".
 
-### Provider guides are often malformed
+### Provider guides are malformed in more ways than one
 
-A bare `&` in a programme title is enough for `XMLParser` to stop dead — and
-because every `<programme>` element comes after every `<channel>`, one bad
-character part-way through costs the entire schedule. When a parse aborts,
-`XMLTVParser` escapes stray ampersands and tries once more rather than showing
-an empty guide the user cannot explain. Covered by a test that feeds it a file
-a strict parser refuses.
+`XMLParser` is strict and provider guides are not. Measured against the
+malformations panels actually emit, **seven of eight killed the parser
+outright**:
+
+| Input | Strict parser |
+| --- | --- |
+| Bare `&` in a title | fails |
+| `&nbsp;`, `&eacute;` and other HTML entities | fails |
+| Control characters below 0x20 | fails |
+| Latin-1 content declaring `encoding="UTF-8"` | fails |
+| A stray `<` in text | fails |
+| A download that stopped mid-element | fails |
+| A byte-order mark before the declaration | survives |
+
+The cost is total rather than partial: every `<programme>` element comes after
+every `<channel>`, so one bad byte a third of the way in takes the whole
+schedule. On a real 225 KB test guide carrying four of these faults at once, a
+strict parser delivered **81 elements — all 42 channels — and zero
+programmes.** `XMLRepair` recovered **918 programmes across all 42 channels**
+from the same bytes.
+
+The ladder is in `XMLRepair`: strip leading junk, transcode mislabelled
+encodings, remove illegal control characters, resolve or escape undeclared
+entities, escape stray angle brackets, and close a truncated root so everything
+before the cut survives. Nothing alters meaning — it fixes encoding and
+escaping, never content. A well-formed guide is parsed strictly and never pays
+for any of it.
+
+### Repairing silently is its own kind of lie
+
+A guide covering a third of your channels looks identical to one covering all
+of them, right up until you go looking for a programme that isn't there. So
+`SourceDiagnostics` records what was wrong — entries that could not be read,
+repairs that were needed, a file that stopped short, and how much of your
+channel list the guide actually covers — and Settings shows it, but only when
+there is something to say. A clean load says nothing, because a permanent
+"everything is fine" row is just noise.
+
+To see what Kanal makes of your own provider's guide:
+
+```bash
+cd Packages/KanalKit && KANAL_TEST_EPG_URL="<your epg url>" swift test --filter LiveEPGTests
+```
 
 ## Localization
 
@@ -260,7 +297,7 @@ Kanal/
   Packages/KanalKit/
     Sources/KanalCore          Models, parsing, organisation, metadata, pairing, storage
     Sources/KanalUI            Design system and every screen
-    Tests/KanalCoreTests       106 tests
+    Tests/KanalCoreTests       122 tests
 ```
 
 Almost all code lives in the package; the app targets are shells. That is why
@@ -313,7 +350,7 @@ cd Packages/KanalKit && KANAL_LIVE_TESTS=1 swift test --filter LiveIntegrationTe
 
 - iOS and tvOS both build and run; screenshots taken on iPhone 17 Pro, iPad
   Pro 13" and Apple TV 4K, in light and dark.
-- 106 offline tests, plus 5 live ones against Wikidata and 5 against TMDB, including Kari's exact scenario.
+- 122 offline tests, plus live ones against Wikidata, TMDB and a real EPG file, including Kari's exact scenario.
 - Both apps run in Norwegian end to end, verified by screenshot with
   `-AppleLanguages '(nb)'`.
 

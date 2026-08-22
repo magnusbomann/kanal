@@ -47,25 +47,53 @@ public final class XMLTVParser: NSObject, XMLParserDelegate {
         self.windowEnd = windowEnd
     }
 
-    public func parse(_ data: Data) -> Guide {
-        var result = run(on: data)
+    /// What a parse produced, and what it took to get there.
+    public struct ParseResult: Sendable {
+        public var guide: Guide
+        /// Repairs the input needed. Empty means it arrived well-formed.
+        public var repairs: [XMLRepair.Fix]
+        /// True when even the repaired document stopped short. The guide is
+        /// then whatever arrived before the break, which is worth showing.
+        public var isPartial: Bool
 
-        // Provider guides are frequently malformed — a bare `&` in a programme
-        // title is enough for XMLParser to stop dead, and because `<programme>`
-        // elements come after every `<channel>`, one bad character part-way
-        // through can cost the entire schedule. When a parse aborts, repair the
-        // most common offender and try once more rather than shipping an empty
-        // guide the user cannot explain.
-        if result.aborted, let repaired = Self.repairingEntities(data) {
-            let second = XMLTVParser(windowStart: windowStart, windowEnd: windowEnd).run(on: repaired)
-            if second.guide.programmeCount > result.guide.programmeCount {
-                result = second
-            }
+        public var programmeCount: Int { guide.programmeCount }
+    }
+
+    public func parse(_ data: Data) -> Guide {
+        parseDetailed(data).guide
+    }
+
+    /// Parses strictly first, and only repairs when that fails.
+    ///
+    /// Order matters: a well-formed guide should never pay for the tolerance
+    /// the broken ones need, and repaired output is accepted only when it
+    /// actually recovers more than the strict attempt did.
+    public func parseDetailed(_ data: Data) -> ParseResult {
+        let strict = run(on: data)
+        if !strict.aborted {
+            return ParseResult(guide: strict.guide, repairs: [], isPartial: false)
         }
-        return result.guide
+
+        guard let repaired = XMLRepair.repair(data) else {
+            // Nothing to fix, so the break is structural. Keep what arrived.
+            return ParseResult(guide: strict.guide, repairs: [], isPartial: true)
+        }
+
+        let second = XMLTVParser(windowStart: windowStart, windowEnd: windowEnd)
+        let result = second.run(on: repaired.data)
+        guard result.guide.programmeCount >= strict.guide.programmeCount else {
+            return ParseResult(guide: strict.guide, repairs: [], isPartial: true)
+        }
+        return ParseResult(
+            guide: result.guide,
+            repairs: repaired.fixes,
+            isPartial: result.aborted
+        )
     }
 
     private func run(on data: Data) -> (guide: Guide, aborted: Bool) {
+        reset()
+
         let parser = XMLParser(data: data)
         parser.delegate = self
         let succeeded = parser.parse()
@@ -81,24 +109,15 @@ public final class XMLTVParser: NSObject, XMLParserDelegate {
         return (guide, !succeeded)
     }
 
-    /// Escapes ampersands that are not already part of an entity reference.
-    ///
-    /// Returns nil when there was nothing to repair, so a genuinely broken file
-    /// is not parsed twice for nothing.
-    static func repairingEntities(_ data: Data) -> Data? {
-        guard var text = String(data: data, encoding: .utf8)
-            ?? String(data: data, encoding: .isoLatin1)
-        else { return nil }
-
-        let pattern = "&(?!#[0-9]+;|#[xX][0-9a-fA-F]+;|[a-zA-Z][a-zA-Z0-9]*;)"
-        guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
-        let range = NSRange(text.startIndex..., in: text)
-        guard regex.firstMatch(in: text, range: range) != nil else { return nil }
-
-        text = regex.stringByReplacingMatches(
-            in: text, range: range, withTemplate: "&amp;"
-        )
-        return text.data(using: .utf8)
+    /// Parsing twice on one instance would otherwise accumulate both runs.
+    private func reset() {
+        channelNames = [:]
+        channelIcons = [:]
+        programmesByChannel = [:]
+        currentChannelID = nil
+        currentElement = nil
+        textBuffer = ""
+        pendingChannelID = nil
     }
 
     // MARK: - XMLParserDelegate

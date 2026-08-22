@@ -250,6 +250,40 @@ public enum UIStrings {
         LocalizedStringResource("source.updated \(relative)", bundle: bundle, comment: "How long ago a playlist was refreshed")
     }
 
+    // MARK: - Data quality
+
+    public static let sectionDataQuality = text(
+        "settings.section.dataQuality", "Section describing problems in the provider's data"
+    )
+    public static let dataQualityIntro = text(
+        "settings.dataQuality.intro",
+        "Explains that these are faults in the provider's files, which Kanal worked around"
+    )
+    public static func skippedLines(_ count: Int) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "settings.dataQuality.skippedLines \(count)", bundle: bundle,
+            comment: "How many playlist entries could not be read at all"
+        )
+    }
+    public static let guideRepaired = text(
+        "settings.dataQuality.guideRepaired", "The TV guide file was malformed and had to be repaired"
+    )
+    public static let guidePartial = text(
+        "settings.dataQuality.guidePartial", "The TV guide file stopped part-way through"
+    )
+    public static func guideCoverage(_ percent: Int) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "settings.dataQuality.coverage \(percent)", bundle: bundle,
+            comment: "What share of channels the TV guide actually covers"
+        )
+    }
+    public static func guideProgrammes(_ count: Int) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "settings.dataQuality.programmes \(count)", bundle: bundle,
+            comment: "How many programmes the TV guide contains"
+        )
+    }
+
     // MARK: - Handoff
 
     public static let handoffTitle = text("handoff.title", "Screen that sends a playlist to an Apple TV")

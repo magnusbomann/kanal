@@ -72,6 +72,10 @@
 "series.notFound.body" = "Den kan ha blitt fjernet fra leverandørens liste.";
 "series.playFirst" = "Spill første episode";
 "settings.addPlaylist" = "Legg til spilleliste";
+"settings.dataQuality.coverage %lld" = "Guiden dekker %lld %% av kanalene dine";
+"settings.dataQuality.guidePartial" = "TV-guide-fila stoppet midtveis";
+"settings.dataQuality.guideRepaired" = "TV-guiden var ugyldig og måtte repareres";
+"settings.dataQuality.intro" = "Kanal jobbet seg rundt dette. Det er feil i filene leverandøren din sendte, ikke noe appen kan rette ved kilden.";
 "settings.disclaimer" = "Kanal er en avspiller for et abonnement du allerede har. Den leverer ingen kanaler selv.";
 "settings.guide.loaded" = "Lastet";
 "settings.guide.notLoaded" = "Ikke lastet";
@@ -81,6 +85,7 @@
 "settings.label.series" = "Serier";
 "settings.refreshNow" = "Oppdater nå";
 "settings.section.appleTV" = "Apple TV";
+"settings.section.dataQuality" = "Data fra leverandøren";
 "settings.section.library" = "Bibliotek";
 "settings.section.playlists" = "Spillelister";
 "settings.title" = "Innstillinger";

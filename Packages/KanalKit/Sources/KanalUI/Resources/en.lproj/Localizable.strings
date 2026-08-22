@@ -72,6 +72,10 @@
 "series.notFound.body" = "It may have been removed from your provider's list.";
 "series.playFirst" = "Play first episode";
 "settings.addPlaylist" = "Add a playlist";
+"settings.dataQuality.coverage %lld" = "The guide covers %lld%% of your channels";
+"settings.dataQuality.guidePartial" = "The TV guide file stopped part-way through";
+"settings.dataQuality.guideRepaired" = "The TV guide was malformed and had to be repaired";
+"settings.dataQuality.intro" = "Kanal worked around these. They're faults in the files your provider sent, not something the app can fix at the source.";
 "settings.disclaimer" = "Kanal is a player for a subscription you already have. It provides no channels of its own.";
 "settings.guide.loaded" = "Loaded";
 "settings.guide.notLoaded" = "Not loaded";
@@ -81,6 +85,7 @@
 "settings.label.series" = "Series";
 "settings.refreshNow" = "Refresh now";
 "settings.section.appleTV" = "Apple TV";
+"settings.section.dataQuality" = "Data from your provider";
 "settings.section.library" = "Library";
 "settings.section.playlists" = "Playlists";
 "settings.title" = "Settings";

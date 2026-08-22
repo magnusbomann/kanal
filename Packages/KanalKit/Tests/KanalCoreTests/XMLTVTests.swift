@@ -57,18 +57,6 @@ struct XMLTVTests {
         #expect(guide.schedules["nrk1.no"]?.programme()?.title == "Also on now")
     }
 
-    @Test("Leaves valid entities alone")
-    func keepsRealEntities() {
-        let text = "<tv><t>A &amp; B &#233; &lt;x&gt;</t></tv>"
-        #expect(XMLTVParser.repairingEntities(Data(text.utf8)) == nil)
-    }
-
-    @Test("Escapes only the bare ampersands")
-    func escapesOnlyBare() throws {
-        let repaired = try #require(XMLTVParser.repairingEntities(Data("<t>A & B &amp; C</t>".utf8)))
-        #expect(String(decoding: repaired, as: UTF8.self) == "<t>A &amp; B &amp; C</t>")
-    }
-
     @Test("Parses XMLTV timestamps with and without an offset")
     func timestamps() throws {
         let withOffset = try #require(XMLTVParser.date(from: "20260115203000 +0100"))

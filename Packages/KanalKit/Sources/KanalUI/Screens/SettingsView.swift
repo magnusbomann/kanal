@@ -19,6 +19,9 @@ public struct SettingsView: View {
             appleTVSection
             #endif
             librarySection
+            if model.diagnostics.hasFindings {
+                dataQualitySection
+            }
             disclaimerSection
         }
         .navigationTitle(Text(UIStrings.settings))
@@ -80,6 +83,52 @@ public struct SettingsView: View {
             Button(String(UIStrings.refreshNow)) {
                 Task { await model.refreshActiveSource() }
             }
+        }
+    }
+
+    /// Only shown when there is something to report. A clean load says nothing,
+    /// because a permanent "everything is fine" row is just noise.
+    private var dataQualitySection: some View {
+        Section(String(UIStrings.sectionDataQuality)) {
+            let diagnostics = model.diagnostics
+
+            if diagnostics.skippedPlaylistLines > 0 {
+                finding(
+                    String(UIStrings.skippedLines(diagnostics.skippedPlaylistLines)),
+                    symbol: "list.bullet.rectangle"
+                )
+            }
+            if !diagnostics.guideRepairs.isEmpty {
+                finding(String(UIStrings.guideRepaired), symbol: "bandage")
+            }
+            if diagnostics.guideIsPartial {
+                finding(String(UIStrings.guidePartial), symbol: "scissors")
+            }
+            if diagnostics.guideProgrammes > 0, diagnostics.channelsWithID > 0 {
+                finding(
+                    String(UIStrings.guideCoverage(Int(diagnostics.guideCoverage * 100))),
+                    symbol: "chart.pie"
+                )
+                finding(
+                    String(UIStrings.guideProgrammes(diagnostics.guideProgrammes)),
+                    symbol: "calendar"
+                )
+            }
+
+            Text(UIStrings.dataQualityIntro)
+                .font(KanalFont.body(12))
+                .foregroundStyle(KanalColor.tertiaryText)
+        }
+    }
+
+    private func finding(_ text: String, symbol: String) -> some View {
+        Label {
+            Text(text)
+                .font(KanalFont.body(14))
+                .foregroundStyle(KanalColor.primaryText)
+        } icon: {
+            Image(systemName: symbol)
+                .foregroundStyle(KanalColor.warning)
         }
     }
 

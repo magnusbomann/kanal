@@ -114,5 +114,37 @@
 			<string>%lld min left</string>
 		</dict>
 	</dict>
+	<key>settings.dataQuality.programmes %lld</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld programme</string>
+			<key>other</key>
+			<string>%lld programmes</string>
+		</dict>
+	</dict>
+	<key>settings.dataQuality.skippedLines %lld</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld playlist entry couldn't be read</string>
+			<key>other</key>
+			<string>%lld playlist entries couldn't be read</string>
+		</dict>
+	</dict>
 </dict>
 </plist>

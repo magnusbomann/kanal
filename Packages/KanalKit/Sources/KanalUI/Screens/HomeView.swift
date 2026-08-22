@@ -12,7 +12,7 @@ public struct HomeView: View {
     #if os(iOS)
     @Environment(\.horizontalSizeClass) private var sizeClass
     #endif
-    @State private var isShowingSettings = false
+    @State private var isShowingSettings = LaunchOptions.opensSettings
 
     public init() {}
 

@@ -2089,6 +2089,173 @@
           }
         }
       }
+    },
+    "settings.section.dataQuality": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data from your provider"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data fra leverandøren"
+          }
+        }
+      }
+    },
+    "settings.dataQuality.intro": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal worked around these. They're faults in the files your provider sent, not something the app can fix at the source."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal jobbet seg rundt dette. Det er feil i filene leverandøren din sendte, ikke noe appen kan rette ved kilden."
+          }
+        }
+      }
+    },
+    "settings.dataQuality.skippedLines %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld playlist entry couldn't be read"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld playlist entries couldn't be read"
+                }
+              }
+            }
+          }
+        },
+        "nb": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld oppføring i spillelisten kunne ikke leses"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld oppføringer i spillelisten kunne ikke leses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "settings.dataQuality.guideRepaired": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The TV guide was malformed and had to be repaired"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV-guiden var ugyldig og måtte repareres"
+          }
+        }
+      }
+    },
+    "settings.dataQuality.guidePartial": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The TV guide file stopped part-way through"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV-guide-fila stoppet midtveis"
+          }
+        }
+      }
+    },
+    "settings.dataQuality.coverage %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The guide covers %lld%% of your channels"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guiden dekker %lld %% av kanalene dine"
+          }
+        }
+      }
+    },
+    "settings.dataQuality.programmes %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld programme"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld programmes"
+                }
+              }
+            }
+          }
+        },
+        "nb": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld program"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld programmer"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "version": "1.0"

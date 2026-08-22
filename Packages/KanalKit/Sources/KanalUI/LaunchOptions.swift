@@ -18,6 +18,11 @@ enum LaunchOptions {
         value(for: "-kanal-live-mode")
     }
 
+    /// `-kanal-settings 1` opens the settings sheet on launch.
+    static var opensSettings: Bool {
+        ProcessInfo.processInfo.arguments.contains("-kanal-settings")
+    }
+
     private static func value(for flag: String) -> String? {
         let arguments = ProcessInfo.processInfo.arguments
         guard let index = arguments.firstIndex(of: flag),
@@ -28,5 +33,6 @@ enum LaunchOptions {
     #else
     static var startTab: String? { nil }
     static var liveMode: String? { nil }
+    static var opensSettings: Bool { false }
     #endif
 }

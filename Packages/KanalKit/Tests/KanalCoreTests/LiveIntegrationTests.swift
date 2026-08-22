@@ -97,10 +97,10 @@ struct LiveIntegrationTests {
             name: "iptv-org",
             playlistURL: URL(string: "https://iptv-org.github.io/iptv/countries/no.m3u")
         )
-        let (library, _) = try await loader.loadLibrary(for: source)
-        #expect(library.channels.count > 50)
+        let result = try await loader.loadLibrary(for: source)
+        #expect(result.library.channels.count > 50)
         // Genre folders called "Series" must not turn live channels into shows.
-        #expect(library.series.isEmpty)
+        #expect(result.library.series.isEmpty)
     }
 }
 
@@ -184,4 +184,37 @@ struct LiveTMDBTests {
         #expect(resolved.canonicalName == "Cars")
         #expect(resolved.posterURL != nil)
     }
+}
+
+/// Points the real loader at a real guide file.
+///
+/// Set `KANAL_TEST_EPG_URL` to your provider's own EPG to see exactly what
+/// Kanal makes of it — how much it recovered, what it had to repair, and how
+/// much of your channel list it actually covers.
+@Suite(
+    "Live EPG file",
+    .enabled(if: ProcessInfo.processInfo.environment["KANAL_TEST_EPG_URL"]?.isEmpty == false)
+)
+struct LiveEPGTests {
+
+    @Test("Reports what it recovered and what it had to repair")
+    func inspectGuide() async throws {
+        let url = try #require(URL(string: ProcessInfo.processInfo.environment["KANAL_TEST_EPG_URL"] ?? ""))
+        let result = try await LibraryLoader().loadGuide(from: url)
+
+        print("""
+
+        EPG: \(url.absoluteString)
+          channels   \(result.guide.schedules.count)
+          programmes \(result.programmeCount)
+          repairs    \(result.repairs.map(\.rawValue).joined(separator: ", ").ifEmpty("none"))
+          partial    \(result.isPartial)
+
+        """)
+        #expect(result.programmeCount > 0, "nothing was recovered from this guide")
+    }
+}
+
+private extension String {
+    func ifEmpty(_ fallback: String) -> String { isEmpty ? fallback : self }
 }

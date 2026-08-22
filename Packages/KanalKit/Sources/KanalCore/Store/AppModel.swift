@@ -25,6 +25,8 @@ public final class AppModel {
     public private(set) var library: Library = .empty
     public private(set) var guide: XMLTVParser.Guide?
     public private(set) var isRefreshingGuide = false
+    /// What was wrong with the data this source sent, if anything.
+    public private(set) var diagnostics = SourceDiagnostics()
     /// Episodes fetched on demand, keyed by the provider's series id.
     public private(set) var loadedEpisodes: [Int: [MediaItem]] = [:]
     public private(set) var episodeLoadFailures: [Int: String] = [:]
@@ -135,8 +137,16 @@ public final class AppModel {
     private func refresh(_ source: PlaylistSource) async {
         phase = .loading(String(localized: CoreStrings.loadingSource(source.name)))
         do {
-            let (library, epgURL) = try await loader.loadLibrary(for: source)
-            self.library = library
+            let result = try await loader.loadLibrary(for: source)
+            self.library = result.library
+            let epgURL = result.epgURL
+
+            var diagnostics = SourceDiagnostics()
+            diagnostics.skippedPlaylistLines = result.skippedLines
+            diagnostics.channelsWithID = result.library.channels.count {
+                $0.channelID?.isEmpty == false
+            }
+            self.diagnostics = diagnostics
             phase = .ready
 
             if var updated = sources.first(where: { $0.id == source.id }) {
@@ -159,9 +169,24 @@ public final class AppModel {
         Task { [loader] in
             let result = try? await loader.loadGuide(from: url)
             await MainActor.run {
-                if let result { self.guide = result }
+                if let result {
+                    self.guide = result.guide
+                    self.recordGuideDiagnostics(result)
+                }
                 self.isRefreshingGuide = false
             }
+        }
+    }
+
+    /// Coverage is measured against the library, not the file: a guide with a
+    /// million programmes for channels nobody has is still an empty guide.
+    private func recordGuideDiagnostics(_ result: XMLTVParser.ParseResult) {
+        diagnostics.guideProgrammes = result.programmeCount
+        diagnostics.guideRepairs = result.repairs
+        diagnostics.guideIsPartial = result.isPartial
+        diagnostics.guideChannelsMatched = library.channels.count { channel in
+            guard let id = channel.channelID else { return false }
+            return result.guide.schedules[id]?.programmes.isEmpty == false
         }
     }
 

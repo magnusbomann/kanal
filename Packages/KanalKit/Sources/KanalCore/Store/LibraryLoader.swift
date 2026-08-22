@@ -38,8 +38,15 @@ public actor LibraryLoader {
         }
     }
 
+    public struct LibraryResult: Sendable {
+        public var library: Library
+        public var epgURL: URL?
+        /// Playlist lines that produced nothing playable.
+        public var skippedLines: Int
+    }
+
     /// Loads the library and, when we can find one, the EPG url to follow up with.
-    public func loadLibrary(for source: PlaylistSource) async throws -> (Library, URL?) {
+    public func loadLibrary(for source: PlaylistSource) async throws -> LibraryResult {
         switch source.kind {
         case .xtream:
             guard let client = XtreamClient(source: source, session: session) else {
@@ -49,21 +56,33 @@ public actor LibraryLoader {
             _ = try await client.authenticate()
             let items = try await client.loadLibrary()
             guard !items.isEmpty else { throw LoadError.emptyPlaylist }
-            return (Library(items: items), source.epgURL ?? client.epgURL)
+            return LibraryResult(
+                library: Library(items: items),
+                epgURL: source.epgURL ?? client.epgURL,
+                skippedLines: 0
+            )
 
         case .m3u:
             guard let url = source.playlistURL else { throw LoadError.noPlaylistURL }
             let text = try await fetchText(url)
             let playlist = M3UParser().parse(text)
             guard !playlist.items.isEmpty else { throw LoadError.emptyPlaylist }
-            return (Library(items: playlist.items), source.epgURL ?? playlist.epgURL)
+            return LibraryResult(
+                library: Library(items: playlist.items),
+                epgURL: source.epgURL ?? playlist.epgURL,
+                skippedLines: playlist.skippedLineCount
+            )
 
         case .localFile:
             guard let url = source.playlistURL else { throw LoadError.noPlaylistURL }
             let data = try Data(contentsOf: url)
             let playlist = M3UParser().parse(decodeText(Gunzip.decode(data)))
             guard !playlist.items.isEmpty else { throw LoadError.emptyPlaylist }
-            return (Library(items: playlist.items), source.epgURL ?? playlist.epgURL)
+            return LibraryResult(
+                library: Library(items: playlist.items),
+                epgURL: source.epgURL ?? playlist.epgURL,
+                skippedLines: playlist.skippedLineCount
+            )
         }
     }
 
@@ -75,9 +94,9 @@ public actor LibraryLoader {
         return try await client.episodes(seriesID: seriesID)
     }
 
-    public func loadGuide(from url: URL) async throws -> XMLTVParser.Guide {
+    public func loadGuide(from url: URL) async throws -> XMLTVParser.ParseResult {
         let data = Gunzip.decode(try await fetchData(url))
-        return XMLTVParser().parse(data)
+        return XMLTVParser().parseDetailed(data)
     }
 
     // MARK: - Transport
