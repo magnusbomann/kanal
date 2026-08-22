@@ -119,6 +119,31 @@ struct MediaClassifierTests {
         #expect(kind(title: "Show S01E02", url: "http://p.tv/series/u/p/2.mkv", group: "Series") == .series)
     }
 
+    /// The shape a real panel uses: a format as a trailing path *segment* for
+    /// live, and an opaque token for everything stored. An extension check
+    /// alone reads a catalogue of hundreds of thousands of films as live TV.
+    @Test("A format in the path names a live stream, not just an extension")
+    func liveAsPathSegment() {
+        #expect(kind(title: "NRK1", url: "http://p.tv/play/aB3xY9zQ7mK2pL5w/m3u8", group: "Norway") == .liveTV)
+        #expect(kind(title: "NRK1", url: "http://p.tv/play/aB3xY9zQ7mK2pL5w/ts", group: "Norway") == .liveTV)
+    }
+
+    @Test("An opaque token with no format hint is stored media, not a channel")
+    func opaqueTokenIsVOD() {
+        // No extension, no /movie/ path, and a genre for a group: the only
+        // thing left that distinguishes it is the shape of the last segment.
+        #expect(kind(title: "Some Film", url: "http://p.tv/play/2dYu-ouRcW9G0wPFH7Vf", group: "Drama") == .movie)
+        #expect(kind(title: "Show S01E02", url: "http://p.tv/play/2dYu-ouRcW9G0wPFH7Vf", group: "Drama") == .series)
+    }
+
+    @Test("A short, human-looking segment stays a channel")
+    func shortSegmentStaysLive() {
+        // Radio and numbered channels are addressed by something a person
+        // could have typed, and must not be swept up as films.
+        #expect(kind(title: "Local Radio", url: "http://p.tv/radio/9001", group: "Radio") == .liveTV)
+        #expect(kind(title: "Channel 5", url: "http://p.tv/stream/105", group: "UK") == .liveTV)
+    }
+
     @Test("Episode markers beat a live-looking url")
     func episodeBeatsLiveURL() {
         #expect(kind(title: "Show S02E05", url: "http://p.tv/live/u/p/3.m3u8", group: nil) == .series)

@@ -26,6 +26,23 @@ public enum TitleCleaner {
 
     private static let separators = CharacterSet(charactersIn: " |-–—:•·_.")
 
+    /// Compiled once.
+    ///
+    /// These ran per entry, and a real catalogue is four hundred thousand of
+    /// them — around two million `NSRegularExpression` constructions per load,
+    /// which was most of the time spent parsing.
+    private static let countryPattern = try! NSRegularExpression(
+        pattern: #"^\s*[\[\(\|]?\s*([A-Za-z]{2,3})\s*[\]\)\|:\-–—]+\s*"#
+    )
+    private static let episodePatterns: [NSRegularExpression] = [
+        #"[\s\-–—_\[\(]*[Ss](\d{1,2})\s*[EeXx]\s*(\d{1,3})[\s\]\)]*"#,
+        #"[\s\-–—_\[\(]*(\d{1,2})\s*[xX]\s*(\d{1,3})\b[\s\]\)]*"#,
+        #"[\s\-–—_]*[Ss]eason\s*(\d{1,2})\s*[\-–—_]?\s*[Ee]pisode\s*(\d{1,3})"#,
+    ].map { try! NSRegularExpression(pattern: $0) }
+    private static let yearPattern = try! NSRegularExpression(
+        pattern: #"[\s\[\(]+((?:19|20)\d{2})[\s\]\)]*$"#
+    )
+
     public static func clean(_ raw: String) -> Result {
         var working = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         var country: String?
@@ -80,9 +97,9 @@ public enum TitleCleaner {
 
     private static func stripLeadingCountry(_ input: String) -> (String, String)? {
         // Matches "NO |", "|NO|", "[NO]", "(NOR)", "EN:" at the very start.
-        let pattern = #"^\s*[\[\(\|]?\s*([A-Za-z]{2,3})\s*[\]\)\|:\-–—]+\s*"#
-        guard let regex = try? NSRegularExpression(pattern: pattern),
-              let match = regex.firstMatch(in: input, range: NSRange(input.startIndex..., in: input)),
+        guard let match = countryPattern.firstMatch(
+                in: input, range: NSRange(input.startIndex..., in: input)
+              ),
               let codeRange = Range(match.range(at: 1), in: input),
               let fullRange = Range(match.range, in: input)
         else { return nil }
@@ -100,14 +117,11 @@ public enum TitleCleaner {
     struct EpisodeInfo { var season: Int; var episode: Int; var remainder: String }
 
     static func extractEpisode(from input: String) -> EpisodeInfo? {
-        let patterns = [
-            #"[\s\-–—_\[\(]*[Ss](\d{1,2})\s*[EeXx]\s*(\d{1,3})[\s\]\)]*"#,   // S01E04, s1 e4
-            #"[\s\-–—_\[\(]*(\d{1,2})\s*[xX]\s*(\d{1,3})\b[\s\]\)]*"#,        // 1x04
-            #"[\s\-–—_]*[Ss]eason\s*(\d{1,2})\s*[\-–—_]?\s*[Ee]pisode\s*(\d{1,3})"#,
-        ]
-        for pattern in patterns {
-            guard let regex = try? NSRegularExpression(pattern: pattern),
-                  let match = regex.firstMatch(in: input, range: NSRange(input.startIndex..., in: input)),
+        // S01E04 / s1 e4, then 1x04, then "Season 1 Episode 4".
+        for regex in episodePatterns {
+            guard let match = regex.firstMatch(
+                    in: input, range: NSRange(input.startIndex..., in: input)
+                  ),
                   let sRange = Range(match.range(at: 1), in: input),
                   let eRange = Range(match.range(at: 2), in: input),
                   let fullRange = Range(match.range, in: input),
@@ -127,9 +141,9 @@ public enum TitleCleaner {
     struct YearInfo { var year: Int; var remainder: String }
 
     static func extractYear(from input: String) -> YearInfo? {
-        let pattern = #"[\s\[\(]+((?:19|20)\d{2})[\s\]\)]*$"#
-        guard let regex = try? NSRegularExpression(pattern: pattern),
-              let match = regex.firstMatch(in: input, range: NSRange(input.startIndex..., in: input)),
+        guard let match = yearPattern.firstMatch(
+                in: input, range: NSRange(input.startIndex..., in: input)
+              ),
               let yearRange = Range(match.range(at: 1), in: input),
               let fullRange = Range(match.range, in: input),
               let year = Int(input[yearRange])

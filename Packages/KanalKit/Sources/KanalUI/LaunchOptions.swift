@@ -23,6 +23,11 @@ enum LaunchOptions {
         ProcessInfo.processInfo.arguments.contains("-kanal-settings")
     }
 
+    /// `-kanal-play-movie 0` starts the nth film, for verifying playback.
+    static var autoplayMovieIndex: Int? {
+        value(for: "-kanal-play-movie").flatMap(Int.init)
+    }
+
     private static func value(for flag: String) -> String? {
         let arguments = ProcessInfo.processInfo.arguments
         guard let index = arguments.firstIndex(of: flag),
@@ -34,5 +39,6 @@ enum LaunchOptions {
     static var startTab: String? { nil }
     static var liveMode: String? { nil }
     static var opensSettings: Bool { false }
+    static var autoplayMovieIndex: Int? { nil }
     #endif
 }

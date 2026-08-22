@@ -25,10 +25,15 @@ public final class AppModel {
     public private(set) var library: Library = .empty
     public private(set) var guide: XMLTVParser.Guide?
     public private(set) var isRefreshingGuide = false
+    /// A refresh running behind an already-visible catalogue.
+    public private(set) var isRefreshingLibrary = false
     /// What was wrong with the data this source sent, if anything.
     public private(set) var diagnostics = SourceDiagnostics()
     /// Whether an artwork provider is configured — drives required attribution.
     public private(set) var usesArtworkProvider = false
+    /// Whether the intro has been seen. Kept in its own file rather than in
+    /// `WatchState`, so adding it cannot fail to decode anyone's favourites.
+    public private(set) var hasCompletedIntro = false
     /// Episodes fetched on demand, keyed by the provider's series id.
     public private(set) var loadedEpisodes: [Int: [MediaItem]] = [:]
     public private(set) var episodeLoadFailures: [Int: String] = [:]
@@ -43,6 +48,7 @@ public final class AppModel {
     private var watchStateSaveTask: Task<Void, Never>?
 
     private static let sourcesFile = "sources.json"
+    private static let introFile = "intro-completed.json"
 
     public init(
         loader: LibraryLoader = LibraryLoader(),
@@ -69,6 +75,7 @@ public final class AppModel {
     public func start() async {
         await metadata.loadCaches()
         usesArtworkProvider = await metadata.hasArtworkProvider
+        hasCompletedIntro = await storage.load(Bool.self, from: Self.introFile) ?? false
         let stored = await storage.load([PlaylistSource].self, from: Self.sourcesFile) ?? []
         watchState = await storage.load(WatchState.self, from: WatchState.fileName) ?? WatchState()
         sources = stored
@@ -78,7 +85,20 @@ public final class AppModel {
             phase = .welcome
             return
         }
-        await refresh(source)
+
+        // Show the catalogue we already have before going anywhere near the
+        // network. A real provider is 135 MB and takes the better part of a
+        // minute to fetch and parse; making someone watch that on every launch
+        // is the difference between an app that feels instant and one that
+        // does not.
+        if let cached = await loader.loadCache(for: source.id, storage: storage) {
+            library = cached
+            phase = .ready
+            if let epgURL = source.epgURL { loadGuide(from: epgURL) }
+            await refresh(source, inBackground: true)
+        } else {
+            await refresh(source)
+        }
     }
 
     /// The whole of setup: one string in, a loaded library out.
@@ -107,7 +127,25 @@ public final class AppModel {
         await refresh(source)
     }
 
+    public func completeIntro() async {
+        hasCompletedIntro = true
+        await storage.save(true, to: Self.introFile)
+    }
+
+    /// Renames a playlist. The detected name is only ever a starting point —
+    /// "fomo.re" is where a list came from, not what a person calls it.
+    public func rename(_ source: PlaylistSource, to name: String) async {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, var updated = sources.first(where: { $0.id == source.id }) else {
+            return
+        }
+        updated.name = trimmed
+        replace(updated)
+        await persistSources()
+    }
+
     public func remove(_ source: PlaylistSource) async {
+        await storage.removeCache(LibraryCache.fileName(for: source.id))
         sources.removeAll { $0.id == source.id }
         if activeSourceID == source.id {
             activeSourceID = sources.first?.id
@@ -137,8 +175,14 @@ public final class AppModel {
 
     // MARK: Loading
 
-    private func refresh(_ source: PlaylistSource) async {
-        phase = .loading(String(localized: CoreStrings.loadingSource(source.name)))
+    private func refresh(_ source: PlaylistSource, inBackground: Bool = false) async {
+        if inBackground {
+            isRefreshingLibrary = true
+        } else {
+            phase = .loading(String(localized: CoreStrings.loadingSource(source.name)))
+        }
+        defer { isRefreshingLibrary = false }
+
         do {
             let result = try await loader.loadLibrary(for: source)
             self.library = result.library
@@ -151,6 +195,7 @@ public final class AppModel {
             }
             self.diagnostics = diagnostics
             phase = .ready
+            await loader.saveCache(result.library, for: source.id, storage: storage)
 
             if var updated = sources.first(where: { $0.id == source.id }) {
                 updated.lastRefreshedAt = .now
@@ -162,6 +207,9 @@ public final class AppModel {
                 loadGuide(from: epgURL)
             }
         } catch {
+            // A refresh behind a visible catalogue must not replace it with an
+            // error screen — what is on screen still works.
+            guard !inBackground else { return }
             phase = .failed(error.localizedDescription)
         }
     }

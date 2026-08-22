@@ -86,6 +86,27 @@ public actor LibraryLoader {
         }
     }
 
+    /// Reads a cached catalogue, off the main actor.
+    ///
+    /// Decoding four hundred thousand entries takes about half a second, which
+    /// is nothing next to a refresh but far too much to do while the first
+    /// frame is waiting.
+    public func loadCache(for sourceID: UUID, storage: KanalStorage) async -> Library? {
+        let name = LibraryCache.fileName(for: sourceID)
+        guard let data = await storage.loadCache(name),
+              let snapshot = LibraryCache.decode(data),
+              !snapshot.items.isEmpty
+        else { return nil }
+        return Library(items: snapshot.items)
+    }
+
+    public func saveCache(_ library: Library, for sourceID: UUID, storage: KanalStorage) async {
+        let snapshot = LibraryCache.Snapshot(
+            items: library.items, savedAt: .now, sourceID: sourceID
+        )
+        await storage.saveCache(LibraryCache.encode(snapshot), to: LibraryCache.fileName(for: sourceID))
+    }
+
     /// Every episode of one show, from a panel that stores them separately.
     public func loadEpisodes(for source: PlaylistSource, seriesID: Int) async throws -> [MediaItem] {
         guard let client = XtreamClient(source: source, session: session) else {

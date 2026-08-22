@@ -243,6 +243,13 @@ public enum CoreStrings {
         "genre.premium", "Provider category name"
     )
 
+    // MARK: Playback
+
+    public static let alternativeEngineFailed = resource(
+        "player.alternativeEngine.failed",
+        "Shown when the bundled decoder could not play a stream either"
+    )
+
     // MARK: Categories
 
     /// The bucket for entries whose provider gave no category.

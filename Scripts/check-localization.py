@@ -44,6 +44,13 @@ def declared_keys(strings_file: pathlib.Path) -> set[str]:
     source = strings_file.read_text()
     keys: set[str] = set()
 
+    # Map each interpolated parameter to its printf specifier by reading the
+    # declared Swift type. Guessing from the parameter's *name* was wrong the
+    # first time a String argument was called something other than "name".
+    types: dict[str, str] = {}
+    for match in re.finditer(r"\b_?\s*(\w+):\s*(String|Int)\b", source):
+        types[match.group(1)] = "%@" if match.group(2) == "String" else "%lld"
+
     # Two shapes: the `resource("key", "comment")` helper and full calls.
     for match in re.finditer(r'(?:resource|text)\(\s*"([^"]+)"', source):
         keys.add(match.group(1))
@@ -51,8 +58,7 @@ def declared_keys(strings_file: pathlib.Path) -> set[str]:
         raw = match.group(1)
         # `"count.channels \(count)"` extracts as `count.channels %lld`.
         def specifier(hit: re.Match[str]) -> str:
-            name = hit.group(1)
-            return "%@" if name.endswith(("name", "host", "title", "relative", "date")) else "%lld"
+            return types.get(hit.group(1), "%lld")
         keys.add(INTERPOLATION.sub(specifier, raw))
     return keys
 
@@ -67,8 +73,12 @@ def catalog_keys(catalog_file: pathlib.Path) -> tuple[set[str], dict[str, set[st
 
 
 def stray_literals() -> list[str]:
+    """Also covers the app targets — a literal there would ship untranslated
+    just as readily as one in the package, and used to escape this check."""
     problems = []
-    for path in sorted(SOURCES.rglob("*.swift")):
+    roots = [SOURCES, ROOT / "App"]
+    files = sorted(f for root in roots if root.exists() for f in root.rglob("*.swift"))
+    for path in files:
         if path.name == "Strings.swift":
             continue
         for number, line in enumerate(path.read_text().splitlines(), start=1):

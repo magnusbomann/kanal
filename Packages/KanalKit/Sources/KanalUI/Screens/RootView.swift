@@ -17,7 +17,15 @@ public struct RootView: View {
             .environment(model)
             .environment(navigator)
             .tint(KanalColor.accentSolid)
-            .task { await model.start() }
+            .task {
+                await model.start()
+                #if DEBUG
+                if let index = LaunchOptions.autoplayMovieIndex,
+                   model.library.movies.indices.contains(index) {
+                    navigator.play(model.library.movies[index])
+                }
+                #endif
+            }
             .fullScreenCoverCompat(item: Binding(
                 get: { navigator.playing },
                 set: { navigator.playing = $0 }
@@ -31,7 +39,13 @@ public struct RootView: View {
     private var content: some View {
         switch model.phase {
         case .welcome:
-            NavigationStack { WelcomeView() }
+            NavigationStack {
+                if model.hasCompletedIntro {
+                    WelcomeView()
+                } else {
+                    OnboardingView()
+                }
+            }
         case .loading(let message):
             LoadingView(message: message)
         case .failed(let message):

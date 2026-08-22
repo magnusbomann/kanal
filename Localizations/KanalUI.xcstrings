@@ -2307,6 +2307,499 @@
           }
         }
       }
+    },
+    "player.unsupported.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your provider sends this in a format Apple can't open"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leverandøren sender denne i et format Apple ikke kan åpne"
+          }
+        }
+      }
+    },
+    "player.unsupported.body %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This film is served as %@. Apple's player only opens MP4, MOV and streaming formats — live TV works because it is streamed. Ask your provider whether they can serve films as HLS or MP4."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne filmen leveres som %@. Apples spiller åpner bare MP4, MOV og strømmeformater — direkte-TV virker fordi det strømmes. Spør leverandøren om de kan levere filmer som HLS eller MP4."
+          }
+        }
+      }
+    },
+    "player.server.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This server can't be streamed from"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne serveren kan det ikke strømmes fra"
+          }
+        }
+      }
+    },
+    "player.server.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The file downloads, but the server won't serve it in pieces, so there is nothing to play or skip through."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fila lastes ned, men serveren vil ikke levere den i biter, så det er ingenting å spille av eller hoppe i."
+          }
+        }
+      }
+    },
+    "player.rejected.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your provider refused this"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leverandøren avviste dette"
+          }
+        }
+      }
+    },
+    "player.rejected.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The subscription may have expired, or you may already be watching on as many devices as it allows."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abonnementet kan ha utløpt, eller du ser kanskje allerede på så mange enheter som det tillater."
+          }
+        }
+      }
+    },
+    "player.offline.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't reach your provider"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fikk ikke kontakt med leverandøren"
+          }
+        }
+      }
+    },
+    "player.offline.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check the connection and try again."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sjekk forbindelsen og prøv igjen."
+          }
+        }
+      }
+    },
+    "action.rename": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gi nytt navn"
+          }
+        }
+      }
+    },
+    "action.save": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lagre"
+          }
+        }
+      }
+    },
+    "rename.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NAME THIS PLAYLIST"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GI SPILLELISTEN NAVN"
+          }
+        }
+      }
+    },
+    "rename.prompt": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlist name"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navn på spillelisten"
+          }
+        }
+      }
+    },
+    "rename.hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal names a playlist after the server it came from. Call it whatever makes sense to you."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal navngir en spilleliste etter serveren den kom fra. Kall den det som gir mening for deg."
+          }
+        }
+      }
+    },
+    "intro.1.top": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YOUR TV."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DIN TV."
+          }
+        }
+      }
+    },
+    "intro.1.bottom": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FINALLY PLEASANT."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ENDELIG BEHAGELIG."
+          }
+        }
+      }
+    },
+    "intro.1.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal is a player for the IPTV subscription you already pay for. It doesn't sell channels and doesn't provide any — it just makes the ones you have pleasant to watch."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal er en avspiller for IPTV-abonnementet du allerede betaler for. Den selger ingen kanaler og leverer ingen — den gjør bare de du har hyggelige å se på."
+          }
+        }
+      }
+    },
+    "intro.2.top": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ONE LINK"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ÉN LENKE"
+          }
+        }
+      }
+    },
+    "intro.2.bottom": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IS ALL IT TAKES."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ER ALT SOM SKAL TIL."
+          }
+        }
+      }
+    },
+    "intro.2.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your provider gave you a link when you signed up — usually by email, and often called an M3U link or an Xtream login. Find it, and Kanal handles the rest: channels, films, series and the TV guide, sorted on their own."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leverandøren din ga deg en lenke da du tegnet abonnement — som regel på e-post, ofte kalt M3U-lenke eller Xtream-innlogging. Finn den, så ordner Kanal resten: kanaler, filmer, serier og TV-guiden, sortert av seg selv."
+          }
+        }
+      }
+    },
+    "intro.continue": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fortsett"
+          }
+        }
+      }
+    },
+    "intro.skip": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I have my link"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jeg har lenken min"
+          }
+        }
+      }
+    },
+    "intro.step %lld %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step %lld of %lld"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steg %lld av %lld"
+          }
+        }
+      }
+    },
+    "licenses.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licences"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lisenser"
+          }
+        }
+      }
+    },
+    "licenses.intro": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal is built on open-source work by other people. These are the parts, what they do, and where to find them."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal er bygget på åpen kildekode laget av andre. Her er delene, hva de gjør, og hvor du finner dem."
+          }
+        }
+      }
+    },
+    "licenses.label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licence"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lisens"
+          }
+        }
+      }
+    },
+    "licenses.viewSource": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View source"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se kildekoden"
+          }
+        }
+      }
+    },
+    "licenses.relink": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VLCKit is licensed under the LGPL. You are entitled to obtain its source, modify it, and use your own build of it with this app. Write to us and we will provide what you need to do so."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VLCKit er lisensiert under LGPL. Du har rett til å hente kildekoden, endre den, og bruke din egen versjon av den sammen med denne appen. Ta kontakt, så gir vi deg det du trenger for å gjøre det."
+          }
+        }
+      }
+    },
+    "credit.vlc.purpose": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plays the film and series formats Apple's own player cannot open, such as MKV."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spiller av film- og serieformatene Apples egen spiller ikke kan åpne, som MKV."
+          }
+        }
+      }
+    },
+    "credit.wikidata.purpose": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lets you search for a film by the name you know it by, whatever language your provider used."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lar deg søke etter en film med navnet du kjenner den som, uansett hvilket språk leverandøren brukte."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

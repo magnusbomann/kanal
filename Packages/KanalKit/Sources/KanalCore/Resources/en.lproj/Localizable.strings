@@ -64,3 +64,4 @@
 "pairing.mismatch" = "That code didn't match. Show a fresh one and try again.";
 "pairing.notFound" = "Couldn't find that Apple TV. Check both devices are on the same Wi-Fi.";
 "pairing.unreadableCode" = "That code is not readable.";
+"player.alternativeEngine.failed" = "This stream wouldn't open. It may be offline, or your provider may have reached its connection limit.";

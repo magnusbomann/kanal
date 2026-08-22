@@ -13,6 +13,13 @@ public enum MediaClassifier {
     /// Extensions that only ever appear on a continuous stream.
     private static let liveExtensions: Set<String> = ["m3u8", "ts", "mpd"]
 
+    /// The same names, used as a trailing path segment instead of a suffix.
+    ///
+    /// Real panels write live streams as `/play/<token>/m3u8` — the format is
+    /// a path component, so `pathExtension` is empty and an extension check
+    /// alone reads every channel as something else entirely.
+    private static let liveSegments: Set<String> = ["m3u8", "ts", "hls", "mpd", "index"]
+
     private static let movieGroupHints = [
         "vod", "movie", "movies", "film", "filme", "filmer", "cinema", "kino", "peliculas",
     ]
@@ -36,13 +43,15 @@ public enum MediaClassifier {
         }
 
         let ext = streamURL.pathExtension.lowercased()
+        let lastSegment = path.split(separator: "/").last.map(String.init) ?? ""
 
         // A live-looking URL settles it before any group name gets a say.
         // Free directories use genre names like "Series" and "Movies" for live
         // channels, and trusting those would file MTV under television drama.
-        if !hasEpisodeMarker, liveExtensions.contains(ext) || path.contains("/live/") {
-            return .liveTV
-        }
+        let looksLive = liveExtensions.contains(ext)
+            || liveSegments.contains(lastSegment)
+            || path.contains("/live/")
+        if !hasEpisodeMarker, looksLive { return .liveTV }
 
         let group = (group ?? "").lowercased()
         let isSeriesGroup = seriesGroupHints.contains { group.contains($0) }
@@ -60,7 +69,23 @@ public enum MediaClassifier {
         // Episode markers alone are enough — no live channel is called S01E04.
         if hasEpisodeMarker { return .series }
 
+        // An opaque token at the end of the path is a stored file behind a
+        // one-off link. Live streams are addressed by something a human could
+        // have written — a channel number, a name, a format. Without this,
+        // a catalogue of a few hundred thousand films reads as live TV,
+        // because nothing else in the url says otherwise.
+        if isOpaqueToken(lastSegment) { return .movie }
+
         return .liveTV
+    }
+
+    /// Long, random-looking, and mixing letters with digits: a generated
+    /// identifier rather than anything a person chose.
+    static func isOpaqueToken(_ segment: String) -> Bool {
+        guard segment.count >= 16 else { return false }
+        let hasLetter = segment.contains(where: \.isLetter)
+        let hasDigit = segment.contains(where: \.isNumber)
+        return hasLetter && hasDigit
     }
 }
 
@@ -69,6 +94,14 @@ public enum MediaClassifier {
 /// `"NO| VIAPLAY SPORT ᴴᴰ"` and `"|NO| Viaplay Sport"` should land in the
 /// same bucket, so we strip markers, fold case, and title-case the result.
 public enum CategoryNormalizer {
+
+    /// Compiled once, for the same reason the title patterns are.
+    private static let bracketedMarker = try! NSRegularExpression(
+        pattern: #"[\[\(\|]\s*[A-Za-z]{2,3}\s*[\]\)\|]"#
+    )
+    private static let leadingMarker = try! NSRegularExpression(
+        pattern: #"^\s*[A-Za-z]{2,3}\s*[:\-–—\|]\s*"#
+    )
 
     private static let noiseTokens: Set<String> = [
         "vod", "live", "channels", "channel", "tv", "hd", "fhd", "sd", "uhd", "4k",
@@ -80,16 +113,12 @@ public enum CategoryNormalizer {
         }
 
         // Drop bracketed/piped country markers anywhere in the string.
-        value = value.replacingOccurrences(
-            of: #"[\[\(\|]\s*[A-Za-z]{2,3}\s*[\]\)\|]"#,
-            with: " ",
-            options: .regularExpression
+        value = bracketedMarker.stringByReplacingMatches(
+            in: value, range: NSRange(value.startIndex..., in: value), withTemplate: " "
         )
         // Leading "NO -" / "NO:" style markers.
-        value = value.replacingOccurrences(
-            of: #"^\s*[A-Za-z]{2,3}\s*[:\-–—\|]\s*"#,
-            with: "",
-            options: .regularExpression
+        value = leadingMarker.stringByReplacingMatches(
+            in: value, range: NSRange(value.startIndex..., in: value), withTemplate: ""
         )
         value = value.replacingOccurrences(of: "_", with: " ")
         value = TitleCleaner.normalizeWhitespace(value)

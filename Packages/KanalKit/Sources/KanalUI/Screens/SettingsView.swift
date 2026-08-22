@@ -9,6 +9,7 @@ import SwiftUI
 public struct SettingsView: View {
     @Environment(AppModel.self) private var model
     @State private var isAddingSource = false
+    @State private var renaming: PlaylistSource?
 
     public init() {}
 
@@ -31,6 +32,9 @@ public struct SettingsView: View {
         .sheet(isPresented: $isAddingSource) {
             NavigationStack { WelcomeView() }
         }
+        .sheet(item: $renaming) { source in
+            RenameSourceSheet(source: source)
+        }
     }
 
     private var playlistsSection: some View {
@@ -39,6 +43,19 @@ public struct SettingsView: View {
                 SourceRow(source: source, isActive: source.id == model.activeSource?.id)
                     .contentShape(.rect)
                     .onTapGesture { Task { await model.switchTo(source) } }
+                    #if !os(tvOS)
+                    .swipeActions(edge: .leading) {
+                        Button(String(UIStrings.rename)) { renaming = source }
+                            .tint(KanalColor.accentSolid)
+                    }
+                    .contextMenu {
+                        Button {
+                            renaming = source
+                        } label: {
+                            Label(String(UIStrings.rename), systemImage: "pencil")
+                        }
+                    }
+                    #endif
                     #if !os(tvOS)
                     .swipeActions {
                         Button(String(UIStrings.remove), role: .destructive) {
@@ -138,6 +155,11 @@ public struct SettingsView: View {
     /// requires nothing — crediting it is simply right.
     private var creditsSection: some View {
         Section(String(UIStrings.sectionCredits)) {
+            NavigationLink {
+                LicensesView()
+            } label: {
+                Label(String(UIStrings.licenses), systemImage: "doc.text")
+            }
             Text(UIStrings.creditWikidata)
                 .font(KanalFont.body(12))
                 .foregroundStyle(KanalColor.tertiaryText)
@@ -190,5 +212,60 @@ struct SourceRow: View {
             )))
         }
         return parts.joined(separator: " · ")
+    }
+}
+
+
+/// Renaming a playlist.
+///
+/// The name Kanal detects is the provider's hostname, which is where a list
+/// came from rather than what anyone calls it. One field, prefilled, done.
+struct RenameSourceSheet: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
+
+    let source: PlaylistSource
+    @State private var name: String = ""
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: KanalMetrics.lg) {
+            Text(UIStrings.renameTitle)
+                .kanalDisplay(30)
+                .foregroundStyle(KanalColor.primaryText)
+
+            TextField(String(UIStrings.renamePrompt), text: $name)
+                .textFieldStyle(.plain)
+                .font(KanalFont.body(17))
+                .foregroundStyle(KanalColor.primaryText)
+                .padding(.horizontal, KanalMetrics.md)
+                .frame(minHeight: 52)
+                #if !os(tvOS)
+                .kanalGlassPanel(cornerRadius: 16)
+                #endif
+
+            Text(UIStrings.renameHint)
+                .font(KanalFont.body(12))
+                .foregroundStyle(KanalColor.tertiaryText)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Button(String(UIStrings.save)) {
+                Task {
+                    await model.rename(source, to: name)
+                    dismiss()
+                }
+            }
+            .buttonStyle(KanalPrimaryButtonStyle(fullWidth: true))
+            .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
+
+            Spacer(minLength: 0)
+        }
+        .padding(KanalMetrics.lg)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(KanalColor.background)
+        .onAppear { name = source.name }
+        #if !os(tvOS)
+        .presentationDetents([.medium])
+        .presentationBackground(KanalColor.background)
+        #endif
     }
 }

@@ -1088,6 +1088,23 @@
           }
         }
       }
+    },
+    "player.alternativeEngine.failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This stream wouldn't open. It may be offline, or your provider may have reached its connection limit."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne strømmen ville ikke åpne. Den kan være nede, eller leverandøren din kan ha nådd grensen for antall tilkoblinger."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

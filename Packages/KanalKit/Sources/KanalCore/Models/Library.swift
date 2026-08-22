@@ -53,7 +53,22 @@ public struct Library: Sendable {
     public init(items: [MediaItem]) {
         self.items = items
 
-        let channels = items.filter { $0.kind == .liveTV }
+        // One pass instead of three. A real catalogue is four hundred thousand
+        // entries, and each `filter` is a full traversal and a fresh array.
+        var channels: [MediaItem] = []
+        var movies: [MediaItem] = []
+        var episodes: [MediaItem] = []
+        channels.reserveCapacity(items.count / 8)
+        movies.reserveCapacity(items.count / 4)
+        episodes.reserveCapacity(items.count / 2)
+        for item in items {
+            switch item.kind {
+            case .liveTV: channels.append(item)
+            case .movie: movies.append(item)
+            case .series: episodes.append(item)
+            }
+        }
+
         self.channels = channels.sorted { lhs, rhs in
             switch (lhs.channelNumber, rhs.channelNumber) {
             case let (left?, right?): left < right
@@ -63,10 +78,8 @@ public struct Library: Sendable {
             }
         }
 
-        self.movies = items.filter { $0.kind == .movie }
-            .sorted { $0.title.localizedStandardCompare($1.title) == .orderedAscending }
-
-        self.series = Library.groupSeries(items.filter { $0.kind == .series })
+        self.movies = Library.sortedByTitle(movies)
+        self.series = Library.groupSeries(episodes)
 
         self.searchIndex = SearchIndex(items: items)
         self.channelCategories = Library.bucket(self.channels, key: \.category)
@@ -87,35 +100,52 @@ public struct Library: Sendable {
 
     // MARK: - Building
 
+    /// Sorts on precomputed keys rather than comparing locale-aware on every
+    /// comparison, which is the expensive half of an ordinary sort.
+    static func sortedByTitle(_ items: [MediaItem]) -> [MediaItem] {
+        items
+            .map { (key: $0.title.lowercased(), item: $0) }
+            .sorted { $0.key < $1.key }
+            .map(\.item)
+    }
+
     static func groupSeries(_ episodes: [MediaItem]) -> [SeriesGroup] {
-        var groups: [String: SeriesGroup] = [:]
+        // Episodes are accumulated into a dictionary of arrays first.
+        //
+        // Reading a whole `SeriesGroup` out, appending to its episode array and
+        // writing it back copies that array every time — quadratic over a show
+        // with hundreds of episodes, and this runs over hundreds of thousands
+        // of them. Subscripting with a default appends in place instead.
+        var buckets: [String: [MediaItem]] = [:]
+        var names: [String: String] = [:]
+        buckets.reserveCapacity(episodes.count / 16)
+
         for episode in episodes {
             let name = episode.seriesName ?? episode.title
             let key = name.lowercased()
-            if var existing = groups[key] {
-                existing.episodes.append(episode)
-                existing.artworkURL = existing.artworkURL ?? episode.logoURL
-                existing.category = existing.category ?? episode.category
-                existing.year = existing.year ?? episode.year
-                groups[key] = existing
-            } else {
-                groups[key] = SeriesGroup(
-                    id: key,
-                    name: name,
-                    artworkURL: episode.logoURL,
-                    category: episode.category,
-                    year: episode.year,
-                    episodes: [episode]
-                )
-            }
+            buckets[key, default: []].append(episode)
+            if names[key] == nil { names[key] = name }
         }
-        return groups.values
-            .map { group in
-                var group = group
-                group.episodes.sort { ($0.season ?? 0, $0.episode ?? 0) < ($1.season ?? 0, $1.episode ?? 0) }
-                return group
-            }
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+
+        var groups: [SeriesGroup] = []
+        groups.reserveCapacity(buckets.count)
+        for (key, var found) in buckets {
+            found.sort { ($0.season ?? 0, $0.episode ?? 0) < ($1.season ?? 0, $1.episode ?? 0) }
+            groups.append(
+                SeriesGroup(
+                    id: key,
+                    name: names[key] ?? key,
+                    artworkURL: found.first { $0.logoURL != nil }?.logoURL,
+                    category: found.first { $0.category != nil }?.category,
+                    year: found.first { $0.year != nil }?.year,
+                    episodes: found
+                )
+            )
+        }
+        return groups
+            .map { (key: $0.name.lowercased(), group: $0) }
+            .sorted { $0.key < $1.key }
+            .map(\.group)
     }
 
     static func bucket<Element>(

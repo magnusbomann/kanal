@@ -28,6 +28,23 @@ public enum UIStrings {
 
     public static let appName = text("app.name", "The app's name. Usually left untranslated.")
 
+    // MARK: - Intro
+
+    public static let introOneHeadlineTop = text("intro.1.top", "First intro headline, line one, in capitals")
+    public static let introOneHeadlineBottom = text("intro.1.bottom", "First intro headline, line two, shown in grey")
+    public static let introOneBody = text("intro.1.body", "Explains what Kanal is and is not")
+    public static let introTwoHeadlineTop = text("intro.2.top", "Second intro headline, line one, in capitals")
+    public static let introTwoHeadlineBottom = text("intro.2.bottom", "Second intro headline, line two, shown in grey")
+    public static let introTwoBody = text("intro.2.body", "Explains where to find the link from your provider")
+    public static let introContinue = text("intro.continue", "Advances to the next intro page")
+    public static let introSkip = text("intro.skip", "Skips the intro and goes straight to the setup field")
+    public static func introStep(_ step: Int, _ total: Int) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "intro.step \(step) \(total)", bundle: bundle,
+            comment: "Accessibility description of the page indicator"
+        )
+    }
+
     // MARK: - Welcome and setup
 
     public static let welcomeHeadlineTop = text(
@@ -221,6 +238,34 @@ public enum UIStrings {
     public static let buffering = text("player.buffering", "Shown while a stream is loading")
     public static let streamFailedTitle = text("player.failed.title", "Title when a stream will not play")
 
+    public static let playbackUnsupportedTitle = text(
+        "player.unsupported.title", "Title when the provider's file format cannot be opened"
+    )
+    public static func playbackUnsupportedBody(_ container: String) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "player.unsupported.body \(container)", bundle: bundle,
+            comment: "Explains that the provider sends this film in a container Apple cannot open. The placeholder is a file format name such as MKV."
+        )
+    }
+    public static let playbackServerTitle = text(
+        "player.server.title", "Title when the provider's server cannot be streamed from"
+    )
+    public static let playbackServerBody = text(
+        "player.server.body", "Explains that the server does not support seeking"
+    )
+    public static let playbackRejectedTitle = text(
+        "player.rejected.title", "Title when the provider refused the request"
+    )
+    public static let playbackRejectedBody = text(
+        "player.rejected.body", "Explains the subscription may have expired or hit its connection limit"
+    )
+    public static let playbackOfflineTitle = text(
+        "player.offline.title", "Title when there is no network"
+    )
+    public static let playbackOfflineBody = text(
+        "player.offline.body", "Explains the device could not reach the provider"
+    )
+
     // MARK: - Loading and failure
 
     public static let loadingDetail = text("loading.detail", "Sub-line describing what happens during loading")
@@ -249,6 +294,33 @@ public enum UIStrings {
     public static func sourceUpdated(_ relative: String) -> LocalizedStringResource {
         LocalizedStringResource("source.updated \(relative)", bundle: bundle, comment: "How long ago a playlist was refreshed")
     }
+
+    public static let rename = text("action.rename", "Renames a playlist")
+    public static let save = text("action.save", "Confirms an edit")
+    public static let renameTitle = text("rename.title", "Heading of the rename sheet, in capitals")
+    public static let renamePrompt = text("rename.prompt", "Placeholder for the playlist name field")
+    public static let renameHint = text(
+        "rename.hint", "Explains that the detected name is only the provider's hostname"
+    )
+
+    // MARK: - Licenses
+
+    public static let licenses = text("licenses.title", "Screen listing the open-source components Kanal is built on")
+    public static let licensesIntro = text(
+        "licenses.intro", "Explains that Kanal is built on open-source work and credits it"
+    )
+    public static let licenseLabel = text("licenses.label", "Row label for a component's licence name")
+    public static let viewSource = text("licenses.viewSource", "Opens the component's source code in a browser")
+    public static let licensesRelink = text(
+        "licenses.relink",
+        "The LGPL notice: states the viewer's right to obtain and substitute their own build of the library"
+    )
+    public static let creditVLCPurpose = text(
+        "credit.vlc.purpose", "What VLC does inside Kanal"
+    )
+    public static let creditWikidataPurpose = text(
+        "credit.wikidata.purpose", "What Wikidata does inside Kanal"
+    )
 
     // MARK: - Credits
 

@@ -11,6 +11,14 @@ options:
 packages:
   KanalKit:
     path: Packages/KanalKit
+  # AVFoundation cannot open Matroska, and 99.5% of a real provider's film
+  # catalogue is MKV. VLCKit decodes it — this is the difference between a
+  # player that works on live TV only and one that works.
+  VLCKit:
+    url: https://code.videolan.org/videolan/VLCKit.git
+    # Pinned by commit: VLCKit's tags ("4.0.0-a23") are not semver, so SPM
+    # cannot resolve them by version.
+    revision: 5e6229f924f03d93e976687199bc2c81795e7478
 
 configFiles:
   Debug: Config/Secrets.xcconfig
@@ -40,6 +48,8 @@ targets:
         product: KanalCore
       - package: KanalKit
         product: KanalUI
+      - package: VLCKit
+        product: VLCKit
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.bomann.kanal
@@ -64,6 +74,8 @@ targets:
         product: KanalCore
       - package: KanalKit
         product: KanalUI
+      - package: VLCKit
+        product: VLCKit
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.bomann.kanal
