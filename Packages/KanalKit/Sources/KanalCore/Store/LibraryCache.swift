@@ -233,45 +233,46 @@ private struct Reader {
 
     init(_ data: Data) { bytes = [UInt8](data) }
 
-    private mutating func take(_ count: Int) -> ArraySlice<UInt8>? {
-        guard count >= 0, offset + count <= bytes.count else { return nil }
-        defer { offset += count }
-        return bytes[offset..<(offset + count)]
-    }
-
     mutating func readUInt8() -> UInt8? {
-        take(1)?.first
+        guard offset < bytes.count else { return nil }
+        defer { offset += 1 }
+        return bytes[offset]
     }
 
+    // Assembled from bytes rather than rebound through a pointer: every
+    // `Array(slice)` was a fresh allocation, and these run tens of millions of
+    // times over a full catalogue.
     mutating func readUInt16() -> UInt16? {
-        guard let slice = take(2) else { return nil }
-        return slice.withUnsafeBufferPointer {
-            UInt16(littleEndian: $0.baseAddress!.withMemoryRebound(to: UInt16.self, capacity: 1) { $0.pointee })
-        }
+        guard offset + 2 <= bytes.count else { return nil }
+        defer { offset += 2 }
+        return UInt16(bytes[offset]) | (UInt16(bytes[offset + 1]) << 8)
     }
 
     mutating func readUInt32() -> UInt32? {
-        guard let slice = take(4) else { return nil }
-        return Array(slice).withUnsafeBufferPointer {
-            $0.baseAddress!.withMemoryRebound(to: UInt32.self, capacity: 1) {
-                UInt32(littleEndian: $0.pointee)
-            }
-        }
+        guard offset + 4 <= bytes.count else { return nil }
+        defer { offset += 4 }
+        return UInt32(bytes[offset])
+            | (UInt32(bytes[offset + 1]) << 8)
+            | (UInt32(bytes[offset + 2]) << 16)
+            | (UInt32(bytes[offset + 3]) << 24)
     }
 
     mutating func readDouble() -> Double? {
-        guard let slice = take(8) else { return nil }
-        let pattern = Array(slice).withUnsafeBufferPointer {
-            $0.baseAddress!.withMemoryRebound(to: UInt64.self, capacity: 1) {
-                UInt64(littleEndian: $0.pointee)
-            }
+        guard offset + 8 <= bytes.count else { return nil }
+        var pattern: UInt64 = 0
+        for index in 0..<8 {
+            pattern |= UInt64(bytes[offset + index]) << (8 * index)
         }
+        offset += 8
         return Double(bitPattern: pattern)
     }
 
     mutating func readString() -> String? {
-        guard let length = readUInt32(), let slice = take(Int(length)) else { return nil }
-        return String(decoding: slice, as: UTF8.self)
+        guard let length = readUInt32() else { return nil }
+        let count = Int(length)
+        guard offset + count <= bytes.count else { return nil }
+        defer { offset += count }
+        return String(decoding: bytes[offset..<(offset + count)], as: UTF8.self)
     }
 
     mutating func readOptionalString() -> String? {

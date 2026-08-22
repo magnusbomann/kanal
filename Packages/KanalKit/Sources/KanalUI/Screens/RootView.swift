@@ -38,6 +38,12 @@ public struct RootView: View {
     @ViewBuilder
     private var content: some View {
         switch model.phase {
+        case .starting:
+            // Deliberately bare. A spinner here would flash for a fraction of
+            // a second on every launch; a plain background simply reads as the
+            // launch screen still being up.
+            KanalColor.background.ignoresSafeArea()
+
         case .welcome:
             NavigationStack {
                 if model.hasCompletedIntro {

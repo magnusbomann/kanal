@@ -11,6 +11,11 @@ import Observation
 public final class AppModel {
 
     public enum Phase: Equatable {
+        /// Before anything has been read from disk. Distinct from `welcome`,
+        /// which is a real state meaning "this person has no playlist" — a
+        /// returning user must never be shown the setup screen in the moment
+        /// before their own library appears.
+        case starting
         case welcome
         case loading(String)
         case ready
@@ -19,7 +24,7 @@ public final class AppModel {
 
     // MARK: State
 
-    public private(set) var phase: Phase = .welcome
+    public private(set) var phase: Phase = .starting
     public private(set) var sources: [PlaylistSource] = []
     public private(set) var activeSourceID: UUID?
     public private(set) var library: Library = .empty
@@ -46,9 +51,17 @@ public final class AppModel {
     public let discovery: DiscoveryService
     /// Recommendation rows, already filtered to what this library carries.
     public private(set) var discoveryShelves: [DiscoveryShelf] = []
+    /// Matched once whenever the library or the rows change.
+    ///
+    /// Matching runs a search per recommended title across a catalogue of
+    /// hundreds of thousands of entries. As a computed property it ran on
+    /// every SwiftUI body evaluation, which is every scroll frame.
+    public private(set) var visibleDiscoveryShelves: [(shelf: DiscoveryShelf, items: [MediaItem])] = []
+    public private(set) var discoveryRanking: [String: Int] = [:]
     private let loader: LibraryLoader
     private let storage: KanalStorage
     private var watchStateSaveTask: Task<Void, Never>?
+    private var matchingTask: Task<Void, Never>?
 
     private static let sourcesFile = "sources.json"
     private static let introFile = "intro-completed.json"
@@ -98,7 +111,11 @@ public final class AppModel {
         // does not.
         if let cached = await loader.loadCache(for: source.id, storage: storage) {
             library = cached
+            // Draw first. Matching recommendations builds the search index,
+            // which on a real catalogue is seconds of work nobody should wait
+            // through to see their own channels.
             phase = .ready
+            scheduleDiscoveryMatching()
             if let epgURL = source.epgURL { loadGuide(from: epgURL) }
             refreshDiscovery()
             await refresh(source, inBackground: true)
@@ -192,6 +209,7 @@ public final class AppModel {
         do {
             let result = try await loader.loadLibrary(for: source)
             self.library = result.library
+            scheduleDiscoveryMatching()
             let epgURL = result.epgURL
 
             var diagnostics = SourceDiagnostics()
@@ -221,12 +239,49 @@ public final class AppModel {
         }
     }
 
+    /// Runs the matching after the current screen has had a chance to draw.
+    private func scheduleDiscoveryMatching() {
+        matchingTask?.cancel()
+        matchingTask = Task { @MainActor in
+            // One turn of the run loop is enough for the first frame.
+            await Task.yield()
+            guard !Task.isCancelled else { return }
+            rebuildDiscoveryMatches()
+        }
+    }
+
+    /// Matches the recommendations against the library, once.
+    ///
+    /// Rows with fewer than four matches are dropped, so a sparse catalogue
+    /// looks deliberate rather than broken.
+    private func rebuildDiscoveryMatches() {
+        var visible: [(shelf: DiscoveryShelf, items: [MediaItem])] = []
+        var ranking: [String: Int] = [:]
+        var position = 0
+
+        for shelf in discoveryShelves {
+            let items = library.items(matching: shelf.titles, limit: 40)
+            for item in items where ranking[item.id] == nil {
+                ranking[item.id] = position
+                position += 1
+            }
+            guard items.count >= 4 else { continue }
+            visible.append((shelf, Array(items.prefix(24))))
+        }
+
+        visibleDiscoveryShelves = visible
+        discoveryRanking = ranking
+    }
+
     /// Recommendations are a nicety on top of a working library, so nothing
     /// ever waits on them and a failure is silent.
     private func refreshDiscovery() {
         Task { [discovery] in
             let shelves = await discovery.refreshIfStale()
-            await MainActor.run { self.discoveryShelves = shelves }
+            await MainActor.run {
+                self.discoveryShelves = shelves
+                self.scheduleDiscoveryMatching()
+            }
         }
     }
 
@@ -380,37 +435,6 @@ public extension AppModel {
             }
         }
         return SearchOutcome(items: merged, matchedVia: matchedVia)
-    }
-}
-
-// MARK: - Recommendations
-
-public extension AppModel {
-
-    /// Entry id to its place in the recommendations, so a browse screen can
-    /// open on what the world rates rather than on whatever the panel listed
-    /// first.
-    var discoveryRanking: [String: Int] {
-        var ranking: [String: Int] = [:]
-        var position = 0
-        for shelf in discoveryShelves {
-            for item in library.items(matching: shelf.titles, limit: 40)
-            where ranking[item.id] == nil {
-                ranking[item.id] = position
-                position += 1
-            }
-        }
-        return ranking
-    }
-
-    /// Rows worth drawing: those where the library carries enough of what was
-    /// recommended to look deliberate rather than sparse.
-    var visibleDiscoveryShelves: [(shelf: DiscoveryShelf, items: [MediaItem])] {
-        discoveryShelves.compactMap { shelf in
-            let items = library.items(matching: shelf.titles)
-            guard items.count >= 4 else { return nil }
-            return (shelf, items)
-        }
     }
 }
 

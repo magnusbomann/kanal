@@ -44,9 +44,14 @@ public struct Library: Sendable {
     public var movieCategories: [(name: String, items: [MediaItem])]
     public var seriesCategories: [(name: String, items: [SeriesGroup])]
 
-    /// Built here, on whatever background actor loaded the library, so the
-    /// search field never pays for normalisation while someone is typing.
-    public let searchIndex: SearchIndex
+    /// Built on first use rather than at load.
+    ///
+    /// Indexing a real catalogue takes seconds, and the first screen does not
+    /// search — making launch wait for it is paying up front for something
+    /// that may never be needed.
+    private let indexBox: SearchIndexBox
+
+    public var searchIndex: SearchIndex { indexBox.index }
 
     public static let empty = Library(items: [])
 
@@ -81,7 +86,7 @@ public struct Library: Sendable {
         self.movies = Library.sortedByTitle(movies)
         self.series = Library.groupSeries(episodes)
 
-        self.searchIndex = SearchIndex(items: items)
+        self.indexBox = SearchIndexBox(items: items)
         self.channelCategories = Library.bucket(self.channels, key: \.category)
         self.movieCategories = Library.bucket(self.movies, key: \.category)
         self.seriesCategories = Library.bucket(self.series, key: \.category)
@@ -166,5 +171,29 @@ public struct Library: Sendable {
                 if lhs.items.count != rhs.items.count { return lhs.items.count > rhs.items.count }
                 return lhs.name.localizedStandardCompare(rhs.name) == .orderedAscending
             }
+    }
+}
+
+
+/// Holds the search index so a `Library` value can build it lazily.
+///
+/// A struct cannot mutate itself on first access, and the index is expensive
+/// enough that building it eagerly is what made launch slow.
+final class SearchIndexBox: @unchecked Sendable {
+    private let items: [MediaItem]
+    private let lock = NSLock()
+    private var built: SearchIndex?
+
+    init(items: [MediaItem]) {
+        self.items = items
+    }
+
+    var index: SearchIndex {
+        lock.lock()
+        defer { lock.unlock() }
+        if let built { return built }
+        let index = SearchIndex(items: items)
+        built = index
+        return index
     }
 }
