@@ -1,0 +1,85 @@
+name: Kanal
+options:
+  bundleIdPrefix: com.bomann
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "26.0"
+    tvOS: "26.0"
+    macOS: "26.0"
+  groupSortPosition: top
+
+packages:
+  KanalKit:
+    path: Packages/KanalKit
+
+configFiles:
+  Debug: Config/Secrets.xcconfig
+  Release: Config/Secrets.xcconfig
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+
+targets:
+  Kanal:
+    type: application
+    platform: iOS
+    sources:
+      - path: App/Shared
+      - path: App/iOS
+      - path: App/iOS/Assets.xcassets
+    dependencies:
+      - package: KanalKit
+        product: KanalCore
+      - package: KanalKit
+        product: KanalUI
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bomann.kanal
+        PRODUCT_NAME: Kanal
+        INFOPLIST_FILE: App/iOS/Info.plist
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ENABLE_PREVIEWS: YES
+
+  KanalTV:
+    type: application
+    platform: tvOS
+    sources:
+      - path: App/Shared
+      - path: App/tvOS
+      - path: App/tvOS/Assets.xcassets
+    dependencies:
+      - package: KanalKit
+        product: KanalCore
+      - package: KanalKit
+        product: KanalUI
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bomann.kanal
+        PRODUCT_NAME: Kanal
+        INFOPLIST_FILE: App/tvOS/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: "App Icon & Top Shelf Image"
+        ENABLE_PREVIEWS: YES
+
+schemes:
+  Kanal:
+    build:
+      targets:
+        Kanal: all
+    run:
+      config: Debug
+  KanalTV:
+    build:
+      targets:
+        KanalTV: all
+    run:
+      config: Debug

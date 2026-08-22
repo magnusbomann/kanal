@@ -1,0 +1,343 @@
+import Foundation
+import Observation
+
+/// The app's single source of truth.
+///
+/// Every screen reads from here; nothing else owns state. Loading happens on a
+/// background actor and lands back here in one assignment, which keeps the
+/// scroll views from ever seeing a half-built library.
+@MainActor
+@Observable
+public final class AppModel {
+
+    public enum Phase: Equatable {
+        case welcome
+        case loading(String)
+        case ready
+        case failed(String)
+    }
+
+    // MARK: State
+
+    public private(set) var phase: Phase = .welcome
+    public private(set) var sources: [PlaylistSource] = []
+    public private(set) var activeSourceID: UUID?
+    public private(set) var library: Library = .empty
+    public private(set) var guide: XMLTVParser.Guide?
+    public private(set) var isRefreshingGuide = false
+    /// Episodes fetched on demand, keyed by the provider's series id.
+    public private(set) var loadedEpisodes: [Int: [MediaItem]] = [:]
+    public private(set) var episodeLoadFailures: [Int: String] = [:]
+    private var episodeLoadsInFlight: Set<Int> = []
+    public var watchState = WatchState() {
+        didSet { scheduleWatchStateSave() }
+    }
+
+    public let metadata: MetadataService
+    private let loader: LibraryLoader
+    private let storage: KanalStorage
+    private var watchStateSaveTask: Task<Void, Never>?
+
+    private static let sourcesFile = "sources.json"
+
+    public init(
+        loader: LibraryLoader = LibraryLoader(),
+        storage: KanalStorage = .shared,
+        metadata: MetadataService? = nil
+    ) {
+        self.loader = loader
+        self.storage = storage
+        // Wikidata is always available and needs no key. A TMDB key, if the
+        // app was built with one, only adds artwork on top.
+        self.metadata = metadata ?? MetadataService(
+            tmdbAPIKey: Bundle.main.object(forInfoDictionaryKey: "TMDBAPIKey") as? String,
+            storage: storage
+        )
+    }
+
+    public var activeSource: PlaylistSource? {
+        sources.first { $0.id == activeSourceID } ?? sources.first
+    }
+
+    // MARK: Lifecycle
+
+    /// Restores persisted state and refreshes the active source.
+    public func start() async {
+        await metadata.loadCaches()
+        let stored = await storage.load([PlaylistSource].self, from: Self.sourcesFile) ?? []
+        watchState = await storage.load(WatchState.self, from: WatchState.fileName) ?? WatchState()
+        sources = stored
+        activeSourceID = stored.first?.id
+
+        guard let source = activeSource else {
+            phase = .welcome
+            return
+        }
+        await refresh(source)
+    }
+
+    /// The whole of setup: one string in, a loaded library out.
+    @discardableResult
+    public func addSource(from input: String) async -> SourceDetector.Detection {
+        let detection = SourceDetector.detect(input)
+        switch detection {
+        case .complete(let source):
+            await add(source)
+        case .pastedText(let text):
+            await addPastedPlaylist(text)
+        case .needsCredentials, .unrecognized:
+            break
+        }
+        return detection
+    }
+
+    public func addXtreamSource(portal: URL, username: String, password: String) async {
+        await add(SourceDetector.xtreamSource(portal: portal, username: username, password: password))
+    }
+
+    public func add(_ source: PlaylistSource) async {
+        sources.append(source)
+        activeSourceID = source.id
+        await persistSources()
+        await refresh(source)
+    }
+
+    public func remove(_ source: PlaylistSource) async {
+        sources.removeAll { $0.id == source.id }
+        if activeSourceID == source.id {
+            activeSourceID = sources.first?.id
+            library = .empty
+            guide = nil
+        }
+        await persistSources()
+        if let next = activeSource {
+            await refresh(next)
+        } else {
+            phase = .welcome
+        }
+    }
+
+    public func switchTo(_ source: PlaylistSource) async {
+        guard source.id != activeSourceID else { return }
+        activeSourceID = source.id
+        library = .empty
+        guide = nil
+        await refresh(source)
+    }
+
+    public func refreshActiveSource() async {
+        guard let source = activeSource else { return }
+        await refresh(source)
+    }
+
+    // MARK: Loading
+
+    private func refresh(_ source: PlaylistSource) async {
+        phase = .loading(String(localized: CoreStrings.loadingSource(source.name)))
+        do {
+            let (library, epgURL) = try await loader.loadLibrary(for: source)
+            self.library = library
+            phase = .ready
+
+            if var updated = sources.first(where: { $0.id == source.id }) {
+                updated.lastRefreshedAt = .now
+                updated.epgURL = epgURL
+                replace(updated)
+                await persistSources()
+            }
+            if let epgURL {
+                loadGuide(from: epgURL)
+            }
+        } catch {
+            phase = .failed(error.localizedDescription)
+        }
+    }
+
+    /// Fire-and-forget: the guide enriches the UI but nothing waits on it.
+    private func loadGuide(from url: URL) {
+        isRefreshingGuide = true
+        Task { [loader] in
+            let result = try? await loader.loadGuide(from: url)
+            await MainActor.run {
+                if let result { self.guide = result }
+                self.isRefreshingGuide = false
+            }
+        }
+    }
+
+    private func addPastedPlaylist(_ text: String) async {
+        let playlist = M3UParser().parse(text)
+        guard !playlist.items.isEmpty else {
+            phase = .failed(String(localized: CoreStrings.emptyPlaylist))
+            return
+        }
+        let source = PlaylistSource(kind: .localFile, name: "Pasted playlist", epgURL: playlist.epgURL)
+        sources.append(source)
+        activeSourceID = source.id
+        library = Library(items: playlist.items)
+        phase = .ready
+        await persistSources()
+        if let epgURL = playlist.epgURL { loadGuide(from: epgURL) }
+    }
+
+    private func replace(_ source: PlaylistSource) {
+        guard let index = sources.firstIndex(where: { $0.id == source.id }) else { return }
+        sources[index] = source
+    }
+
+    private func persistSources() async {
+        await storage.save(sources, to: Self.sourcesFile)
+    }
+
+    /// Progress updates arrive every few seconds during playback; coalesce them.
+    private func scheduleWatchStateSave() {
+        watchStateSaveTask?.cancel()
+        let snapshot = watchState
+        watchStateSaveTask = Task { [storage] in
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
+            await storage.save(snapshot, to: WatchState.fileName)
+        }
+    }
+}
+
+// MARK: - Episodes
+
+public extension AppModel {
+
+    /// Whether a show's episodes are being fetched right now.
+    func isLoadingEpisodes(_ group: SeriesGroup) -> Bool {
+        guard let id = group.providerSeriesID else { return false }
+        return episodeLoadsInFlight.contains(id)
+    }
+
+    /// The episodes to show for a group: the ones the playlist already had, or
+    /// the ones we fetched from the panel.
+    func episodes(for group: SeriesGroup) -> [MediaItem] {
+        guard let id = group.providerSeriesID, let fetched = loadedEpisodes[id], !fetched.isEmpty else {
+            return group.episodes
+        }
+        return fetched
+    }
+
+    func episodeLoadFailure(for group: SeriesGroup) -> String? {
+        group.providerSeriesID.flatMap { episodeLoadFailures[$0] }
+    }
+
+    /// Fetches a show's episodes, once. Panels store tens of thousands of
+    /// episodes, so they are never part of the initial library load.
+    func loadEpisodesIfNeeded(for group: SeriesGroup) async {
+        guard group.needsEpisodeLoad,
+              let seriesID = group.providerSeriesID,
+              let source = activeSource,
+              loadedEpisodes[seriesID] == nil,
+              !episodeLoadsInFlight.contains(seriesID)
+        else { return }
+
+        episodeLoadsInFlight.insert(seriesID)
+        episodeLoadFailures[seriesID] = nil
+        defer { episodeLoadsInFlight.remove(seriesID) }
+
+        do {
+            let episodes = try await loader.loadEpisodes(for: source, seriesID: seriesID)
+            loadedEpisodes[seriesID] = episodes
+        } catch {
+            episodeLoadFailures[seriesID] = error.localizedDescription
+        }
+    }
+}
+
+// MARK: - Search
+
+/// What a search turned up, and how.
+public struct SearchOutcome: Sendable {
+    public var items: [MediaItem]
+    /// The title the query was translated through, when translation is what
+    /// produced the results. Shown to the person so the jump is not magic.
+    public var matchedVia: String?
+
+    public init(items: [MediaItem], matchedVia: String? = nil) {
+        self.items = items
+        self.matchedVia = matchedVia
+    }
+}
+
+public extension AppModel {
+
+    /// Searches the library, then — only if that came up short — asks what the
+    /// query means and searches again under every other name the title has.
+    ///
+    /// The order matters: a local hit is instant and offline, so the network is
+    /// never on the path for the common case.
+    func search(_ query: String) async -> SearchOutcome {
+        let local = library.search(query)
+        // Three solid local hits is enough; no reason to go to the network.
+        if local.count >= 3 { return SearchOutcome(items: local) }
+
+        let (spellings, _) = await metadata.alternativeSpellings(for: query)
+        guard !spellings.isEmpty else { return SearchOutcome(items: local) }
+
+        var merged = local
+        var seen = Set(local.map(\.id))
+        var matchedVia: String?
+        for spelling in spellings {
+            let hits = library.search(spelling, limit: 50)
+            for item in hits where seen.insert(item.id).inserted {
+                merged.append(item)
+                matchedVia = matchedVia ?? spelling
+            }
+        }
+        return SearchOutcome(items: merged, matchedVia: matchedVia)
+    }
+}
+
+// MARK: - Derived shelves
+
+public extension AppModel {
+
+    /// The "Continue watching" shelf: recent, unfinished, still in the library.
+    var continueWatching: [MediaItem] {
+        watchState.recentIDs.compactMap { id -> MediaItem? in
+            guard let progress = watchState.progress[id], progress.isWorthResuming else { return nil }
+            return library.item(id: id)
+        }
+    }
+
+    var favoriteChannels: [MediaItem] {
+        library.channels.filter { watchState.isFavorite($0.id) }
+    }
+
+    var favoriteSeries: [SeriesGroup] {
+        library.series.filter { watchState.isFavorite($0.id) }
+    }
+
+    var favoriteMovies: [MediaItem] {
+        library.movies.filter { watchState.isFavorite($0.id) }
+    }
+
+    func progress(for item: MediaItem) -> WatchProgress? {
+        watchState.progress[item.id]
+    }
+
+    /// What is on this channel right now, when we have a guide for it.
+    func nowPlaying(on channel: MediaItem) -> Programme? {
+        guard let channelID = channel.channelID, let guide else { return nil }
+        return guide.schedules[channelID]?.programme()
+    }
+
+    func upcoming(on channel: MediaItem, limit: Int = 3) -> [Programme] {
+        guard let channelID = channel.channelID, let guide else { return [] }
+        return guide.schedules[channelID]?.upcoming(limit: limit) ?? []
+    }
+
+    func toggleFavorite(_ id: String) {
+        watchState.toggleFavorite(id)
+    }
+
+    func record(itemID: String, position: TimeInterval, duration: TimeInterval) {
+        guard duration > 0 else { return }
+        watchState.record(
+            WatchProgress(itemID: itemID, position: position, duration: duration)
+        )
+    }
+}
