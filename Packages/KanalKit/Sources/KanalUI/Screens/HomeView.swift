@@ -66,6 +66,33 @@ public struct HomeView: View {
                     }
                 }
 
+                // Recommendations first: a provider's catalogue arrives in
+                // whatever order the panel felt like, and browsing that lands
+                // you in a random action film.
+                ForEach(model.visibleDiscoveryShelves, id: \.shelf.id) { entry in
+                    Shelf(
+                        title: shelfTitle(entry.shelf),
+                        subtitle: subtitle(for: entry.shelf, count: entry.items.count),
+                        itemWidth: cardWidth(.poster)
+                    ) {
+                        ForEach(entry.items) { item in
+                            PosterCard(
+                                title: item.seriesName ?? item.title,
+                                artworkURL: item.logoURL,
+                                subtitle: item.year.map(String.init),
+                                progressFraction: model.progress(for: item)?.fraction,
+                                enrich: item
+                            ) {
+                                if item.kind == .series, let group = seriesGroup(for: item) {
+                                    navigator.push(.series(id: group.id))
+                                } else {
+                                    navigator.play(item)
+                                }
+                            }
+                        }
+                    }
+                }
+
                 ForEach(topChannelCategories, id: \.name) { category in
                     Shelf(
                         title: CategoryLocalizer.display(category.name),
@@ -173,6 +200,27 @@ public struct HomeView: View {
 
     private var topMovieCategories: [(name: String, items: [MediaItem])] {
         Array(model.library.movieCategories.prefix(3))
+    }
+
+    private func shelfTitle(_ shelf: DiscoveryShelf) -> String {
+        switch shelf.source {
+        case .trending: String(UIStrings.shelfTrending)
+        case .newReleases: String(UIStrings.shelfNewReleases)
+        case .service(_, let name): String(UIStrings.shelfOnService(name))
+        }
+    }
+
+    private func subtitle(for shelf: DiscoveryShelf, count: Int) -> String {
+        switch shelf.kind {
+        case .movie: String(UIStrings.filmCount(count))
+        case .series: String(UIStrings.seriesCount(count))
+        case .liveTV: String(UIStrings.channelCount(count))
+        }
+    }
+
+    private func seriesGroup(for item: MediaItem) -> SeriesGroup? {
+        guard let key = item.seriesKey else { return nil }
+        return model.library.series.first { $0.id == key }
     }
 
     private enum CardShape { case poster, backdrop }

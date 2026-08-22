@@ -137,6 +137,21 @@ public enum UIStrings {
     public static let seeAll = text("action.seeAll", "Opens the full list for a row")
     public static let libraryEmpty = text("library.empty", "Shown when no library is loaded")
 
+    // MARK: - Recommendations
+
+    public static let shelfTrending = text(
+        "shelf.trending", "Row of what is popular this week, filtered to what the viewer's provider carries"
+    )
+    public static let shelfNewReleases = text(
+        "shelf.newReleases", "Row of recently released titles"
+    )
+    public static func shelfOnService(_ name: String) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "shelf.onService \(name)", bundle: bundle,
+            comment: "Row of what is popular on a streaming service. The placeholder is a service name such as Netflix."
+        )
+    }
+
     // MARK: - Counts
     //
     // Declared with the number inside the key so the string catalog can carry
@@ -179,6 +194,25 @@ public enum UIStrings {
     public static let live = text("badge.live", "Marks a channel that is broadcasting now")
     public static let liveNowAccessibility = text("badge.live.accessibility", "Spoken form of the live badge")
     public static let filterAll = text("filter.all", "Category filter chip that clears the filter")
+
+    // MARK: - Filters
+
+    public static let sortRecommended = text("sort.recommended", "Default ordering: what is popular, then the newest")
+    public static let sortNewest = text("sort.newest", "Newest first")
+    public static let sortOldest = text("sort.oldest", "Oldest first")
+    public static let sortAlphabetical = text("sort.alphabetical", "A to Z")
+    public static let filterGenre = text("filter.genre", "Menu label for narrowing by genre")
+    public static let filterCountry = text("filter.country", "Menu label for narrowing by country")
+    public static let filterDecade = text("filter.decade", "Menu label for narrowing by decade")
+    public static let filterClear = text("filter.clear", "Removes every narrowing")
+    public static func decadeLabel(_ decade: Int) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "filter.decade.label \(decade)", bundle: bundle,
+            comment: "Names a decade. English writes 1990s; other languages do not follow that pattern."
+        )
+    }
+    public static let filterNoResultsTitle = text("filter.noResults.title", "Title when the filters exclude everything")
+    public static let filterNoResultsBody = text("filter.noResults.body", "Suggests removing a filter")
 
     // MARK: - Browsing
 

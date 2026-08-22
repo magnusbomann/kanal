@@ -43,6 +43,9 @@ public final class AppModel {
     }
 
     public let metadata: MetadataService
+    public let discovery: DiscoveryService
+    /// Recommendation rows, already filtered to what this library carries.
+    public private(set) var discoveryShelves: [DiscoveryShelf] = []
     private let loader: LibraryLoader
     private let storage: KanalStorage
     private var watchStateSaveTask: Task<Void, Never>?
@@ -59,10 +62,9 @@ public final class AppModel {
         self.storage = storage
         // Wikidata is always available and needs no key. A TMDB key, if the
         // app was built with one, only adds artwork on top.
-        self.metadata = metadata ?? MetadataService(
-            tmdbAPIKey: Bundle.main.object(forInfoDictionaryKey: "TMDBAPIKey") as? String,
-            storage: storage
-        )
+        let tmdbKey = Bundle.main.object(forInfoDictionaryKey: "TMDBAPIKey") as? String
+        self.metadata = metadata ?? MetadataService(tmdbAPIKey: tmdbKey, storage: storage)
+        self.discovery = DiscoveryService(apiKey: tmdbKey, storage: storage)
     }
 
     public var activeSource: PlaylistSource? {
@@ -76,6 +78,9 @@ public final class AppModel {
         await metadata.loadCaches()
         usesArtworkProvider = await metadata.hasArtworkProvider
         hasCompletedIntro = await storage.load(Bool.self, from: Self.introFile) ?? false
+
+        await discovery.loadCache()
+        discoveryShelves = await discovery.cached
         let stored = await storage.load([PlaylistSource].self, from: Self.sourcesFile) ?? []
         watchState = await storage.load(WatchState.self, from: WatchState.fileName) ?? WatchState()
         sources = stored
@@ -95,6 +100,7 @@ public final class AppModel {
             library = cached
             phase = .ready
             if let epgURL = source.epgURL { loadGuide(from: epgURL) }
+            refreshDiscovery()
             await refresh(source, inBackground: true)
         } else {
             await refresh(source)
@@ -206,11 +212,21 @@ public final class AppModel {
             if let epgURL {
                 loadGuide(from: epgURL)
             }
+            if !inBackground { refreshDiscovery() }
         } catch {
             // A refresh behind a visible catalogue must not replace it with an
             // error screen — what is on screen still works.
             guard !inBackground else { return }
             phase = .failed(error.localizedDescription)
+        }
+    }
+
+    /// Recommendations are a nicety on top of a working library, so nothing
+    /// ever waits on them and a failure is silent.
+    private func refreshDiscovery() {
+        Task { [discovery] in
+            let shelves = await discovery.refreshIfStale()
+            await MainActor.run { self.discoveryShelves = shelves }
         }
     }
 
@@ -364,6 +380,37 @@ public extension AppModel {
             }
         }
         return SearchOutcome(items: merged, matchedVia: matchedVia)
+    }
+}
+
+// MARK: - Recommendations
+
+public extension AppModel {
+
+    /// Entry id to its place in the recommendations, so a browse screen can
+    /// open on what the world rates rather than on whatever the panel listed
+    /// first.
+    var discoveryRanking: [String: Int] {
+        var ranking: [String: Int] = [:]
+        var position = 0
+        for shelf in discoveryShelves {
+            for item in library.items(matching: shelf.titles, limit: 40)
+            where ranking[item.id] == nil {
+                ranking[item.id] = position
+                position += 1
+            }
+        }
+        return ranking
+    }
+
+    /// Rows worth drawing: those where the library carries enough of what was
+    /// recommended to look deliberate rather than sparse.
+    var visibleDiscoveryShelves: [(shelf: DiscoveryShelf, items: [MediaItem])] {
+        discoveryShelves.compactMap { shelf in
+            let items = library.items(matching: shelf.titles)
+            guard items.count >= 4 else { return nil }
+            return (shelf, items)
+        }
     }
 }
 

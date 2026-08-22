@@ -4,3 +4,4 @@
 .build/
 DerivedData/
 Config/Secrets.xcconfig
+Vendor/

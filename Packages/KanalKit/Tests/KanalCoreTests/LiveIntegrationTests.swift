@@ -89,6 +89,46 @@ struct LiveIntegrationTests {
         #expect(hits.contains { $0.title == "The Lion King" })
     }
 
+    /// Needs a key, so it is skipped unless one is supplied:
+    ///
+    ///     KANAL_LIVE_TESTS=1 KANAL_TMDB_KEY=... swift test --filter LiveIntegration
+    @Test(
+        "Discovery returns real rows and matches them to a library",
+        .enabled(if: ProcessInfo.processInfo.environment["KANAL_TMDB_KEY"] != nil)
+    )
+    func discoveryEndToEnd() async throws {
+        let storage = KanalStorage(
+            directory: FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        )
+        let service = DiscoveryService(
+            apiKey: ProcessInfo.processInfo.environment["KANAL_TMDB_KEY"],
+            configuration: .init(region: "NO", language: "nb-NO", serviceLimit: 2),
+            storage: storage
+        )
+        let shelves = await service.refresh()
+        #expect(!shelves.isEmpty, "no rows came back")
+
+        // Every row must carry titles, and streaming rows must name a service.
+        for shelf in shelves {
+            #expect(!shelf.titles.isEmpty)
+            if case .service(_, let name) = shelf.source {
+                #expect(!name.isEmpty)
+            }
+        }
+
+        // A library containing one of the recommendations must match it, and
+        // one containing none must match nothing.
+        let recommended = try #require(shelves.first { $0.kind == .movie }?.titles.first)
+        let carried = MediaItem(
+            id: "x", kind: .movie,
+            title: recommended.displayName, rawTitle: recommended.displayName,
+            streamURL: URL(string: "http://p.tv/play/token")!,
+            year: recommended.year
+        )
+        #expect(Library(items: [carried]).item(matching: recommended)?.id == "x")
+        #expect(Library(items: []).item(matching: recommended) == nil)
+    }
+
     @Test("A free public playlist still parses")
     func iptvOrgPlaylist() async throws {
         let loader = LibraryLoader()

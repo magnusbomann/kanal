@@ -100,16 +100,25 @@ public struct ChannelsView: View {
 public struct MoviesView: View {
     @Environment(AppModel.self) private var model
     @Environment(Navigator.self) private var navigator
-    @State private var selectedCategory: String?
+    @State private var filter = LibraryFilter()
 
     public init() {}
 
     public var body: some View {
         VStack(spacing: 0) {
-            CategoryStrip(
-                names: model.library.movieCategories.map(\.name),
-                selection: $selectedCategory
+            FilterBar(
+                filter: $filter,
+                categories: model.library.movieCategories.map(\.name),
+                countries: model.library.availableCountries(),
+                decades: model.library.availableDecades(among: model.library.movies)
             )
+            if movies.isEmpty {
+                EmptyStateView(
+                    symbol: "line.3.horizontal.decrease.circle",
+                    title: String(UIStrings.filterNoResultsTitle),
+                    message: String(UIStrings.filterNoResultsBody)
+                )
+            } else {
             LibraryGrid(items: movies, minimumWidth: gridWidth) { movie in
                 PosterCard(
                     title: movie.title,
@@ -124,14 +133,14 @@ public struct MoviesView: View {
                     FavoriteButton(id: movie.id)
                 }
             }
+            }
         }
         .background(KanalColor.background)
         .navigationTitle(Text(CoreStrings.movies))
     }
 
     private var movies: [MediaItem] {
-        guard let selectedCategory else { return model.library.movies }
-        return model.library.movies.filter { $0.category == selectedCategory }
+        model.library.movies(filter, ranking: model.discoveryRanking)
     }
 
     private var gridWidth: CGFloat {
@@ -147,16 +156,27 @@ public struct MoviesView: View {
 public struct SeriesView: View {
     @Environment(AppModel.self) private var model
     @Environment(Navigator.self) private var navigator
-    @State private var selectedCategory: String?
+    @State private var filter = LibraryFilter()
 
     public init() {}
 
     public var body: some View {
         VStack(spacing: 0) {
-            CategoryStrip(
-                names: model.library.seriesCategories.map(\.name),
-                selection: $selectedCategory
+            FilterBar(
+                filter: $filter,
+                categories: model.library.seriesCategories.map(\.name),
+                countries: [],
+                decades: model.library.availableDecades(
+                    among: model.library.series.compactMap(\.episodes.first)
+                )
             )
+            if series.isEmpty {
+                EmptyStateView(
+                    symbol: "line.3.horizontal.decrease.circle",
+                    title: String(UIStrings.filterNoResultsTitle),
+                    message: String(UIStrings.filterNoResultsBody)
+                )
+            } else {
             LibraryGrid(items: series, minimumWidth: gridWidth) { group in
                 PosterCard(
                     title: group.name,
@@ -170,14 +190,14 @@ public struct SeriesView: View {
                     FavoriteButton(id: group.id)
                 }
             }
+            }
         }
         .background(KanalColor.background)
         .navigationTitle(Text(CoreStrings.series))
     }
 
     private var series: [SeriesGroup] {
-        guard let selectedCategory else { return model.library.series }
-        return model.library.series.filter { $0.category == selectedCategory }
+        model.library.series(filter, ranking: model.discoveryRanking)
     }
 
     private var gridWidth: CGFloat {
