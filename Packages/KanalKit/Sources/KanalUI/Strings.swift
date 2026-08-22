@@ -250,6 +250,19 @@ public enum UIStrings {
         LocalizedStringResource("source.updated \(relative)", bundle: bundle, comment: "How long ago a playlist was refreshed")
     }
 
+    // MARK: - Credits
+
+    public static let sectionCredits = text(
+        "settings.section.credits", "Section crediting the data sources Kanal uses"
+    )
+    public static let creditTMDB = text(
+        "settings.credit.tmdb",
+        "Attribution required by TMDB's terms of use. The wording is theirs — translate it, but do not reword it."
+    )
+    public static let creditWikidata = text(
+        "settings.credit.wikidata", "Credit for Wikidata, whose data is CC0 and needs none"
+    )
+
     // MARK: - Data quality
 
     public static let sectionDataQuality = text(

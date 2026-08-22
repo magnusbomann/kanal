@@ -2256,6 +2256,57 @@
           }
         }
       }
+    },
+    "settings.section.credits": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data sources"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datakilder"
+          }
+        }
+      }
+    },
+    "settings.credit.tmdb": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This product uses the TMDB API but is not endorsed or certified by TMDB."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dette produktet bruker TMDB-API-et, men er ikke godkjent eller sertifisert av TMDB."
+          }
+        }
+      }
+    },
+    "settings.credit.wikidata": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Title translations come from Wikidata, released under CC0."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Titteloversettelser kommer fra Wikidata, utgitt under CC0."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

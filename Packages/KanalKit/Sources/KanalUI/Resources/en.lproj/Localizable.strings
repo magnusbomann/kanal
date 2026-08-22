@@ -72,6 +72,8 @@
 "series.notFound.body" = "It may have been removed from your provider's list.";
 "series.playFirst" = "Play first episode";
 "settings.addPlaylist" = "Add a playlist";
+"settings.credit.tmdb" = "This product uses the TMDB API but is not endorsed or certified by TMDB.";
+"settings.credit.wikidata" = "Title translations come from Wikidata, released under CC0.";
 "settings.dataQuality.coverage %lld" = "The guide covers %lld%% of your channels";
 "settings.dataQuality.guidePartial" = "The TV guide file stopped part-way through";
 "settings.dataQuality.guideRepaired" = "The TV guide was malformed and had to be repaired";
@@ -85,6 +87,7 @@
 "settings.label.series" = "Series";
 "settings.refreshNow" = "Refresh now";
 "settings.section.appleTV" = "Apple TV";
+"settings.section.credits" = "Data sources";
 "settings.section.dataQuality" = "Data from your provider";
 "settings.section.library" = "Library";
 "settings.section.playlists" = "Playlists";

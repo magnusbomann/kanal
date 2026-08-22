@@ -72,6 +72,8 @@
 "series.notFound.body" = "Den kan ha blitt fjernet fra leverandørens liste.";
 "series.playFirst" = "Spill første episode";
 "settings.addPlaylist" = "Legg til spilleliste";
+"settings.credit.tmdb" = "Dette produktet bruker TMDB-API-et, men er ikke godkjent eller sertifisert av TMDB.";
+"settings.credit.wikidata" = "Titteloversettelser kommer fra Wikidata, utgitt under CC0.";
 "settings.dataQuality.coverage %lld" = "Guiden dekker %lld %% av kanalene dine";
 "settings.dataQuality.guidePartial" = "TV-guide-fila stoppet midtveis";
 "settings.dataQuality.guideRepaired" = "TV-guiden var ugyldig og måtte repareres";
@@ -85,6 +87,7 @@
 "settings.label.series" = "Serier";
 "settings.refreshNow" = "Oppdater nå";
 "settings.section.appleTV" = "Apple TV";
+"settings.section.credits" = "Datakilder";
 "settings.section.dataQuality" = "Data fra leverandøren";
 "settings.section.library" = "Bibliotek";
 "settings.section.playlists" = "Spillelister";

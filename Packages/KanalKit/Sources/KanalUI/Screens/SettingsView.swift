@@ -22,6 +22,7 @@ public struct SettingsView: View {
             if model.diagnostics.hasFindings {
                 dataQualitySection
             }
+            creditsSection
             disclaimerSection
         }
         .navigationTitle(Text(UIStrings.settings))
@@ -129,6 +130,22 @@ public struct SettingsView: View {
         } icon: {
             Image(systemName: symbol)
                 .foregroundStyle(KanalColor.warning)
+        }
+    }
+
+    /// TMDB's terms require this attribution wherever their data appears, so it
+    /// is shown whenever the app was built with a key. Wikidata is CC0 and
+    /// requires nothing — crediting it is simply right.
+    private var creditsSection: some View {
+        Section(String(UIStrings.sectionCredits)) {
+            Text(UIStrings.creditWikidata)
+                .font(KanalFont.body(12))
+                .foregroundStyle(KanalColor.tertiaryText)
+            if model.usesArtworkProvider {
+                Text(UIStrings.creditTMDB)
+                    .font(KanalFont.body(12))
+                    .foregroundStyle(KanalColor.tertiaryText)
+            }
         }
     }
 

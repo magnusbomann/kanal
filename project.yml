@@ -21,7 +21,7 @@ settings:
     SWIFT_VERSION: "6.0"
     MARKETING_VERSION: "1.0"
     CURRENT_PROJECT_VERSION: "1"
-    DEVELOPMENT_TEAM: ""
+    DEVELOPMENT_TEAM: JWL8576LU4
     CODE_SIGN_STYLE: Automatic
     SWIFT_STRICT_CONCURRENCY: complete
     ENABLE_USER_SCRIPT_SANDBOXING: YES
@@ -34,6 +34,7 @@ targets:
       - path: App/Shared
       - path: App/iOS
       - path: App/iOS/Assets.xcassets
+      - path: App/iOS/PrivacyInfo.xcprivacy
     dependencies:
       - package: KanalKit
         product: KanalCore
@@ -57,6 +58,7 @@ targets:
       - path: App/Shared
       - path: App/tvOS
       - path: App/tvOS/Assets.xcassets
+      - path: App/tvOS/PrivacyInfo.xcprivacy
     dependencies:
       - package: KanalKit
         product: KanalCore

@@ -27,6 +27,8 @@ public final class AppModel {
     public private(set) var isRefreshingGuide = false
     /// What was wrong with the data this source sent, if anything.
     public private(set) var diagnostics = SourceDiagnostics()
+    /// Whether an artwork provider is configured — drives required attribution.
+    public private(set) var usesArtworkProvider = false
     /// Episodes fetched on demand, keyed by the provider's series id.
     public private(set) var loadedEpisodes: [Int: [MediaItem]] = [:]
     public private(set) var episodeLoadFailures: [Int: String] = [:]
@@ -66,6 +68,7 @@ public final class AppModel {
     /// Restores persisted state and refreshes the active source.
     public func start() async {
         await metadata.loadCaches()
+        usesArtworkProvider = await metadata.hasArtworkProvider
         let stored = await storage.load([PlaylistSource].self, from: Self.sourcesFile) ?? []
         watchState = await storage.load(WatchState.self, from: WatchState.fileName) ?? WatchState()
         sources = stored
