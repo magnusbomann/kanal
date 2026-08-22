@@ -60,8 +60,8 @@ public actor MetadataService {
             let bundled = BundledTitleProvider()
             if bundled.isLoaded { built.append(bundled) }
             built.append(WikidataProvider())
-            if let tmdbAPIKey, !tmdbAPIKey.isEmpty {
-                built.append(TMDBProvider(apiKey: tmdbAPIKey))
+            if let tmdbAPIKey, let tmdb = TMDBProvider(apiKey: tmdbAPIKey) {
+                built.append(tmdb)
             }
             self.providers = built
         }
@@ -152,23 +152,35 @@ public actor MetadataService {
         inFlight.insert(key)
         defer { inFlight.remove(key) }
 
+        // Artwork databases search their own titles, not the viewer's. TMDB
+        // will not find "Biler" however hard it looks, but it knows "Cars" —
+        // so the free tier canonicalises the name before the paid one is asked.
+        // Both spellings are then tried, because a Norwegian film really is
+        // filed under its Norwegian name.
+        let canonical = await alternativeSpellings(for: name).matched
+        let attempts = [canonical, name].compactMap { $0 }.reduce(into: [String]()) { unique, value in
+            if !unique.contains(value) { unique.append(value) }
+        }
+
         var anyProviderFailed = false
         for provider in artworkProviders {
-            let candidates: [ResolvedTitle]
-            do {
-                candidates = try await provider.lookup(
-                    name: name, year: item.year, isSeries: item.kind == .series
-                )
-            } catch {
-                anyProviderFailed = true
-                continue
+            for attempt in attempts {
+                let candidates: [ResolvedTitle]
+                do {
+                    candidates = try await provider.lookup(
+                        name: attempt, year: item.year, isSeries: item.kind == .series
+                    )
+                } catch {
+                    anyProviderFailed = true
+                    continue
+                }
+                guard let best = bestMatch(for: attempt, year: item.year, among: candidates) else {
+                    continue
+                }
+                identified[key] = best
+                scheduleSave()
+                return best
             }
-            guard let best = bestMatch(for: name, year: item.year, among: candidates) else {
-                continue
-            }
-            identified[key] = best
-            scheduleSave()
-            return best
         }
 
         if !anyProviderFailed { misses.insert(key) }

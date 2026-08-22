@@ -56,6 +56,11 @@ to:
 2. **Wikidata, live** — free and key-less, for the long tail the pack misses.
 3. **TMDB** — optional, only if built with a key, and only ever for artwork.
 
+The tiers feed each other. Artwork databases search *their own* titles, not the
+viewer's: TMDB will not find "Biler" however hard it looks, but it knows
+"Cars". So tier 1 canonicalises the name before tier 3 is asked, which is what
+gets a poster onto a Norwegian film's card at all.
+
 #### Why the packs are small enough to ship
 
 Only titles that **differ** from English are worth storing. "Ratatouille" and
@@ -82,6 +87,28 @@ pack still gets translated search — it just comes from tier 2.
 
 If the packs ever outgrow the app bundle, the next step is hosting them as a
 GitHub release and fetching one on first run. Still free, still no server.
+
+### Supplying a TMDB credential
+
+TMDB issues two kinds and they authenticate differently: a **v3 API key** (32
+hex characters, passed as a query parameter) and a **v4 read access token** (a
+JWT, passed as `Authorization: Bearer`). Both work against the same `/3/`
+endpoints. `TMDBClient` detects the shape rather than asking, because guessing
+wrong fails with a 401 that reads like a bad key instead of a bad scheme.
+Whitespace is stripped, since tokens are long enough that people paste them
+wrapped across lines.
+
+Put it in `Config/Secrets.xcconfig` (gitignored):
+
+```
+TMDB_API_KEY = <your key or token>
+```
+
+An empty value is fine — Kanal simply stays on the free tiers.
+
+TMDB answers with an empty plot when it has none in the requested language, so
+`TMDBClient` falls back to the English one. A blank space tells you nothing
+about a film; an English sentence tells you what it is.
 
 ### Metadata providers, and why Wikidata is the default
 
@@ -233,7 +260,7 @@ Kanal/
   Packages/KanalKit/
     Sources/KanalCore          Models, parsing, organisation, metadata, pairing, storage
     Sources/KanalUI            Design system and every screen
-    Tests/KanalCoreTests       102 tests
+    Tests/KanalCoreTests       106 tests
 ```
 
 Almost all code lives in the package; the app targets are shells. That is why
@@ -286,7 +313,7 @@ cd Packages/KanalKit && KANAL_LIVE_TESTS=1 swift test --filter LiveIntegrationTe
 
 - iOS and tvOS both build and run; screenshots taken on iPhone 17 Pro, iPad
   Pro 13" and Apple TV 4K, in light and dark.
-- 102 offline tests plus 5 live ones, including Kari's exact scenario.
+- 106 offline tests, plus 5 live ones against Wikidata and 5 against TMDB, including Kari's exact scenario.
 - Both apps run in Norwegian end to end, verified by screenshot with
   `-AppleLanguages '(nb)'`.
 
@@ -305,7 +332,8 @@ cd Packages/KanalKit && KANAL_LIVE_TESTS=1 swift test --filter LiveIntegrationTe
   `Kanal/1.0 (IPTV player for Apple platforms)`. Wikimedia's policy wants a
   contact URL in there — add one once the site exists.
 - **Attribution.** Wikidata is CC0 and needs none, but crediting it is polite.
-  TMDB, if enabled, *requires* attribution.
+  TMDB is enabled and *requires* attribution — its wording must appear in the
+  app before release. Not yet added.
 - `DEVELOPMENT_TEAM` in `project.yml` is empty.
 
 ## Next

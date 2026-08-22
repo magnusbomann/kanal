@@ -57,17 +57,43 @@ public struct TMDBClient: Sendable {
         }
     }
 
-    private let apiKey: String
+    /// TMDB issues two kinds of credential and they authenticate differently.
+    ///
+    /// A v3 key is 32 hex characters passed as a query parameter; a v4 read
+    /// access token is a JWT passed as a bearer header. Both work against the
+    /// same `/3/` endpoints, so the only thing that changes is how the request
+    /// is signed — and guessing wrong fails with a 401 that reads like a bad
+    /// key rather than a bad scheme.
+    enum Credential: Sendable, Equatable {
+        case apiKey(String)
+        case bearerToken(String)
+
+        /// Detected from the shape, so callers never have to say which they
+        /// pasted. Whitespace is stripped: tokens are long enough that people
+        /// paste them wrapped across lines.
+        init?(_ raw: String) {
+            let value = raw.components(separatedBy: .whitespacesAndNewlines).joined()
+            guard !value.isEmpty else { return nil }
+            if value.hasPrefix("ey"), value.contains(".") {
+                self = .bearerToken(value)
+            } else {
+                self = .apiKey(value)
+            }
+        }
+    }
+
+    private let credential: Credential
     private let session: URLSession
     /// The language localised titles and plots come back in.
     private let language: String
 
-    public init(
+    public init?(
         apiKey: String,
         language: String = PreferredLanguages.primaryTag(),
         session: URLSession = .shared
     ) {
-        self.apiKey = apiKey
+        guard let credential = Credential(apiKey) else { return nil }
+        self.credential = credential
         self.session = session
         self.language = language
     }
@@ -116,7 +142,25 @@ public struct TMDBClient: Sendable {
             ?? (container?["results"] as? [[String: Any]])
             ?? []
         title?.alternateTitles = rows.compactMap { $0["title"] as? String }
+
+        // Most films have no plot written in most languages, and TMDB answers
+        // that with an empty string rather than falling back. An English plot
+        // tells you what the film is; a blank space tells you nothing.
+        if title?.overview == nil, !language.hasPrefix("en") {
+            title?.overview = try? await englishOverview(path: path)
+        }
         return title
+    }
+
+    private func englishOverview(path: String) async throws -> String? {
+        let data = try await get(path: path, query: [
+            URLQueryItem(name: "language", value: "en-US"),
+        ])
+        guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let overview = root["overview"] as? String,
+              !overview.isEmpty
+        else { return nil }
+        return overview
     }
 
     // MARK: - Plumbing
@@ -153,14 +197,22 @@ public struct TMDBClient: Sendable {
     }
 
     private func get(path: String, query: [URLQueryItem]) async throws -> Data {
-        guard !apiKey.isEmpty else { throw Failure.noAPIKey }
-
         var components = URLComponents(string: "https://api.themoviedb.org/3/\(path)")!
-        components.queryItems = query + [URLQueryItem(name: "api_key", value: apiKey)]
-        guard let url = components.url else { throw Failure.transport("Could not build the request.") }
+        var items = query
+        if case .apiKey(let key) = credential {
+            items.append(URLQueryItem(name: "api_key", value: key))
+        }
+        components.queryItems = items
+        guard let url = components.url else {
+            throw Failure.transport(String(localized: CoreStrings.requestFailed))
+        }
 
         var request = URLRequest(url: url)
         request.timeoutInterval = 15
+        if case .bearerToken(let token) = credential {
+            // Kept out of the query string: URLs end up in logs and proxies.
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
         do {
             let (data, response) = try await session.data(for: request)
             if let http = response as? HTTPURLResponse {

@@ -12,8 +12,9 @@ public struct TMDBProvider: MetadataProvider {
 
     private let client: TMDBClient
 
-    public init(apiKey: String, session: URLSession = .shared) {
-        self.client = TMDBClient(apiKey: apiKey, session: session)
+    public init?(apiKey: String, session: URLSession = .shared) {
+        guard let client = TMDBClient(apiKey: apiKey, session: session) else { return nil }
+        self.client = client
     }
 
     public func lookup(name: String, year: Int?, isSeries: Bool?) async throws -> [ResolvedTitle] {
