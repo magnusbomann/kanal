@@ -94,13 +94,56 @@ def build(catalog_path: pathlib.Path, output_root: pathlib.Path) -> list[str]:
     return written
 
 
+def copy_title_packs(languages: set[str]) -> list[str]:
+    """Ships a title pack for every language the interface speaks — and only those.
+
+    German alone is over 3 MB. Bundling every pack we have built would cost
+    every user megabytes for languages whose interface is not even translated,
+    so a pack ships when its language does. Anyone on another language still
+    gets translated search; it just comes from the live provider instead.
+    """
+    source = ROOT / "Localizations/titles"
+    destination = ROOT / "Packages/KanalKit/Sources/KanalCore/Resources/titles"
+    destination.mkdir(parents=True, exist_ok=True)
+    if not source.exists():
+        return []
+
+    # English needs no pack: it is the language the packs translate *into*.
+    wanted = {language for language in languages if language != "en"}
+
+    for stale in destination.glob("*.json"):
+        if stale.stem not in wanted:
+            stale.unlink()
+
+    copied = []
+    for language in sorted(wanted):
+        pack = source / f"{language}.json"
+        if not pack.exists():
+            copied.append(f"{language} (no pack built yet)")
+            continue
+        target = destination / pack.name
+        target.write_bytes(pack.read_bytes())
+        copied.append(f"{language} ({target.stat().st_size // 1024} KB)")
+    return copied
+
+
 def main() -> int:
+    languages: set[str] = set()
+    for catalog_path, _ in CATALOGS:
+        data = json.loads(catalog_path.read_text())
+        for entry in data.get("strings", {}).values():
+            languages.update(entry.get("localizations", {}).keys())
+
     for catalog_path, output_root in CATALOGS:
         if not catalog_path.exists():
             print(f"missing catalog: {catalog_path}", file=sys.stderr)
             return 1
         results = build(catalog_path, output_root)
         print(f"{catalog_path.stem}: " + "; ".join(results))
+
+    packs = copy_title_packs(languages)
+    if packs:
+        print("title packs: " + ", ".join(packs))
     return 0
 
 

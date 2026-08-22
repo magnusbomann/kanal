@@ -12,6 +12,10 @@ public final class XMLTVParser: NSObject, XMLParserDelegate {
         public var channelIcons: [String: URL]
         /// XMLTV channel id → that channel's schedule.
         public var schedules: [String: Schedule]
+
+        public var programmeCount: Int {
+            schedules.values.reduce(0) { $0 + $1.count }
+        }
     }
 
     private var channelNames: [String: String] = [:]
@@ -44,18 +48,57 @@ public final class XMLTVParser: NSObject, XMLParserDelegate {
     }
 
     public func parse(_ data: Data) -> Guide {
+        var result = run(on: data)
+
+        // Provider guides are frequently malformed — a bare `&` in a programme
+        // title is enough for XMLParser to stop dead, and because `<programme>`
+        // elements come after every `<channel>`, one bad character part-way
+        // through can cost the entire schedule. When a parse aborts, repair the
+        // most common offender and try once more rather than shipping an empty
+        // guide the user cannot explain.
+        if result.aborted, let repaired = Self.repairingEntities(data) {
+            let second = XMLTVParser(windowStart: windowStart, windowEnd: windowEnd).run(on: repaired)
+            if second.guide.programmeCount > result.guide.programmeCount {
+                result = second
+            }
+        }
+        return result.guide
+    }
+
+    private func run(on data: Data) -> (guide: Guide, aborted: Bool) {
         let parser = XMLParser(data: data)
         parser.delegate = self
-        parser.parse()
+        let succeeded = parser.parse()
 
         let schedules = programmesByChannel.mapValues { programmes in
             Schedule(channelID: programmes.first?.channelID ?? "", programmes: programmes)
         }
-        return Guide(
+        let guide = Guide(
             channelNames: channelNames,
             channelIcons: channelIcons,
             schedules: schedules
         )
+        return (guide, !succeeded)
+    }
+
+    /// Escapes ampersands that are not already part of an entity reference.
+    ///
+    /// Returns nil when there was nothing to repair, so a genuinely broken file
+    /// is not parsed twice for nothing.
+    static func repairingEntities(_ data: Data) -> Data? {
+        guard var text = String(data: data, encoding: .utf8)
+            ?? String(data: data, encoding: .isoLatin1)
+        else { return nil }
+
+        let pattern = "&(?!#[0-9]+;|#[xX][0-9a-fA-F]+;|[a-zA-Z][a-zA-Z0-9]*;)"
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
+        let range = NSRange(text.startIndex..., in: text)
+        guard regex.firstMatch(in: text, range: range) != nil else { return nil }
+
+        text = regex.stringByReplacingMatches(
+            in: text, range: range, withTemplate: "&amp;"
+        )
+        return text.data(using: .utf8)
     }
 
     // MARK: - XMLParserDelegate

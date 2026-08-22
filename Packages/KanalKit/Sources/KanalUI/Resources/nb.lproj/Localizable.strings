@@ -26,6 +26,13 @@
 "greeting.evening" = "God kveld";
 "greeting.morning" = "God morgen";
 "greeting.night" = "Sen kveld";
+"guide.missing.body" = "Kanal leter etter en guide automatisk når spillelisten lastes. Denne leverandøren har ikke gitt noen.";
+"guide.missing.title" = "Ingen TV-guide ennå";
+"guide.noChannels.body" = "Guiden ble lastet, men ingen av kanal-ID-ene stemmer med spillelisten din. Det er leverandørens data, ikke noe Kanal kan rette.";
+"guide.noChannels.title" = "Guiden passer ikke til disse kanalene";
+"guide.title" = "Guide";
+"guide.view.guide" = "Guide";
+"guide.view.list" = "Kanaler";
 "handoff.aim" = "Rett kameraet mot koden på TV-en";
 "handoff.camera.body" = "Overleveringen fungerer ved å lese koden på TV-skjermen. Gi tilgang til kameraet i Innstillinger, og kom tilbake.";
 "handoff.camera.title" = "Kanal trenger kameraet";

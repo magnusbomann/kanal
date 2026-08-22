@@ -1970,6 +1970,125 @@
           }
         }
       }
+    },
+    "guide.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guide"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guide"
+          }
+        }
+      }
+    },
+    "guide.view.list": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Channels"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanaler"
+          }
+        }
+      }
+    },
+    "guide.view.guide": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guide"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guide"
+          }
+        }
+      }
+    },
+    "guide.missing.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No TV guide yet"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingen TV-guide ennå"
+          }
+        }
+      }
+    },
+    "guide.missing.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal looks for a guide automatically when it loads your playlist. This provider hasn't given one."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal leter etter en guide automatisk når spillelisten lastes. Denne leverandøren har ikke gitt noen."
+          }
+        }
+      }
+    },
+    "guide.noChannels.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guide doesn't match these channels"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guiden passer ikke til disse kanalene"
+          }
+        }
+      }
+    },
+    "guide.noChannels.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The guide loaded, but none of its channel IDs match your playlist. That's the provider's data, not something Kanal can fix."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guiden ble lastet, men ingen av kanal-ID-ene stemmer med spillelisten din. Det er leverandørens data, ikke noe Kanal kan rette."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

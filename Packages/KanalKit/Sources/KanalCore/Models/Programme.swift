@@ -76,6 +76,8 @@ public struct Schedule: Sendable {
         return nil
     }
 
+    public var count: Int { programmes.count }
+
     public func upcoming(after date: Date = .now, limit: Int = 4) -> [Programme] {
         programmes.filter { $0.start >= date }.prefix(limit).map { $0 }
     }

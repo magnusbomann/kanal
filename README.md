@@ -24,6 +24,7 @@ finds the film for her grandchildren** — even though her provider listed it as
 | No settings | `SettingsView` manages playlists and nothing else | Done |
 | Search that forgives | `SearchNormalizer`, `SearchIndex`, `MetadataService` | Done |
 | Speaks your language | `UIStrings`, `CoreStrings`, `PreferredLanguages`, `Scripts/check-localization.py` | Done (en, nb) |
+| TV guide | `GuideView`, `XMLTVParser` | Done |
 | Phone → TV handoff | `Pairing`, `PairingHost`, `PairingGuest`, `PairingView`, `HandoffView` | Built, not yet tested on real hardware |
 
 ## How search finds a film nobody listed under that name
@@ -43,6 +44,44 @@ The direction matters. Pre-translating a 50,000-entry library would be a
 hundred thousand requests at first launch — slow, and expensive on any paid
 API. Translating the *query* is one request and covers the whole catalogue
 immediately.
+
+### Three tiers, cheapest first
+
+`MetadataProvider` is a two-method protocol. Providers are tried in order and
+the first confident answer wins, so cost and latency rise only when they have
+to:
+
+1. **Bundled title packs** — a static file shipped with the app. No network, no
+   key, no rate limit, works on a plane. Answers the common case instantly.
+2. **Wikidata, live** — free and key-less, for the long tail the pack misses.
+3. **TMDB** — optional, only if built with a key, and only ever for artwork.
+
+#### Why the packs are small enough to ship
+
+Only titles that **differ** from English are worth storing. "Ratatouille" and
+"Django Unchained" are spelled the same everywhere and the local index already
+finds them; the only pairs that need shipping are ones like "Løvenes konge" →
+"The Lion King".
+
+That turns an unbounded problem into a small static file. Norwegian is **6,764
+pairs in 290 KB** — and of 22 test titles, 16 resolve entirely offline, with
+the two "misses" being exactly the identical-in-both-languages case the design
+deliberately omits.
+
+`Scripts/build-title-packs.py` builds them from Wikidata at build time, one
+entity type per query, unsorted, with backoff — `ORDER BY` with LIMIT/OFFSET
+makes the query service sort the whole result set per page and reliably earns a
+504.
+
+A pack ships for every language the interface speaks, and only those. German
+alone is 3.2 MB, so bundling everything we have built would cost every user
+megabytes for languages whose interface is not even translated. Packs for `de`,
+`sv`, `da`, `fr` and others are built and sitting in `Localizations/titles/`,
+ready for when those interface languages ship. Anyone on a language without a
+pack still gets translated search — it just comes from tier 2.
+
+If the packs ever outgrow the app bundle, the next step is hosting them as a
+GitHub release and fetching one on first run. Still free, still no server.
 
 ### Metadata providers, and why Wikidata is the default
 
@@ -86,6 +125,27 @@ Now `WikidataProvider` distinguishes temporary failures from permanent ones,
 retries with backoff, and searches languages sequentially rather than in
 parallel — parallel requests were what earned the 429. `MetadataService` only
 records a negative result when a provider actually answered "nothing".
+
+## The TV guide
+
+`GuideView` draws channels down and time across. Both axes scroll, but the
+channel column and hour header must stay put — a guide where you lose track of
+which row you are on is useless. Rather than synchronising several scroll
+views, it reads the single scroll's offset and pushes the two headers back by
+the same amount, so they read as pinned while everything stays in one lazily
+drawn grid.
+
+It lives inside the Live TV tab as a view toggle rather than a sixth tab, which
+would have pushed search under "More".
+
+### Provider guides are often malformed
+
+A bare `&` in a programme title is enough for `XMLParser` to stop dead — and
+because every `<programme>` element comes after every `<channel>`, one bad
+character part-way through costs the entire schedule. When a parse aborts,
+`XMLTVParser` escapes stray ampersands and tries once more rather than showing
+an empty guide the user cannot explain. Covered by a test that feeds it a file
+a strict parser refuses.
 
 ## Localization
 
@@ -166,13 +226,14 @@ Kanal/
   project.yml                  XcodeGen spec — regenerate with `xcodegen generate`
   Config/Secrets.xcconfig      TMDB key, gitignored (an empty key is fine)
   Localizations/*.xcstrings    Translation source of truth
-  Scripts/                     Localization build and lint
+  Localizations/titles/        Offline title packs, per language
+  Scripts/                     Localization and title-pack build, plus the lint
   App/Shared/KanalApp.swift    @main, shared by both app targets
   App/iOS, App/tvOS            Info.plist and platform assets only
   Packages/KanalKit/
     Sources/KanalCore          Models, parsing, organisation, metadata, pairing, storage
     Sources/KanalUI            Design system and every screen
-    Tests/KanalCoreTests       87 tests
+    Tests/KanalCoreTests       102 tests
 ```
 
 Almost all code lives in the package; the app targets are shells. That is why
@@ -225,7 +286,7 @@ cd Packages/KanalKit && KANAL_LIVE_TESTS=1 swift test --filter LiveIntegrationTe
 
 - iOS and tvOS both build and run; screenshots taken on iPhone 17 Pro, iPad
   Pro 13" and Apple TV 4K, in light and dark.
-- 87 offline tests plus 5 live ones, including Kari's exact scenario.
+- 102 offline tests plus 5 live ones, including Kari's exact scenario.
 - Both apps run in Norwegian end to end, verified by screenshot with
   `-AppleLanguages '(nb)'`.
 
@@ -249,8 +310,6 @@ cd Packages/KanalKit && KANAL_LIVE_TESTS=1 swift test --filter LiveIntegrationTe
 
 ## Next
 
-- A real EPG grid. Now-and-next already appears on channel cards, but there is
-  no guide screen.
 - Recordings, multi-view, per-profile favourites.
 - More languages. The machinery is done and English and Norwegian ship; adding
   a language is now three steps and a lint run.

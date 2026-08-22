@@ -26,6 +26,13 @@
 "greeting.evening" = "Good evening";
 "greeting.morning" = "Good morning";
 "greeting.night" = "Late night";
+"guide.missing.body" = "Kanal looks for a guide automatically when it loads your playlist. This provider hasn't given one.";
+"guide.missing.title" = "No TV guide yet";
+"guide.noChannels.body" = "The guide loaded, but none of its channel IDs match your playlist. That's the provider's data, not something Kanal can fix.";
+"guide.noChannels.title" = "Guide doesn't match these channels";
+"guide.title" = "Guide";
+"guide.view.guide" = "Guide";
+"guide.view.list" = "Channels";
 "handoff.aim" = "Point at the code on your TV";
 "handoff.camera.body" = "Handoff works by reading the code on your TV screen. Allow camera access in Settings, then come back.";
 "handoff.camera.title" = "Kanal needs the camera";

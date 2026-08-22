@@ -30,10 +30,38 @@ public struct ChannelsView: View {
     @Environment(AppModel.self) private var model
     @Environment(Navigator.self) private var navigator
     @State private var selectedCategory: String?
+    @State private var mode: Mode = LaunchOptions.liveMode == "guide" ? .guide : .channels
+
+    enum Mode: Hashable { case channels, guide }
 
     public init() {}
 
     public var body: some View {
+        VStack(spacing: 0) {
+            // A sixth tab would push search under "More", and the guide is a
+            // second way to look at the same channels rather than a new place.
+            if model.guide != nil {
+                Picker("", selection: $mode) {
+                    Text(UIStrings.viewList).tag(Mode.channels)
+                    Text(UIStrings.viewGuide).tag(Mode.guide)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .padding(.horizontal, KanalMetrics.lg)
+                .padding(.top, KanalMetrics.sm)
+            }
+
+            if mode == .guide {
+                GuideView()
+            } else {
+                channelList
+            }
+        }
+        .background(KanalColor.background)
+        .navigationTitle(Text(CoreStrings.liveTV))
+    }
+
+    private var channelList: some View {
         VStack(spacing: 0) {
             CategoryStrip(
                 names: model.library.channelCategories.map(\.name),
@@ -52,8 +80,6 @@ public struct ChannelsView: View {
                 }
             }
         }
-        .background(KanalColor.background)
-        .navigationTitle(Text(CoreStrings.liveTV))
     }
 
     private var channels: [MediaItem] {

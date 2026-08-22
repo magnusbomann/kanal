@@ -14,7 +14,11 @@ let package = Package(
     targets: [
         .target(
             name: "KanalCore",
-            resources: [.copy("Resources/en.lproj"), .copy("Resources/nb.lproj")],
+            resources: [
+                .copy("Resources/en.lproj"),
+                .copy("Resources/nb.lproj"),
+                .copy("Resources/titles"),
+            ],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .target(

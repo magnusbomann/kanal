@@ -54,7 +54,12 @@ public actor MetadataService {
         if let providers {
             self.providers = providers
         } else {
-            var built: [MetadataProvider] = [WikidataProvider()]
+            // Ordered cheapest-first: the bundled pack answers offline and
+            // instantly, and only what it does not know reaches the network.
+            var built: [MetadataProvider] = []
+            let bundled = BundledTitleProvider()
+            if bundled.isLoaded { built.append(bundled) }
+            built.append(WikidataProvider())
             if let tmdbAPIKey, !tmdbAPIKey.isEmpty {
                 built.append(TMDBProvider(apiKey: tmdbAPIKey))
             }

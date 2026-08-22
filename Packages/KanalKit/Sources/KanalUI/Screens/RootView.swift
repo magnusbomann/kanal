@@ -52,10 +52,22 @@ public struct RootView: View {
 /// customising is letting it shrink out of the way while you scroll.
 public struct MainTabView: View {
     @Environment(Navigator.self) private var navigator
-    @State private var selection: TabIdentifier = .home
+    @State private var selection: TabIdentifier = LaunchOptions.startTab
+        .flatMap(TabIdentifier.init(argument:)) ?? .home
 
     public enum TabIdentifier: Hashable {
         case home, live, series, movies, search
+
+        init?(argument: String) {
+            switch argument {
+            case "home": self = .home
+            case "live": self = .live
+            case "series": self = .series
+            case "movies", "films": self = .movies
+            case "search": self = .search
+            default: return nil
+            }
+        }
     }
 
     public init() {}

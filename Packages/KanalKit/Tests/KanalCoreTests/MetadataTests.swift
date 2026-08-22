@@ -104,17 +104,20 @@ struct TranslationTests {
         #expect(await service.alternativeSpellings(for: "lo").spellings.isEmpty)
     }
 
-    @Test("Wikidata is on by default and needs no key")
+    /// The chain is ordered cheapest-first: the bundled pack answers offline,
+    /// Wikidata covers the long tail, and a paid provider is never on the path
+    /// for anything the first two already know.
+    @Test("The default chain is free and needs no key")
     func defaultProvider() async {
         let service = MetadataService(storage: scratchStorage())
-        #expect(await service.providerNames == ["Wikidata"])
+        #expect(await service.providerNames == ["Bundled titles", "Wikidata"])
         #expect(await service.hasArtworkProvider == false)
     }
 
-    @Test("A TMDB key adds an artwork provider on top")
+    @Test("A TMDB key adds an artwork provider at the end")
     func withKey() async {
         let service = MetadataService(tmdbAPIKey: "abc", storage: scratchStorage())
-        #expect(await service.providerNames == ["Wikidata", "TMDB"])
+        #expect(await service.providerNames.last == "TMDB")
         #expect(await service.hasArtworkProvider == true)
     }
 }

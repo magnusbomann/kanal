@@ -198,6 +198,24 @@ public enum UIStrings {
         )
     }
 
+    // MARK: - TV guide
+
+    public static let guide = text("guide.title", "The TV guide: channels down, time across")
+    public static let viewList = text("guide.view.list", "Shows channels as a grid of tiles")
+    public static let viewGuide = text("guide.view.guide", "Shows channels as a time-based guide")
+    public static let guideMissingTitle = text(
+        "guide.missing.title", "Title when no TV guide has been downloaded"
+    )
+    public static let guideMissingBody = text(
+        "guide.missing.body", "Explains that the guide comes from the provider"
+    )
+    public static let guideNoChannelsTitle = text(
+        "guide.noChannels.title", "Title when the guide covers none of the channels"
+    )
+    public static let guideNoChannelsBody = text(
+        "guide.noChannels.body", "Explains that the provider's guide does not match its channels"
+    )
+
     // MARK: - Playback
 
     public static let buffering = text("player.buffering", "Shown while a stream is loading")
