@@ -153,6 +153,64 @@ retries with backoff, and searches languages sequentially rather than in
 parallel — parallel requests were what earned the 429. `MetadataService` only
 records a negative result when a provider actually answered "nothing".
 
+## Playback, and why VLC is bundled
+
+`AVPlayer` cannot open Matroska. Measured against a real provider's catalogue,
+**31,027 of 31,176 films were `.mkv`**, and every series episode too — which is
+why live TV worked and nothing else did. No amount of retrying alternative
+extensions helps: panels do not offer one.
+
+So Kanal ships two engines and picks per stream:
+
+- **AVFoundation** for live TV and MP4. It brings picture-in-picture, AirPlay,
+  the tvOS transport bar and the system's own subtitle and audio menus, none of
+  which a bundled decoder gets for free.
+- **VLC** for everything else. If AVFoundation reports a container it cannot
+  open, playback moves across without the viewer seeing an error.
+
+The engines are chosen by `PlaybackEngine.preferred(for:)`. `KanalUI` asks for
+the second engine through an environment builder, so the package — and its
+tests — stay free of a very large binary.
+
+### Which VLC, and why
+
+**MobileVLCKit and TVVLCKit 3.7.3**, the stable releases. VLCKit 4.0 has Swift
+Package Manager support, which is tempting, but it is an alpha; the decoder is
+not the place to run one.
+
+3.7.x is distributed through CocoaPods only, so rather than adding that
+toolchain the XCFrameworks are fetched straight from VideoLAN:
+
+```bash
+./Scripts/fetch-vlc.sh
+```
+
+`Vendor/` is gitignored — the frameworks are far too large to commit — so a
+fresh clone runs that once. The script strips debug symbols and drops `armv7`
+and `armv7s`, which no device capable of running Kanal can execute.
+
+### Size, measured
+
+| | |
+| --- | --- |
+| VideoLAN's download, both platforms | 366 MB |
+| `Vendor/` after stripping and thinning | 211 MB |
+| **Release app for an iPhone** | **36 MB**, of which 33 MB is VLC |
+
+### Licence
+
+VLCKit is **LGPL v2.1 or later**. That permits it inside a proprietary app —
+VLC relicensed specifically so it could ship on the App Store — on three
+conditions, all met:
+
+1. Publish any changes made to VLC. Kanal makes none.
+2. Make the viewer aware VLC is embedded. Settings → Licences.
+3. Make the viewer aware of their rights and where the source lives. Same
+   screen, with a link and the relinking notice.
+
+Kanal's own code stays closed; that is the difference between LGPL and GPL.
+Before a commercial launch, have a lawyer read it.
+
 ## The TV guide
 
 `GuideView` draws channels down and time across. Both axes scroll, but the
@@ -291,6 +349,7 @@ Kanal/
   Config/Secrets.xcconfig      TMDB key, gitignored (an empty key is fine)
   Localizations/*.xcstrings    Translation source of truth
   Localizations/titles/        Offline title packs, per language
+  Vendor/                      VLC frameworks, gitignored (Scripts/fetch-vlc.sh)
   Scripts/                     Localization and title-pack build, plus the lint
   App/Shared/KanalApp.swift    @main, shared by both app targets
   App/iOS, App/tvOS            Info.plist and platform assets only
