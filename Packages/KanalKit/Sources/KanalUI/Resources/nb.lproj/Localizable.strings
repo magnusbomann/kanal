@@ -106,6 +106,9 @@
 "player.buffering" = "Bufrer";
 "player.close" = "Lukk";
 "player.failed.title" = "Denne strømmen spilles ikke av";
+"player.next.label" = "Neste episode";
+"player.next.playNow" = "Spill nå";
+"player.next.stop" = "Avslutt";
 "player.offline.body" = "Sjekk forbindelsen og prøv igjen.";
 "player.offline.title" = "Fikk ikke kontakt med leverandøren";
 "player.pause" = "Pause";

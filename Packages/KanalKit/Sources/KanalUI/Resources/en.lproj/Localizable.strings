@@ -106,6 +106,9 @@
 "player.buffering" = "Buffering";
 "player.close" = "Close";
 "player.failed.title" = "This stream won't play";
+"player.next.label" = "Next episode";
+"player.next.playNow" = "Play now";
+"player.next.stop" = "Stop";
 "player.offline.body" = "Check the connection and try again.";
 "player.offline.title" = "Couldn't reach your provider";
 "player.pause" = "Pause";

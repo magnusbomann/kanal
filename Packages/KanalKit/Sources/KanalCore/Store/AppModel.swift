@@ -471,6 +471,22 @@ public extension AppModel {
     }
 }
 
+// MARK: - Watching a series through
+
+public extension AppModel {
+
+    /// The episode that follows the one just finished, if there is one.
+    ///
+    /// Nil for films, for the last episode of a show, and for anything that is
+    /// not part of a series — in every case meaning "nothing follows this".
+    func nextEpisode(after item: MediaItem) -> MediaItem? {
+        guard item.kind == .series,
+              let group = library.seriesGroup(containing: item)
+        else { return nil }
+        return Library.nextEpisode(after: item, among: episodes(for: group))
+    }
+}
+
 // MARK: - Search
 
 /// What a search turned up, and how.

@@ -17,6 +17,9 @@ import Observation
 public final class SystemPlaybackController: PlaybackControlling {
 
     public private(set) var isPlaying = false
+    /// From the library entry, not from the stream. See `PlaybackControlling`.
+    public private(set) var isLiveContent = false
+    public private(set) var hasEnded = false
     public private(set) var isBuffering = false
     public private(set) var position: TimeInterval = 0
     public private(set) var duration: TimeInterval = 0
@@ -33,6 +36,7 @@ public final class SystemPlaybackController: PlaybackControlling {
     @ObservationIgnored private var bufferObservation: NSKeyValueObservation?
     @ObservationIgnored private var rateObservation: NSKeyValueObservation?
     @ObservationIgnored private var timeObserver: Any?
+    @ObservationIgnored private var endObserver: (any NSObjectProtocol)?
     @ObservationIgnored private var audioGroup: AVMediaSelectionGroup?
     @ObservationIgnored private var subtitleGroup: AVMediaSelectionGroup?
 
@@ -50,6 +54,8 @@ public final class SystemPlaybackController: PlaybackControlling {
     // MARK: Lifecycle
 
     public func start(plan: PlaybackPlan, resumingAt resume: TimeInterval?) {
+        isLiveContent = plan.item.kind == .liveTV
+        hasEnded = false
         self.plan = plan
         resumeTarget = resume
         failure = nil
@@ -67,6 +73,8 @@ public final class SystemPlaybackController: PlaybackControlling {
         timeout?.cancel()
         if let timeObserver { player.removeTimeObserver(timeObserver) }
         timeObserver = nil
+        if let endObserver { NotificationCenter.default.removeObserver(endObserver) }
+        endObserver = nil
         statusObservation = nil
         bufferObservation = nil
         rateObservation = nil
@@ -186,6 +194,19 @@ public final class SystemPlaybackController: PlaybackControlling {
     }
 
     private func observe(_ playerItem: AVPlayerItem, url: URL) {
+        // The end of a recording is a fact the system reports; inferring it
+        // from the clock races the last frame.
+        endObserver = NotificationCenter.default.addObserver(
+            forName: AVPlayerItem.didPlayToEndTimeNotification,
+            object: playerItem,
+            queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, !self.isLiveContent else { return }
+                self.hasEnded = true
+            }
+        }
+
         statusObservation = playerItem.observe(\.status, options: [.new]) { [weak self] item, _ in
             Task { @MainActor in
                 guard let self else { return }

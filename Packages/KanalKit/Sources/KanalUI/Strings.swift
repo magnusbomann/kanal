@@ -310,6 +310,18 @@ public enum UIStrings {
         "guide.noChannels.body", "Explains that the provider's guide does not match its channels"
     )
 
+    // MARK: - Watching a series through
+
+    public static let nextEpisode = text("player.next.label", "Label above the episode that will play next")
+    public static let playNow = text("player.next.playNow", "Starts the next episode immediately")
+    public static let stopWatching = text("player.next.stop", "Closes the player instead of continuing")
+    public static func playingInSeconds(_ seconds: Int) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "player.next.countdown \(seconds)", bundle: bundle,
+            comment: "Counts down to the next episode starting on its own"
+        )
+    }
+
     // MARK: - Playback
 
     public static let buffering = text("player.buffering", "Shown while a stream is loading")

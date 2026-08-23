@@ -55,6 +55,9 @@ struct VLCSurface: UIViewRepresentable {
 final class VLCPlaybackController: PlaybackControlling {
 
     private(set) var isPlaying = false
+    /// From the library entry, not from the stream — see `PlaybackControlling`.
+    private(set) var isLiveContent = false
+    private(set) var hasEnded = false
     private(set) var isBuffering = true
     private(set) var position: TimeInterval = 0
     private(set) var duration: TimeInterval = 0
@@ -78,6 +81,9 @@ final class VLCPlaybackController: PlaybackControlling {
             player.drawable = view
             return
         }
+
+        isLiveContent = request.isLive
+        hasEnded = false
 
         let media = VLCMedia(url: request.url)
         // Providers routinely refuse anything that does not look like a media
@@ -159,6 +165,8 @@ final class VLCPlaybackController: PlaybackControlling {
         case .stopped, .ended:
             isBuffering = false
             sample()
+            // Only a recording can end; a broadcast that stops has dropped out.
+            if state == .ended, !isLiveContent { hasEnded = true }
         default:
             break
         }

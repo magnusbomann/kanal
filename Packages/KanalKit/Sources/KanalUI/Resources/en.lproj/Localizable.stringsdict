@@ -114,6 +114,22 @@
 			<string>%lld series</string>
 		</dict>
 	</dict>
+	<key>player.next.countdown %lld</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Playing in %lld second</string>
+			<key>other</key>
+			<string>Playing in %lld seconds</string>
+		</dict>
+	</dict>
 	<key>profiles.checkingRatings %lld</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>

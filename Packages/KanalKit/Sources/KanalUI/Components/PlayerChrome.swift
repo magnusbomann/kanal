@@ -150,7 +150,7 @@ public struct PlayerChrome: View {
 
     private var transport: some View {
         HStack(spacing: KanalMetrics.xl) {
-            if !controller.isLive {
+            if controller.isScrubbable {
                 skipButton(seconds: -10, symbol: "gobackward.10")
             }
 
@@ -169,7 +169,7 @@ public struct PlayerChrome: View {
             .accessibilityIdentifier("player.playPause")
             .accessibilityLabel(Text(controller.isPlaying ? UIStrings.pause : UIStrings.play))
 
-            if !controller.isLive {
+            if controller.isScrubbable {
                 skipButton(seconds: 10, symbol: "goforward.10")
             }
         }
@@ -200,7 +200,7 @@ public struct PlayerChrome: View {
             }
             .padding(.horizontal, KanalMetrics.lg)
             .padding(.bottom, KanalMetrics.lg)
-        } else {
+        } else if controller.isScrubbable {
             VStack(spacing: KanalMetrics.xs) {
                 Scrubber(
                     progress: scrubbing ?? controller.progress,

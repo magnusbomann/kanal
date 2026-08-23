@@ -11,6 +11,7 @@ import SwiftUI
 /// would leave the two paths visibly different in a way that reads as a bug.
 public struct PlayerView: View {
     @Environment(AppModel.self) private var model
+    @Environment(Navigator.self) private var navigator
     @Environment(\.alternativePlayer) private var alternativePlayer
     @Environment(\.dismiss) private var dismiss
 
@@ -21,6 +22,50 @@ public struct PlayerView: View {
     @State private var alternativeError: String?
     @State private var alternativeSnapshot: (position: TimeInterval, duration: TimeInterval) = (0, 0)
     @State private var handle: AlternativePlayerHandle?
+    /// Counted down after an episode ends, before the next one starts itself.
+    @State private var secondsUntilNext: Int?
+    @State private var countdown: Task<Void, Never>?
+
+    /// The engine currently playing, whichever it is.
+    private var activeController: any PlaybackControlling {
+        engine == .alternative ? (handle?.controller ?? system) : system
+    }
+
+    /// The episode queued up, once one has finished and another follows.
+    private var pendingNext: MediaItem? {
+        secondsUntilNext == nil ? nil : model.nextEpisode(after: item)
+    }
+
+    /// Counts down visibly rather than jumping straight into the next episode,
+    /// so someone who has had enough can stop it.
+    private func beginCountdownToNextEpisode() {
+        guard let next = model.nextEpisode(after: item) else { return }
+
+        // Finishing an episode means finishing it: recorded so it stops being
+        // offered as something to continue.
+        let snapshot = activeController
+        if snapshot.duration > 0 {
+            model.record(itemID: item.id, position: snapshot.duration, duration: snapshot.duration)
+        }
+
+        countdown?.cancel()
+        secondsUntilNext = 8
+        countdown = Task { @MainActor in
+            while let remaining = secondsUntilNext, remaining > 0 {
+                try? await Task.sleep(for: .seconds(1))
+                guard !Task.isCancelled else { return }
+                secondsUntilNext = remaining - 1
+            }
+            guard !Task.isCancelled else { return }
+            advance(to: next)
+        }
+    }
+
+    private func advance(to next: MediaItem) {
+        countdown?.cancel()
+        secondsUntilNext = nil
+        navigator.play(next)
+    }
 
     public init(plan: PlaybackPlan) {
         self.plan = plan
@@ -58,8 +103,27 @@ public struct PlayerView: View {
                     )
                 }
             }
+            if let next = pendingNext, let seconds = secondsUntilNext {
+                NextEpisodeOverlay(
+                    episode: next,
+                    secondsRemaining: seconds,
+                    onPlayNow: { advance(to: next) },
+                    onStop: {
+                        countdown?.cancel()
+                        dismiss()
+                    }
+                )
+                .padding(KanalMetrics.lg)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+                .transition(.opacity)
+            }
         }
         .task { startPlayback() }
+        .onChange(of: activeController.hasEnded) { _, ended in
+            guard ended else { return }
+            beginCountdownToNextEpisode()
+        }
+        .onDisappear { countdown?.cancel() }
         // A container the system player cannot open is routed across rather
         // than shown to anyone as an error.
         .onChange(of: system.failure) { _, failure in
@@ -89,6 +153,7 @@ public struct PlayerView: View {
     private var alternativeRequest: AlternativePlayerRequest {
         AlternativePlayerRequest(
             url: item.streamURL,
+            isLive: item.kind == .liveTV,
             startAt: resumePosition,
             title: item.title,
             subtitle: subtitle,

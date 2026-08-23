@@ -9,6 +9,9 @@ import SwiftUI
 /// knowing VLC exists.
 public struct AlternativePlayerRequest {
     public let url: URL
+    /// Whether this is a broadcast. Taken from the library entry, because a
+    /// stream's own reported length is not a reliable way to tell.
+    public let isLive: Bool
     /// Where to resume from, in seconds.
     public let startAt: TimeInterval?
     /// Shown in the chrome, which the engine draws itself so both paths match.
@@ -23,6 +26,7 @@ public struct AlternativePlayerRequest {
 
     public init(
         url: URL,
+        isLive: Bool = false,
         startAt: TimeInterval?,
         title: String,
         subtitle: String?,
@@ -31,6 +35,7 @@ public struct AlternativePlayerRequest {
         onClose: @escaping @MainActor () -> Void
     ) {
         self.url = url
+        self.isLive = isLive
         self.startAt = startAt
         self.title = title
         self.subtitle = subtitle
