@@ -76,3 +76,26 @@ public struct LoadingView: View {
         .background(KanalColor.background)
     }
 }
+
+/// Shown when something reaches the player that this profile may not watch.
+///
+/// It says the same thing a parent would: not here, ask a grown-up. No title,
+/// no artwork, no "unlock" button — a child who found their way to this screen
+/// should get an ending, not a puzzle.
+public struct BlockedContentView: View {
+    public let onDismiss: () -> Void
+
+    public init(onDismiss: @escaping () -> Void) {
+        self.onDismiss = onDismiss
+    }
+
+    public var body: some View {
+        EmptyStateView(
+            symbol: "lock.fill",
+            title: String(UIStrings.blockedTitle),
+            message: String(UIStrings.blockedMessage),
+            actionTitle: String(UIStrings.goBack),
+            action: onDismiss
+        )
+    }
+}

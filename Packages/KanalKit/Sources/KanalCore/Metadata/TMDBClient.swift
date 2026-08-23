@@ -163,6 +163,49 @@ public struct TMDBClient: Sendable {
         return overview
     }
 
+    // MARK: - Certifications
+
+    /// The age limit a national film board gave this title.
+    ///
+    /// TMDB files these two different ways — films under release dates per
+    /// country, series under content ratings — and neither endpoint accepts a
+    /// country filter, so the whole set comes back and is picked from here.
+    ///
+    /// - Parameter countries: ISO countries in order of preference. The first
+    ///   one that rated the title wins, so a Norwegian viewer gets
+    ///   Medietilsynet's answer where there is one and a neighbouring board's
+    ///   otherwise.
+    public func certification(
+        id: Int, isSeries: Bool, preferring countries: [String]
+    ) async throws -> (code: String, country: String)? {
+        let path = isSeries ? "tv/\(id)/content_ratings" : "movie/\(id)/release_dates"
+        let data = try await get(path: path, query: [])
+        guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let rows = root["results"] as? [[String: Any]]
+        else { return nil }
+
+        var byCountry: [String: String] = [:]
+        for row in rows {
+            guard let country = (row["iso_3166_1"] as? String)?.uppercased() else { continue }
+            let code: String?
+            if isSeries {
+                code = row["rating"] as? String
+            } else {
+                let releases = row["release_dates"] as? [[String: Any]] ?? []
+                code = releases
+                    .compactMap { $0["certification"] as? String }
+                    .first { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+            }
+            guard let code, !code.trimmingCharacters(in: .whitespaces).isEmpty else { continue }
+            byCountry[country] = code
+        }
+
+        for country in countries.map({ $0.uppercased() }) {
+            if let code = byCountry[country] { return (code, country) }
+        }
+        return nil
+    }
+
     // MARK: - Plumbing
 
     private func results(path: String, query: [URLQueryItem], isSeries: Bool) async throws -> [TMDBTitle] {

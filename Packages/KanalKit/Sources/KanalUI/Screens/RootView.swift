@@ -18,7 +18,15 @@ public struct RootView: View {
             .environment(navigator)
             .tint(KanalColor.accentSolid)
             .task {
+                #if DEBUG
+                if let seeded = LaunchOptions.seededSource {
+                    await model.add(PlaylistSource(kind: .m3u, name: "Test", playlistURL: seeded))
+                } else {
+                    await model.start()
+                }
+                #else
                 await model.start()
+                #endif
                 #if DEBUG
                 if let index = LaunchOptions.autoplayMovieIndex,
                    model.library.movies.indices.contains(index) {
@@ -30,13 +38,33 @@ public struct RootView: View {
                 get: { navigator.playing },
                 set: { navigator.playing = $0 }
             )) { request in
-                PlayerView(plan: request.plan)
-                    .environment(model)
+                // The last gate. The library a profile browses is already
+                // filtered, but a handoff from an iPhone, a stale navigation
+                // path or a resumed shelf can all hand the player something
+                // that was never on screen — and the player is where that
+                // would otherwise become playback.
+                if model.canPlay(request.item) {
+                    PlayerView(plan: request.plan)
+                        .environment(model)
+                } else {
+                    BlockedContentView { navigator.playing = nil }
+                }
             }
     }
 
     @ViewBuilder
     private var content: some View {
+        if model.isChoosingProfile {
+            // Shown over whatever the app is doing, so the catalogue loads
+            // while someone picks their face rather than after it.
+            ProfilePickerView()
+        } else {
+            phaseContent
+        }
+    }
+
+    @ViewBuilder
+    private var phaseContent: some View {
         switch model.phase {
         case .starting:
             // Deliberately bare. A spinner here would flash for a fraction of

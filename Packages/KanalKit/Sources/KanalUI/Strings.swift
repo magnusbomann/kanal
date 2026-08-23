@@ -319,6 +319,22 @@ public enum UIStrings {
         "player.offline.body", "Explains the device could not reach the provider"
     )
 
+    // MARK: - Parental code
+
+    public static let codeEnterTitle = text("code.enter.title", "Asks for the parental code to unlock")
+    public static let codeEnterMessage = text("code.enter.message", "Explains why the code is being asked for")
+    public static let codeSetTitle = text("code.set.title", "Asks the adult to choose a new code")
+    public static let codeSetMessage = text("code.set.message", "Explains what the code will protect")
+    public static let codeConfirmTitle = text("code.confirm.title", "Asks for the new code a second time")
+    public static let codeConfirmMessage = text("code.confirm.message", "Explains the second entry guards against typos")
+    public static let codeWrong = text("code.wrong", "Shown when the entered code does not match")
+    public static func codeDigitsEntered(_ count: Int) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "code.digitsEntered \(count)", bundle: bundle,
+            comment: "Accessibility description of how many digits have been typed"
+        )
+    }
+
     // MARK: - Player controls
 
     public static let closePlayer = text("player.close", "Leaves the player and returns to browsing")
@@ -463,6 +479,91 @@ public enum UIStrings {
     )
     public static let pairingCodeAccessibility = text(
         "pairing.code.accessibility", "Spoken description of the QR code"
+    )
+
+    // MARK: - Profiles
+
+    public static let whoIsWatching = text(
+        "profiles.whoIsWatching", "Headline on the profile picker shown at launch"
+    )
+    public static let profiles = text("profiles.title", "Screen listing everyone in the household")
+    public static let sectionProfiles = text("profiles.section", "Settings section for profiles")
+    public static let sectionPeople = text("profiles.section.people", "Section listing each person")
+    public static let addProfile = text("profiles.add", "Creates a new profile")
+    public static let newProfile = text("profiles.new.title", "Title while creating a profile")
+    public static let editProfile = text("profiles.edit.title", "Title while changing a profile")
+    public static let manageProfiles = text("profiles.manage", "Opens the profile management screen")
+    public static let switchProfile = text("profiles.switch", "Returns to the profile picker")
+    public static let deleteProfile = text("profiles.delete", "Removes a profile and its history")
+    public static let inUse = text("profiles.inUse", "Marks the profile currently in use")
+    public static let cancel = text("action.cancel", "Abandons an edit without saving")
+    public static let goBack = text("action.goBack", "Leaves a screen the viewer may not use")
+    public static let profileNamePlaceholder = text(
+        "profiles.namePlaceholder", "Placeholder in the profile name field"
+    )
+    public static let profileIsChild = text(
+        "profiles.isChild", "Switch that turns a profile into a child's, with an age limit"
+    )
+    public static let profileChildFooter = text(
+        "profiles.isChild.footer",
+        "Explains that a child's profile only shows what a grown-up has approved"
+    )
+    public static let profileAdultFooter = text(
+        "profiles.isAdult.footer", "Explains that an adult profile shows the whole library"
+    )
+    public static let sectionAgeLimit = text("profiles.section.ageLimit", "Section for the age limit")
+    public static let ageLimit = text("profiles.ageLimit", "Label on the age limit picker")
+    public static let sectionAllowedContent = text(
+        "profiles.section.allowed", "Section listing the categories a child may watch"
+    )
+    public static let allowedContentFooter = text(
+        "profiles.allowed.footer",
+        "Explains that approved sections are still checked against official age ratings"
+    )
+    public static let allowedContentFooterNoProvider = text(
+        "profiles.allowed.footer.noRatings",
+        "Explains that without a ratings source only approved sections are shown"
+    )
+    public static let allCategories = text(
+        "profiles.allCategories", "Expands the full list of provider categories"
+    )
+    public static let suggested = text(
+        "profiles.suggested", "Marks a category Kanal thinks is children's television"
+    )
+    public static let noCategoriesYet = text(
+        "profiles.noCategories", "Shown when the playlist has not loaded yet"
+    )
+    public static let updatingLibrary = text(
+        "profiles.updatingLibrary", "Quiet note that the library is refreshing behind the picker"
+    )
+    public static let labelHiddenHere = text(
+        "profiles.hiddenCount", "Label for how many entries this profile does not see"
+    )
+    public static let withheldFooter = text(
+        "profiles.hidden.footer", "Explains why the library looks smaller in this profile"
+    )
+
+    // MARK: - Parental code
+
+    public static let sectionParentalCode = text(
+        "code.section", "Settings section for the four-digit parental code"
+    )
+    public static let setCode = text("code.set", "Creates a parental code")
+    public static let changeCode = text("code.change", "Replaces the parental code")
+    public static let removeCode = text("code.remove", "Deletes the parental code")
+    public static let codeFooterSet = text(
+        "code.footer.set", "Explains what the code currently protects"
+    )
+    public static let codeFooterUnset = text(
+        "code.footer.unset", "Explains that without a code nothing is locked"
+    )
+    // MARK: - Blocked content
+
+    public static let blockedTitle = text(
+        "blocked.title", "Title shown when a profile may not watch something"
+    )
+    public static let blockedMessage = text(
+        "blocked.message", "Tells the viewer to ask a grown-up"
     )
 }
 

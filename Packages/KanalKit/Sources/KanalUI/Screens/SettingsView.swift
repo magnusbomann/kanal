@@ -10,11 +10,33 @@ public struct SettingsView: View {
     @Environment(AppModel.self) private var model
     @State private var isAddingSource = false
     @State private var renaming: PlaylistSource?
+    /// Whether the code has been given during this visit. Not remembered:
+    /// walking out of settings and back in asks again, which is the behaviour
+    /// a parent expects from a lock.
+    @State private var isUnlocked = false
 
     public init() {}
 
     public var body: some View {
+        Group {
+            if model.needsCodeForSettings, !isUnlocked {
+                // Settings is where a playlist is added and a profile's limits
+                // are set. Left open, it would be the way around every other
+                // control on this screen.
+                ParentalCodeView(purpose: .unlock) { entered in
+                    guard model.parentalCode.matches(entered) else { return false }
+                    isUnlocked = true
+                    return true
+                }
+            } else {
+                settings
+            }
+        }
+    }
+
+    private var settings: some View {
         List {
+            profilesSection
             playlistsSection
             #if os(iOS)
             appleTVSection
@@ -34,6 +56,26 @@ public struct SettingsView: View {
         }
         .sheet(item: $renaming) { source in
             RenameSourceSheet(source: source)
+        }
+    }
+
+    private var profilesSection: some View {
+        Section(String(UIStrings.sectionProfiles)) {
+            NavigationLink {
+                ProfilesView()
+            } label: {
+                HStack(spacing: KanalMetrics.md) {
+                    if let profile = model.activeProfile {
+                        ProfileAvatar(profile: profile, size: 32)
+                    }
+                    Text(UIStrings.profiles)
+                }
+            }
+            if model.profiles.count > 1 {
+                Button(String(UIStrings.switchProfile)) {
+                    model.beginChoosingProfile()
+                }
+            }
         }
     }
 

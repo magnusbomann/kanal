@@ -1,172 +1,36 @@
 {
   "sourceLanguage": "en",
   "strings": {
-    "app.name": {
+    "action.addFavourite": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kanal"
+            "value": "Add to favourites"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kanal"
+            "value": "Legg til i favoritter"
           }
         }
       }
     },
-    "welcome.headline.top": {
+    "action.cancel": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "PASTE THE LINK."
+            "value": "Cancel"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "LIM INN LENKEN."
-          }
-        }
-      }
-    },
-    "welcome.headline.bottom": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "WE'LL DO THE REST."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "VI GJØR RESTEN."
-          }
-        }
-      }
-    },
-    "welcome.body": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanal works out who your provider is, sorts live TV, films and series on its own, and finds the TV guide without being asked. Nothing to configure."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanal finner ut hvem leverandøren din er, sorterer direkte-TV, filmer og serier på egen hånd, og henter TV-guiden uten å bli bedt om det. Ingenting å stille inn."
-          }
-        }
-      }
-    },
-    "welcome.field.prompt": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Playlist or provider link"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spilleliste- eller leverandørlenke"
-          }
-        }
-      }
-    },
-    "welcome.action.continue": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Set up Kanal"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sett opp Kanal"
-          }
-        }
-      }
-    },
-    "welcome.action.addSignIn": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Add sign-in"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Legg til innlogging"
-          }
-        }
-      }
-    },
-    "welcome.disclaimer": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanal is a player. It does not provide or host any channels — bring the subscription you already pay for."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanal er en avspiller. Den leverer ingen kanaler selv — ta med abonnementet du allerede betaler for."
-          }
-        }
-      }
-    },
-    "welcome.handoff.action": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Set up from my phone"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sett opp fra telefonen"
-          }
-        }
-      }
-    },
-    "welcome.handoff.hint": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Faster than typing with the remote. Or paste the link below."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Raskere enn å taste med fjernkontrollen. Eller lim inn lenken nedenfor."
+            "value": "Avbryt"
           }
         }
       }
@@ -188,376 +52,121 @@
         }
       }
     },
-    "format.m3u": {
+    "action.done": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "M3U"
+            "value": "Done"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "M3U"
+            "value": "Ferdig"
           }
         }
       }
     },
-    "format.xtream": {
+    "action.goBack": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xtream Codes"
+            "value": "Go back"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xtream Codes"
+            "value": "Tilbake"
           }
         }
       }
     },
-    "format.guide": {
+    "action.openSettings": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "TV guide"
+            "value": "Open Settings"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "TV-guide"
+            "value": "Åpne Innstillinger"
           }
         }
       }
     },
-    "detect.xtream %@": {
+    "action.remove": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xtream provider at %@ — sign-in found in the link, guide included."
+            "value": "Remove"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xtream-leverandør på %@ — innlogging funnet i lenken, guide inkludert."
+            "value": "Fjern"
           }
         }
       }
     },
-    "detect.m3u %@": {
+    "action.removeFavourite": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "M3U playlist at %@."
+            "value": "Remove from favourites"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "M3U-spilleliste på %@."
+            "value": "Fjern fra favoritter"
           }
         }
       }
     },
-    "detect.file": {
+    "action.rename": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Playlist file."
+            "value": "Rename"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spillelistefil."
+            "value": "Gi nytt navn"
           }
         }
       }
     },
-    "detect.pastedText": {
+    "action.save": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Playlist text — Kanal will read it straight from here."
+            "value": "Save"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spillelistetekst — Kanal leser den rett herfra."
-          }
-        }
-      }
-    },
-    "detect.needsCredentials %@": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ looks like an Xtream provider. Kanal needs the username and password."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ ser ut som en Xtream-leverandør. Kanal trenger brukernavn og passord."
-          }
-        }
-      }
-    },
-    "detect.empty": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Paste a playlist link to get started."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lim inn en spillelistelenke for å komme i gang."
-          }
-        }
-      }
-    },
-    "detect.unusable": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "That doesn't look like a link Kanal can open."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dette ser ikke ut som en lenke Kanal kan åpne."
-          }
-        }
-      }
-    },
-    "signIn.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SIGN IN"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "LOGG INN"
-          }
-        }
-      }
-    },
-    "signIn.username": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Username"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Brukernavn"
-          }
-        }
-      }
-    },
-    "signIn.password": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Password"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Passord"
-          }
-        }
-      }
-    },
-    "signIn.connect": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connect"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Koble til"
-          }
-        }
-      }
-    },
-    "signIn.privacy": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your details stay on this device and are sent only to your own provider."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Opplysningene dine blir på denne enheten og sendes bare til din egen leverandør."
-          }
-        }
-      }
-    },
-    "greeting.night": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Late night"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sen kveld"
-          }
-        }
-      }
-    },
-    "greeting.morning": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Good morning"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "God morgen"
-          }
-        }
-      }
-    },
-    "greeting.afternoon": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Good afternoon"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "God ettermiddag"
-          }
-        }
-      }
-    },
-    "greeting.evening": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Good evening"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "God kveld"
-          }
-        }
-      }
-    },
-    "shelf.continueWatching": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Continue watching"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fortsett å se"
-          }
-        }
-      }
-    },
-    "shelf.favouriteChannels": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Favourite channels"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Favorittkanaler"
-          }
-        }
-      }
-    },
-    "shelf.favouriteSeries": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Favourite series"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Favorittserier"
+            "value": "Lagre"
           }
         }
       }
@@ -579,19 +188,366 @@
         }
       }
     },
-    "library.empty": {
+    "action.tryAgain": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nothing loaded yet"
+            "value": "Try again"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ingenting lastet ennå"
+            "value": "Prøv igjen"
+          }
+        }
+      }
+    },
+    "app.name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal"
+          }
+        }
+      }
+    },
+    "badge.live": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direkte"
+          }
+        }
+      }
+    },
+    "badge.live.accessibility": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live now"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direkte nå"
+          }
+        }
+      }
+    },
+    "blocked.message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask a grown-up if you want to watch this."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spør en voksen hvis du vil se dette."
+          }
+        }
+      }
+    },
+    "blocked.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not for this profile"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ikke for denne profilen"
+          }
+        }
+      }
+    },
+    "code.change": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change the code"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Endre koden"
+          }
+        }
+      }
+    },
+    "code.confirm.message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Just to be sure."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bare for å være sikker."
+          }
+        }
+      }
+    },
+    "code.confirm.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type it again"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skriv den én gang til"
+          }
+        }
+      }
+    },
+    "code.digitsEntered %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld digit entered"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld digits entered"
+                }
+              }
+            }
+          }
+        },
+        "nb": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld siffer skrevet inn"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld siffer skrevet inn"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "code.enter.message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A grown-up has to confirm this."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En voksen må bekrefte dette."
+          }
+        }
+      }
+    },
+    "code.enter.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the code"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skriv inn koden"
+          }
+        }
+      }
+    },
+    "code.footer.set": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The code is needed to leave a child's profile, change profiles, or open settings."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koden kreves for å gå ut av en barneprofil, endre profiler eller åpne innstillinger."
+          }
+        }
+      }
+    },
+    "code.footer.unset": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Without a code, a child can switch to any profile themselves."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uten en kode kan et barn selv bytte til hvilken som helst profil."
+          }
+        }
+      }
+    },
+    "code.remove": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove the code"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fjern koden"
+          }
+        }
+      }
+    },
+    "code.section": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parental code"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foreldrekode"
+          }
+        }
+      }
+    },
+    "code.set": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set a code"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lag en kode"
+          }
+        }
+      }
+    },
+    "code.set.message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Four digits, to protect profiles and settings."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fire siffer, som beskytter profiler og innstillinger."
+          }
+        }
+      }
+    },
+    "code.set.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a code"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Velg en kode"
+          }
+        }
+      }
+    },
+    "code.wrong": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That was not the code."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det var ikke riktig kode."
           }
         }
       }
@@ -630,88 +586,6 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld kanaler"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "count.films %lld": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld film"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld films"
-                }
-              }
-            }
-          }
-        },
-        "nb": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld film"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld filmer"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "count.series %lld": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld series"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld series"
-                }
-              }
-            }
-          }
-        },
-        "nb": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld serie"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld serier"
                 }
               }
             }
@@ -760,7 +634,7 @@
         }
       }
     },
-    "count.seasons %lld": {
+    "count.films %lld": {
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -769,13 +643,13 @@
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "%lld season"
+                  "value": "%lld film"
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "%lld seasons"
+                  "value": "%lld films"
                 }
               }
             }
@@ -787,13 +661,13 @@
               "one": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "%lld sesong"
+                  "value": "%lld film"
                 }
               },
               "other": {
                 "stringUnit": {
                   "state": "translated",
-                  "value": "%lld sesonger"
+                  "value": "%lld filmer"
                 }
               }
             }
@@ -838,6 +712,1890 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "count.seasons %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld season"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld seasons"
+                }
+              }
+            }
+          }
+        },
+        "nb": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld sesong"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld sesonger"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "count.series %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld series"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld series"
+                }
+              }
+            }
+          }
+        },
+        "nb": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld serie"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld serier"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "credit.vlc.purpose": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plays the film and series formats Apple's own player cannot open, such as MKV."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spiller av film- og serieformatene Apples egen spiller ikke kan åpne, som MKV."
+          }
+        }
+      }
+    },
+    "credit.wikidata.purpose": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lets you search for a film by the name you know it by, whatever language your provider used."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lar deg søke etter en film med navnet du kjenner den som, uansett hvilket språk leverandøren brukte."
+          }
+        }
+      }
+    },
+    "detect.empty": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste a playlist link to get started."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lim inn en spillelistelenke for å komme i gang."
+          }
+        }
+      }
+    },
+    "detect.file": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlist file."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spillelistefil."
+          }
+        }
+      }
+    },
+    "detect.m3u %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "M3U playlist at %@."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "M3U-spilleliste på %@."
+          }
+        }
+      }
+    },
+    "detect.needsCredentials %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ looks like an Xtream provider. Kanal needs the username and password."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ser ut som en Xtream-leverandør. Kanal trenger brukernavn og passord."
+          }
+        }
+      }
+    },
+    "detect.pastedText": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlist text — Kanal will read it straight from here."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spillelistetekst — Kanal leser den rett herfra."
+          }
+        }
+      }
+    },
+    "detect.unusable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That doesn't look like a link Kanal can open."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dette ser ikke ut som en lenke Kanal kan åpne."
+          }
+        }
+      }
+    },
+    "detect.xtream %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xtream provider at %@ — sign-in found in the link, guide included."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xtream-leverandør på %@ — innlogging funnet i lenken, guide inkludert."
+          }
+        }
+      }
+    },
+    "filter.all": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle"
+          }
+        }
+      }
+    },
+    "filter.clear": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nullstill"
+          }
+        }
+      }
+    },
+    "filter.country": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Country"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Land"
+          }
+        }
+      }
+    },
+    "filter.decade": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decade"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiår"
+          }
+        }
+      }
+    },
+    "filter.decade.label %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%llds"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld-tallet"
+          }
+        }
+      }
+    },
+    "filter.genre": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Genre"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sjanger"
+          }
+        }
+      }
+    },
+    "filter.noResults.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove one and there will be more to choose from."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fjern ett, så blir det mer å velge i."
+          }
+        }
+      }
+    },
+    "filter.noResults.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing matches these filters"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingenting passer disse filtrene"
+          }
+        }
+      }
+    },
+    "format.guide": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV guide"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV-guide"
+          }
+        }
+      }
+    },
+    "format.m3u": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "M3U"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "M3U"
+          }
+        }
+      }
+    },
+    "format.xtream": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xtream Codes"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xtream Codes"
+          }
+        }
+      }
+    },
+    "greeting.afternoon": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good afternoon"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "God ettermiddag"
+          }
+        }
+      }
+    },
+    "greeting.evening": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good evening"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "God kveld"
+          }
+        }
+      }
+    },
+    "greeting.morning": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good morning"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "God morgen"
+          }
+        }
+      }
+    },
+    "greeting.night": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Late night"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sen kveld"
+          }
+        }
+      }
+    },
+    "guide.missing.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal looks for a guide automatically when it loads your playlist. This provider hasn't given one."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal leter etter en guide automatisk når spillelisten lastes. Denne leverandøren har ikke gitt noen."
+          }
+        }
+      }
+    },
+    "guide.missing.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No TV guide yet"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingen TV-guide ennå"
+          }
+        }
+      }
+    },
+    "guide.noChannels.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The guide loaded, but none of its channel IDs match your playlist. That's the provider's data, not something Kanal can fix."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guiden ble lastet, men ingen av kanal-ID-ene stemmer med spillelisten din. Det er leverandørens data, ikke noe Kanal kan rette."
+          }
+        }
+      }
+    },
+    "guide.noChannels.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guide doesn't match these channels"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guiden passer ikke til disse kanalene"
+          }
+        }
+      }
+    },
+    "guide.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guide"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guide"
+          }
+        }
+      }
+    },
+    "guide.view.guide": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guide"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guide"
+          }
+        }
+      }
+    },
+    "guide.view.list": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Channels"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanaler"
+          }
+        }
+      }
+    },
+    "handoff.aim": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Point at the code on your TV"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rett kameraet mot koden på TV-en"
+          }
+        }
+      }
+    },
+    "handoff.camera.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Handoff works by reading the code on your TV screen. Allow camera access in Settings, then come back."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Overleveringen fungerer ved å lese koden på TV-skjermen. Gi tilgang til kameraet i Innstillinger, og kom tilbake."
+          }
+        }
+      }
+    },
+    "handoff.camera.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal needs the camera"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal trenger kameraet"
+          }
+        }
+      }
+    },
+    "handoff.finding": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finding your Apple TV"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finner Apple TV-en din"
+          }
+        }
+      }
+    },
+    "handoff.sending": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sending"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sender"
+          }
+        }
+      }
+    },
+    "handoff.sent": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sendt"
+          }
+        }
+      }
+    },
+    "handoff.sent.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Apple TV is loading the playlist now."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple TV-en laster spillelisten nå."
+          }
+        }
+      }
+    },
+    "handoff.settingsHint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Kanal on the Apple TV and point your camera at the code it shows. Nothing leaves your home network."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åpne Kanal på Apple TV og rett kameraet mot koden den viser. Ingenting forlater hjemmenettet ditt."
+          }
+        }
+      }
+    },
+    "handoff.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send to Apple TV"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send til Apple TV"
+          }
+        }
+      }
+    },
+    "intro.1.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal is a player for the IPTV subscription you already pay for. It doesn't sell channels and doesn't provide any — it just makes the ones you have pleasant to watch."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal er en avspiller for IPTV-abonnementet du allerede betaler for. Den selger ingen kanaler og leverer ingen — den gjør bare de du har hyggelige å se på."
+          }
+        }
+      }
+    },
+    "intro.1.bottom": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FINALLY PLEASANT."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ENDELIG BEHAGELIG."
+          }
+        }
+      }
+    },
+    "intro.1.top": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YOUR TV."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DIN TV."
+          }
+        }
+      }
+    },
+    "intro.2.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your provider gave you a link when you signed up — usually by email, and often called an M3U link or an Xtream login. Find it, and Kanal handles the rest: channels, films, series and the TV guide, sorted on their own."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leverandøren din ga deg en lenke da du tegnet abonnement — som regel på e-post, ofte kalt M3U-lenke eller Xtream-innlogging. Finn den, så ordner Kanal resten: kanaler, filmer, serier og TV-guiden, sortert av seg selv."
+          }
+        }
+      }
+    },
+    "intro.2.bottom": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IS ALL IT TAKES."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ER ALT SOM SKAL TIL."
+          }
+        }
+      }
+    },
+    "intro.2.top": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ONE LINK"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ÉN LENKE"
+          }
+        }
+      }
+    },
+    "intro.continue": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fortsett"
+          }
+        }
+      }
+    },
+    "intro.skip": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I have my link"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jeg har lenken min"
+          }
+        }
+      }
+    },
+    "intro.step %lld %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step %lld of %lld"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steg %lld av %lld"
+          }
+        }
+      }
+    },
+    "library.empty": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing loaded yet"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingenting lastet ennå"
+          }
+        }
+      }
+    },
+    "licenses.intro": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal is built on open-source work by other people. These are the parts, what they do, and where to find them."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal er bygget på åpen kildekode laget av andre. Her er delene, hva de gjør, og hvor du finner dem."
+          }
+        }
+      }
+    },
+    "licenses.label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licence"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lisens"
+          }
+        }
+      }
+    },
+    "licenses.relink": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VLCKit is licensed under the LGPL. You are entitled to obtain its source, modify it, and use your own build of it with this app. Write to us and we will provide what you need to do so."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VLCKit er lisensiert under LGPL. Du har rett til å hente kildekoden, endre den, og bruke din egen versjon av den sammen med denne appen. Ta kontakt, så gir vi deg det du trenger for å gjøre det."
+          }
+        }
+      }
+    },
+    "licenses.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licences"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lisenser"
+          }
+        }
+      }
+    },
+    "licenses.viewSource": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View source"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se kildekoden"
+          }
+        }
+      }
+    },
+    "load.failed.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load that playlist"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klarte ikke å laste spillelisten"
+          }
+        }
+      }
+    },
+    "loading.detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sorting channels, films and series"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sorterer kanaler, filmer og serier"
+          }
+        }
+      }
+    },
+    "pairing.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Kanal on your iPhone, tap Settings, then Send to Apple TV. Point the camera at this code."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Åpne Kanal på iPhone, trykk Innstillinger, så Send til Apple TV. Rett kameraet mot denne koden."
+          }
+        }
+      }
+    },
+    "pairing.code.accessibility": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pairing code"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paringskode"
+          }
+        }
+      }
+    },
+    "pairing.headline": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SET IT UP\nFROM YOUR PHONE."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SETT DET OPP\nFRA TELEFONEN."
+          }
+        }
+      }
+    },
+    "pairing.privacy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing leaves your home network. The code is new every time and stops working the moment this screen closes."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingenting forlater hjemmenettet ditt. Koden er ny hver gang og slutter å virke i det denne skjermen lukkes."
+          }
+        }
+      }
+    },
+    "pairing.receiving": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Receiving"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mottar"
+          }
+        }
+      }
+    },
+    "pairing.waiting": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for your phone"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Venter på telefonen din"
+          }
+        }
+      }
+    },
+    "player.audioTrack": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lyd"
+          }
+        }
+      }
+    },
+    "player.buffering": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buffering"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bufrer"
+          }
+        }
+      }
+    },
+    "player.close": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lukk"
+          }
+        }
+      }
+    },
+    "player.failed.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This stream won't play"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne strømmen spilles ikke av"
+          }
+        }
+      }
+    },
+    "player.offline.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check the connection and try again."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sjekk forbindelsen og prøv igjen."
+          }
+        }
+      }
+    },
+    "player.offline.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't reach your provider"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fikk ikke kontakt med leverandøren"
+          }
+        }
+      }
+    },
+    "player.pause": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause"
+          }
+        }
+      }
+    },
+    "player.play": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spill av"
+          }
+        }
+      }
+    },
+    "player.rejected.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The subscription may have expired, or you may already be watching on as many devices as it allows."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abonnementet kan ha utløpt, eller du ser kanskje allerede på så mange enheter som det tillater."
+          }
+        }
+      }
+    },
+    "player.rejected.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your provider refused this"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leverandøren avviste dette"
+          }
+        }
+      }
+    },
+    "player.server.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The file downloads, but the server won't serve it in pieces, so there is nothing to play or skip through."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fila lastes ned, men serveren vil ikke levere den i biter, så det er ingenting å spille av eller hoppe i."
+          }
+        }
+      }
+    },
+    "player.server.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This server can't be streamed from"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne serveren kan det ikke strømmes fra"
+          }
+        }
+      }
+    },
+    "player.subtitles": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subtitles"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undertekst"
+          }
+        }
+      }
+    },
+    "player.subtitles.off": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Av"
+          }
+        }
+      }
+    },
+    "player.tracks": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio and subtitles"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lyd og undertekst"
+          }
+        }
+      }
+    },
+    "player.unsupported.body %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This film is served as %@. Apple's player only opens MP4, MOV and streaming formats — live TV works because it is streamed. Ask your provider whether they can serve films as HLS or MP4."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne filmen leveres som %@. Apples spiller åpner bare MP4, MOV og strømmeformater — direkte-TV virker fordi det strømmes. Spør leverandøren om de kan levere filmer som HLS eller MP4."
+          }
+        }
+      }
+    },
+    "player.unsupported.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your provider sends this in a format Apple can't open"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leverandøren sender denne i et format Apple ikke kan åpne"
+          }
+        }
+      }
+    },
+    "profiles.add": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add profile"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ny profil"
+          }
+        }
+      }
+    },
+    "profiles.ageLimit": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Age limit"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aldersgrense"
+          }
+        }
+      }
+    },
+    "profiles.allCategories": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All categories"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle kategorier"
+          }
+        }
+      }
+    },
+    "profiles.allowed.footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approved sections are still checked against official age ratings — anything rated above the limit is removed on its own."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Godkjente kategorier sjekkes fortsatt mot offisielle aldersgrenser – det som er merket høyere enn grensen, faller ut av seg selv."
+          }
+        }
+      }
+    },
+    "profiles.allowed.footer.noRatings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal has no ratings source set up, so a child sees exactly the sections you approve here and nothing else."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal har ingen kilde for aldersgrenser satt opp, så et barn ser nøyaktig de kategoriene du godkjenner her – og ingenting annet."
+          }
+        }
+      }
+    },
+    "profiles.delete": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete profile"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slett profil"
+          }
+        }
+      }
+    },
+    "profiles.edit.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit profile"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Endre profil"
+          }
+        }
+      }
+    },
+    "profiles.hidden.footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal hides everything nobody has rated or approved. Add sections in this profile to show more."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal skjuler alt ingen har aldersmerket eller godkjent. Legg til kategorier i profilen for å vise mer."
+          }
+        }
+      }
+    },
+    "profiles.hiddenCount": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hidden in this profile"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skjult i denne profilen"
+          }
+        }
+      }
+    },
+    "profiles.inUse": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In use"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I bruk"
+          }
+        }
+      }
+    },
+    "profiles.isAdult.footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An adult profile sees the whole playlist."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En voksenprofil ser hele spillelisten."
+          }
+        }
+      }
+    },
+    "profiles.isChild": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profile for a child"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil for barn"
+          }
+        }
+      }
+    },
+    "profiles.isChild.footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A child sees only what you approve here, and never the adult section. Anything the app cannot verify stays hidden."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Et barn ser bare det du godkjenner her, og aldri voksendelen. Alt appen ikke kan bekrefte, forblir skjult."
+          }
+        }
+      }
+    },
+    "profiles.manage": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manage profiles"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administrer profiler"
+          }
+        }
+      }
+    },
+    "profiles.namePlaceholder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navn"
+          }
+        }
+      }
+    },
+    "profiles.new.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New profile"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ny profil"
+          }
+        }
+      }
+    },
+    "profiles.noCategories": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The playlist has not loaded yet."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spillelisten er ikke lastet inn ennå."
+          }
+        }
+      }
+    },
+    "profiles.section": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profiles"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profiler"
+          }
+        }
+      }
+    },
+    "profiles.section.ageLimit": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Age limit"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aldersgrense"
+          }
+        }
+      }
+    },
+    "profiles.section.allowed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What this child may watch"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hva dette barnet kan se"
+          }
+        }
+      }
+    },
+    "profiles.section.people": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In this home"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I denne husstanden"
+          }
+        }
+      }
+    },
+    "profiles.suggested": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggested"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foreslått"
+          }
+        }
+      }
+    },
+    "profiles.switch": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch profile"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bytt profil"
+          }
+        }
+      }
+    },
+    "profiles.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profiles"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profiler"
+          }
+        }
+      }
+    },
+    "profiles.updatingLibrary": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updating the library…"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oppdaterer biblioteket …"
+          }
+        }
+      }
+    },
+    "profiles.whoIsWatching": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Who is watching?"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hvem ser på?"
           }
         }
       }
@@ -917,6 +2675,210 @@
         }
       }
     },
+    "rename.hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal names a playlist after the server it came from. Call it whatever makes sense to you."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal navngir en spilleliste etter serveren den kom fra. Kall den det som gir mening for deg."
+          }
+        }
+      }
+    },
+    "rename.prompt": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlist name"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navn på spillelisten"
+          }
+        }
+      }
+    },
+    "rename.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NAME THIS PLAYLIST"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GI SPILLELISTEN NAVN"
+          }
+        }
+      }
+    },
+    "search.empty.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Channels, films and series at once. Titles in your own language work too — type the name you know it by."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanaler, filmer og serier på én gang. Titler på ditt eget språk fungerer også — skriv navnet du kjenner den som."
+          }
+        }
+      }
+    },
+    "search.empty.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search everything"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Søk i alt"
+          }
+        }
+      }
+    },
+    "search.lookingWider": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Looking wider"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Søker bredere"
+          }
+        }
+      }
+    },
+    "search.matchedVia %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your provider lists this as %@"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leverandøren din kaller den %@"
+          }
+        }
+      }
+    },
+    "search.noResults.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try fewer letters. Accents and word order don't matter."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prøv færre bokstaver. Aksenter og ordrekkefølge spiller ingen rolle."
+          }
+        }
+      }
+    },
+    "search.noResults.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing matched"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingen treff"
+          }
+        }
+      }
+    },
+    "search.prompt": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Channels, films, series"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanaler, filmer, serier"
+          }
+        }
+      }
+    },
+    "search.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Søk"
+          }
+        }
+      }
+    },
+    "search.widening": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking other spellings"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sjekker andre skrivemåter"
+          }
+        }
+      }
+    },
     "season.number %lld": {
       "extractionState": "manual",
       "localizations": {
@@ -934,53 +2896,53 @@
         }
       }
     },
-    "badge.live": {
+    "series.episodesFailed": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Live"
+            "value": "Couldn't load episodes"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Direkte"
+            "value": "Klarte ikke å laste episoder"
           }
         }
       }
     },
-    "badge.live.accessibility": {
+    "series.loadingEpisodes": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Live now"
+            "value": "Loading episodes"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Direkte nå"
+            "value": "Laster episoder"
           }
         }
       }
     },
-    "filter.all": {
+    "series.noEpisodes": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "All"
+            "value": "This show has no episodes listed."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle"
+            "value": "Denne serien har ingen episoder oppført."
           }
         }
       }
@@ -1036,363 +2998,6 @@
         }
       }
     },
-    "series.loadingEpisodes": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Loading episodes"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Laster episoder"
-          }
-        }
-      }
-    },
-    "series.episodesFailed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Couldn't load episodes"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Klarte ikke å laste episoder"
-          }
-        }
-      }
-    },
-    "series.noEpisodes": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "This show has no episodes listed."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Denne serien har ingen episoder oppført."
-          }
-        }
-      }
-    },
-    "action.tryAgain": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Try again"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prøv igjen"
-          }
-        }
-      }
-    },
-    "search.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Søk"
-          }
-        }
-      }
-    },
-    "search.prompt": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Channels, films, series"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanaler, filmer, serier"
-          }
-        }
-      }
-    },
-    "search.empty.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search everything"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Søk i alt"
-          }
-        }
-      }
-    },
-    "search.empty.body": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Channels, films and series at once. Titles in your own language work too — type the name you know it by."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanaler, filmer og serier på én gang. Titler på ditt eget språk fungerer også — skriv navnet du kjenner den som."
-          }
-        }
-      }
-    },
-    "search.noResults.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nothing matched"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ingen treff"
-          }
-        }
-      }
-    },
-    "search.noResults.body": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Try fewer letters. Accents and word order don't matter."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prøv færre bokstaver. Aksenter og ordrekkefølge spiller ingen rolle."
-          }
-        }
-      }
-    },
-    "search.widening": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Checking other spellings"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sjekker andre skrivemåter"
-          }
-        }
-      }
-    },
-    "search.lookingWider": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Looking wider"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Søker bredere"
-          }
-        }
-      }
-    },
-    "search.matchedVia %@": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your provider lists this as %@"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Leverandøren din kaller den %@"
-          }
-        }
-      }
-    },
-    "player.buffering": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Buffering"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bufrer"
-          }
-        }
-      }
-    },
-    "player.failed.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "This stream won't play"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Denne strømmen spilles ikke av"
-          }
-        }
-      }
-    },
-    "loading.detail": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sorting channels, films and series"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sorterer kanaler, filmer og serier"
-          }
-        }
-      }
-    },
-    "load.failed.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Couldn't load that playlist"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Klarte ikke å laste spillelisten"
-          }
-        }
-      }
-    },
-    "settings.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Settings"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Innstillinger"
-          }
-        }
-      }
-    },
-    "settings.section.playlists": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Playlists"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spillelister"
-          }
-        }
-      }
-    },
-    "settings.section.appleTV": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apple TV"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apple TV"
-          }
-        }
-      }
-    },
-    "settings.section.library": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Library"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bibliotek"
-          }
-        }
-      }
-    },
     "settings.addPlaylist": {
       "extractionState": "manual",
       "localizations": {
@@ -1410,774 +3015,53 @@
         }
       }
     },
-    "action.remove": {
+    "settings.credit.tmdb": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remove"
+            "value": "This product uses the TMDB API but is not endorsed or certified by TMDB."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fjern"
+            "value": "Dette produktet bruker TMDB-API-et, men er ikke godkjent eller sertifisert av TMDB."
           }
         }
       }
     },
-    "settings.refreshNow": {
+    "settings.credit.wikidata": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Refresh now"
+            "value": "Title translations come from Wikidata, released under CC0."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Oppdater nå"
+            "value": "Titteloversettelser kommer fra Wikidata, utgitt under CC0."
           }
         }
       }
     },
-    "settings.label.channels": {
+    "settings.dataQuality.coverage %lld": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Channels"
+            "value": "The guide covers %lld%% of your channels"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kanaler"
-          }
-        }
-      }
-    },
-    "settings.label.films": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Films"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Filmer"
-          }
-        }
-      }
-    },
-    "settings.label.series": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Series"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Serier"
-          }
-        }
-      }
-    },
-    "settings.label.guide": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "TV guide"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "TV-guide"
-          }
-        }
-      }
-    },
-    "settings.guide.loaded": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Loaded"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lastet"
-          }
-        }
-      }
-    },
-    "settings.guide.notLoaded": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Not loaded"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ikke lastet"
-          }
-        }
-      }
-    },
-    "settings.disclaimer": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanal is a player for a subscription you already have. It provides no channels of its own."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanal er en avspiller for et abonnement du allerede har. Den leverer ingen kanaler selv."
-          }
-        }
-      }
-    },
-    "source.kind.xtream": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Xtream"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Xtream"
-          }
-        }
-      }
-    },
-    "source.kind.m3u": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "M3U"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "M3U"
-          }
-        }
-      }
-    },
-    "source.kind.pasted": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pasted"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Limt inn"
-          }
-        }
-      }
-    },
-    "source.updated %@": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "updated %@"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "oppdatert %@"
-          }
-        }
-      }
-    },
-    "handoff.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Send to Apple TV"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Send til Apple TV"
-          }
-        }
-      }
-    },
-    "handoff.aim": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Point at the code on your TV"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rett kameraet mot koden på TV-en"
-          }
-        }
-      }
-    },
-    "handoff.finding": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Finding your Apple TV"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Finner Apple TV-en din"
-          }
-        }
-      }
-    },
-    "handoff.sending": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sending"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sender"
-          }
-        }
-      }
-    },
-    "handoff.sent": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sent"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sendt"
-          }
-        }
-      }
-    },
-    "handoff.sent.body": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your Apple TV is loading the playlist now."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apple TV-en laster spillelisten nå."
-          }
-        }
-      }
-    },
-    "handoff.camera.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanal needs the camera"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanal trenger kameraet"
-          }
-        }
-      }
-    },
-    "handoff.camera.body": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Handoff works by reading the code on your TV screen. Allow camera access in Settings, then come back."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Overleveringen fungerer ved å lese koden på TV-skjermen. Gi tilgang til kameraet i Innstillinger, og kom tilbake."
-          }
-        }
-      }
-    },
-    "action.openSettings": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open Settings"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Åpne Innstillinger"
-          }
-        }
-      }
-    },
-    "action.done": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Done"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ferdig"
-          }
-        }
-      }
-    },
-    "handoff.settingsHint": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open Kanal on the Apple TV and point your camera at the code it shows. Nothing leaves your home network."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Åpne Kanal på Apple TV og rett kameraet mot koden den viser. Ingenting forlater hjemmenettet ditt."
-          }
-        }
-      }
-    },
-    "pairing.headline": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SET IT UP\nFROM YOUR PHONE."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SETT DET OPP\nFRA TELEFONEN."
-          }
-        }
-      }
-    },
-    "pairing.body": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open Kanal on your iPhone, tap Settings, then Send to Apple TV. Point the camera at this code."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Åpne Kanal på iPhone, trykk Innstillinger, så Send til Apple TV. Rett kameraet mot denne koden."
-          }
-        }
-      }
-    },
-    "pairing.waiting": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Waiting for your phone"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Venter på telefonen din"
-          }
-        }
-      }
-    },
-    "pairing.receiving": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Receiving"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mottar"
-          }
-        }
-      }
-    },
-    "pairing.privacy": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nothing leaves your home network. The code is new every time and stops working the moment this screen closes."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ingenting forlater hjemmenettet ditt. Koden er ny hver gang og slutter å virke i det denne skjermen lukkes."
-          }
-        }
-      }
-    },
-    "pairing.code.accessibility": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pairing code"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Paringskode"
-          }
-        }
-      }
-    },
-    "action.addFavourite": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Add to favourites"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Legg til i favoritter"
-          }
-        }
-      }
-    },
-    "action.removeFavourite": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Remove from favourites"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fjern fra favoritter"
-          }
-        }
-      }
-    },
-    "tab.home": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Home"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hjem"
-          }
-        }
-      }
-    },
-    "guide.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Guide"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Guide"
-          }
-        }
-      }
-    },
-    "guide.view.list": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Channels"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanaler"
-          }
-        }
-      }
-    },
-    "guide.view.guide": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Guide"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Guide"
-          }
-        }
-      }
-    },
-    "guide.missing.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No TV guide yet"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ingen TV-guide ennå"
-          }
-        }
-      }
-    },
-    "guide.missing.body": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanal looks for a guide automatically when it loads your playlist. This provider hasn't given one."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanal leter etter en guide automatisk når spillelisten lastes. Denne leverandøren har ikke gitt noen."
-          }
-        }
-      }
-    },
-    "guide.noChannels.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Guide doesn't match these channels"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Guiden passer ikke til disse kanalene"
-          }
-        }
-      }
-    },
-    "guide.noChannels.body": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The guide loaded, but none of its channel IDs match your playlist. That's the provider's data, not something Kanal can fix."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Guiden ble lastet, men ingen av kanal-ID-ene stemmer med spillelisten din. Det er leverandørens data, ikke noe Kanal kan rette."
-          }
-        }
-      }
-    },
-    "settings.section.dataQuality": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Data from your provider"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Data fra leverandøren"
-          }
-        }
-      }
-    },
-    "settings.dataQuality.intro": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanal worked around these. They're faults in the files your provider sent, not something the app can fix at the source."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanal jobbet seg rundt dette. Det er feil i filene leverandøren din sendte, ikke noe appen kan rette ved kilden."
-          }
-        }
-      }
-    },
-    "settings.dataQuality.skippedLines %lld": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld playlist entry couldn't be read"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld playlist entries couldn't be read"
-                }
-              }
-            }
-          }
-        },
-        "nb": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld oppføring i spillelisten kunne ikke leses"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld oppføringer i spillelisten kunne ikke leses"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "settings.dataQuality.guideRepaired": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The TV guide was malformed and had to be repaired"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "TV-guiden var ugyldig og måtte repareres"
+            "value": "Guiden dekker %lld %% av kanalene dine"
           }
         }
       }
@@ -2199,19 +3083,36 @@
         }
       }
     },
-    "settings.dataQuality.coverage %lld": {
+    "settings.dataQuality.guideRepaired": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The guide covers %lld%% of your channels"
+            "value": "The TV guide was malformed and had to be repaired"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Guiden dekker %lld %% av kanalene dine"
+            "value": "TV-guiden var ugyldig og måtte repareres"
+          }
+        }
+      }
+    },
+    "settings.dataQuality.intro": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal worked around these. They're faults in the files your provider sent, not something the app can fix at the source."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal jobbet seg rundt dette. Det er feil i filene leverandøren din sendte, ikke noe appen kan rette ved kilden."
           }
         }
       }
@@ -2257,6 +3158,200 @@
         }
       }
     },
+    "settings.dataQuality.skippedLines %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld playlist entry couldn't be read"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld playlist entries couldn't be read"
+                }
+              }
+            }
+          }
+        },
+        "nb": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld oppføring i spillelisten kunne ikke leses"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld oppføringer i spillelisten kunne ikke leses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "settings.disclaimer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal is a player for a subscription you already have. It provides no channels of its own."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal er en avspiller for et abonnement du allerede har. Den leverer ingen kanaler selv."
+          }
+        }
+      }
+    },
+    "settings.guide.loaded": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loaded"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lastet"
+          }
+        }
+      }
+    },
+    "settings.guide.notLoaded": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not loaded"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ikke lastet"
+          }
+        }
+      }
+    },
+    "settings.label.channels": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Channels"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanaler"
+          }
+        }
+      }
+    },
+    "settings.label.films": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Films"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filmer"
+          }
+        }
+      }
+    },
+    "settings.label.guide": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV guide"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV-guide"
+          }
+        }
+      }
+    },
+    "settings.label.series": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Series"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serier"
+          }
+        }
+      }
+    },
+    "settings.refreshNow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh now"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oppdater nå"
+          }
+        }
+      }
+    },
+    "settings.section.appleTV": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple TV"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple TV"
+          }
+        }
+      }
+    },
     "settings.section.credits": {
       "extractionState": "manual",
       "localizations": {
@@ -2274,546 +3369,121 @@
         }
       }
     },
-    "settings.credit.tmdb": {
+    "settings.section.dataQuality": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This product uses the TMDB API but is not endorsed or certified by TMDB."
+            "value": "Data from your provider"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dette produktet bruker TMDB-API-et, men er ikke godkjent eller sertifisert av TMDB."
+            "value": "Data fra leverandøren"
           }
         }
       }
     },
-    "settings.credit.wikidata": {
+    "settings.section.library": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Title translations come from Wikidata, released under CC0."
+            "value": "Library"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Titteloversettelser kommer fra Wikidata, utgitt under CC0."
+            "value": "Bibliotek"
           }
         }
       }
     },
-    "player.unsupported.title": {
+    "settings.section.playlists": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your provider sends this in a format Apple can't open"
+            "value": "Playlists"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Leverandøren sender denne i et format Apple ikke kan åpne"
+            "value": "Spillelister"
           }
         }
       }
     },
-    "player.unsupported.body %@": {
+    "settings.title": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This film is served as %@. Apple's player only opens MP4, MOV and streaming formats — live TV works because it is streamed. Ask your provider whether they can serve films as HLS or MP4."
+            "value": "Settings"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Denne filmen leveres som %@. Apples spiller åpner bare MP4, MOV og strømmeformater — direkte-TV virker fordi det strømmes. Spør leverandøren om de kan levere filmer som HLS eller MP4."
+            "value": "Innstillinger"
           }
         }
       }
     },
-    "player.server.title": {
+    "shelf.continueWatching": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This server can't be streamed from"
+            "value": "Continue watching"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Denne serveren kan det ikke strømmes fra"
+            "value": "Fortsett å se"
           }
         }
       }
     },
-    "player.server.body": {
+    "shelf.favouriteChannels": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The file downloads, but the server won't serve it in pieces, so there is nothing to play or skip through."
+            "value": "Favourite channels"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fila lastes ned, men serveren vil ikke levere den i biter, så det er ingenting å spille av eller hoppe i."
+            "value": "Favorittkanaler"
           }
         }
       }
     },
-    "player.rejected.title": {
+    "shelf.favouriteSeries": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your provider refused this"
+            "value": "Favourite series"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Leverandøren avviste dette"
-          }
-        }
-      }
-    },
-    "player.rejected.body": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The subscription may have expired, or you may already be watching on as many devices as it allows."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abonnementet kan ha utløpt, eller du ser kanskje allerede på så mange enheter som det tillater."
-          }
-        }
-      }
-    },
-    "player.offline.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Couldn't reach your provider"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fikk ikke kontakt med leverandøren"
-          }
-        }
-      }
-    },
-    "player.offline.body": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check the connection and try again."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sjekk forbindelsen og prøv igjen."
-          }
-        }
-      }
-    },
-    "action.rename": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rename"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gi nytt navn"
-          }
-        }
-      }
-    },
-    "action.save": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Save"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lagre"
-          }
-        }
-      }
-    },
-    "rename.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "NAME THIS PLAYLIST"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "GI SPILLELISTEN NAVN"
-          }
-        }
-      }
-    },
-    "rename.prompt": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Playlist name"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Navn på spillelisten"
-          }
-        }
-      }
-    },
-    "rename.hint": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanal names a playlist after the server it came from. Call it whatever makes sense to you."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanal navngir en spilleliste etter serveren den kom fra. Kall den det som gir mening for deg."
-          }
-        }
-      }
-    },
-    "intro.1.top": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "YOUR TV."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DIN TV."
-          }
-        }
-      }
-    },
-    "intro.1.bottom": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FINALLY PLEASANT."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ENDELIG BEHAGELIG."
-          }
-        }
-      }
-    },
-    "intro.1.body": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanal is a player for the IPTV subscription you already pay for. It doesn't sell channels and doesn't provide any — it just makes the ones you have pleasant to watch."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanal er en avspiller for IPTV-abonnementet du allerede betaler for. Den selger ingen kanaler og leverer ingen — den gjør bare de du har hyggelige å se på."
-          }
-        }
-      }
-    },
-    "intro.2.top": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ONE LINK"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ÉN LENKE"
-          }
-        }
-      }
-    },
-    "intro.2.bottom": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IS ALL IT TAKES."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ER ALT SOM SKAL TIL."
-          }
-        }
-      }
-    },
-    "intro.2.body": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your provider gave you a link when you signed up — usually by email, and often called an M3U link or an Xtream login. Find it, and Kanal handles the rest: channels, films, series and the TV guide, sorted on their own."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Leverandøren din ga deg en lenke da du tegnet abonnement — som regel på e-post, ofte kalt M3U-lenke eller Xtream-innlogging. Finn den, så ordner Kanal resten: kanaler, filmer, serier og TV-guiden, sortert av seg selv."
-          }
-        }
-      }
-    },
-    "intro.continue": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Continue"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fortsett"
-          }
-        }
-      }
-    },
-    "intro.skip": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "I have my link"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Jeg har lenken min"
-          }
-        }
-      }
-    },
-    "intro.step %lld %lld": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Step %lld of %lld"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Steg %lld av %lld"
-          }
-        }
-      }
-    },
-    "licenses.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Licences"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lisenser"
-          }
-        }
-      }
-    },
-    "licenses.intro": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanal is built on open-source work by other people. These are the parts, what they do, and where to find them."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kanal er bygget på åpen kildekode laget av andre. Her er delene, hva de gjør, og hvor du finner dem."
-          }
-        }
-      }
-    },
-    "licenses.label": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Licence"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lisens"
-          }
-        }
-      }
-    },
-    "licenses.viewSource": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "View source"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Se kildekoden"
-          }
-        }
-      }
-    },
-    "licenses.relink": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "VLCKit is licensed under the LGPL. You are entitled to obtain its source, modify it, and use your own build of it with this app. Write to us and we will provide what you need to do so."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "VLCKit er lisensiert under LGPL. Du har rett til å hente kildekoden, endre den, og bruke din egen versjon av den sammen med denne appen. Ta kontakt, så gir vi deg det du trenger for å gjøre det."
-          }
-        }
-      }
-    },
-    "credit.vlc.purpose": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Plays the film and series formats Apple's own player cannot open, such as MKV."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spiller av film- og serieformatene Apples egen spiller ikke kan åpne, som MKV."
-          }
-        }
-      }
-    },
-    "credit.wikidata.purpose": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lets you search for a film by the name you know it by, whatever language your provider used."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lar deg søke etter en film med navnet du kjenner den som, uansett hvilket språk leverandøren brukte."
-          }
-        }
-      }
-    },
-    "shelf.trending": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Popular this week"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Populært denne uken"
+            "value": "Favorittserier"
           }
         }
       }
@@ -2852,19 +3522,121 @@
         }
       }
     },
-    "sort.recommended": {
+    "shelf.trending": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recommended"
+            "value": "Popular this week"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anbefalt"
+            "value": "Populært denne uken"
+          }
+        }
+      }
+    },
+    "signIn.connect": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koble til"
+          }
+        }
+      }
+    },
+    "signIn.password": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passord"
+          }
+        }
+      }
+    },
+    "signIn.privacy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your details stay on this device and are sent only to your own provider."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opplysningene dine blir på denne enheten og sendes bare til din egen leverandør."
+          }
+        }
+      }
+    },
+    "signIn.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SIGN IN"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LOGG INN"
+          }
+        }
+      }
+    },
+    "signIn.username": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Username"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brukernavn"
+          }
+        }
+      }
+    },
+    "sort.alphabetical": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A–Z"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A–Å"
           }
         }
       }
@@ -2903,138 +3675,87 @@
         }
       }
     },
-    "sort.alphabetical": {
+    "sort.recommended": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A–Z"
+            "value": "Recommended"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "A–Å"
+            "value": "Anbefalt"
           }
         }
       }
     },
-    "filter.genre": {
+    "source.kind.m3u": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Genre"
+            "value": "M3U"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sjanger"
+            "value": "M3U"
           }
         }
       }
     },
-    "filter.country": {
+    "source.kind.pasted": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Country"
+            "value": "Pasted"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Land"
+            "value": "Limt inn"
           }
         }
       }
     },
-    "filter.decade": {
+    "source.kind.xtream": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Decade"
+            "value": "Xtream"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tiår"
+            "value": "Xtream"
           }
         }
       }
     },
-    "filter.clear": {
+    "source.updated %@": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Clear"
+            "value": "updated %@"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nullstill"
-          }
-        }
-      }
-    },
-    "filter.noResults.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nothing matches these filters"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ingenting passer disse filtrene"
-          }
-        }
-      }
-    },
-    "filter.noResults.body": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Remove one and there will be more to choose from."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fjern ett, så blir det mer å velge i."
-          }
-        }
-      }
-    },
-    "filter.decade.label %lld": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%llds"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld-tallet"
+            "value": "oppdatert %@"
           }
         }
       }
@@ -3052,57 +3773,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Andre kilder"
-          }
-        }
-      }
-    },
-    "sources.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "OTHER SOURCES"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ANDRE KILDER"
-          }
-        }
-      }
-    },
-    "sources.hint": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your provider carries this channel on several streams, and not all of them work. Kanal tries them in turn and remembers the one that played."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Leverandøren din fører denne kanalen på flere strømmer, og ikke alle virker. Kanal prøver dem etter tur og husker den som spilte."
-          }
-        }
-      }
-    },
-    "sources.lastWorked": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Played last time"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spilte sist"
           }
         }
       }
@@ -3148,121 +3818,223 @@
         }
       }
     },
-    "player.close": {
+    "sources.hint": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Close"
+            "value": "Your provider carries this channel on several streams, and not all of them work. Kanal tries them in turn and remembers the one that played."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lukk"
+            "value": "Leverandøren din fører denne kanalen på flere strømmer, og ikke alle virker. Kanal prøver dem etter tur og husker den som spilte."
           }
         }
       }
     },
-    "player.play": {
+    "sources.lastWorked": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Play"
+            "value": "Played last time"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spill av"
+            "value": "Spilte sist"
           }
         }
       }
     },
-    "player.pause": {
+    "sources.title": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pause"
+            "value": "OTHER SOURCES"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pause"
+            "value": "ANDRE KILDER"
           }
         }
       }
     },
-    "player.tracks": {
+    "tab.home": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Audio and subtitles"
+            "value": "Home"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lyd og undertekst"
+            "value": "Hjem"
           }
         }
       }
     },
-    "player.audioTrack": {
+    "welcome.action.addSignIn": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Audio"
+            "value": "Add sign-in"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lyd"
+            "value": "Legg til innlogging"
           }
         }
       }
     },
-    "player.subtitles": {
+    "welcome.action.continue": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Subtitles"
+            "value": "Set up Kanal"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Undertekst"
+            "value": "Sett opp Kanal"
           }
         }
       }
     },
-    "player.subtitles.off": {
+    "welcome.body": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Off"
+            "value": "Kanal works out who your provider is, sorts live TV, films and series on its own, and finds the TV guide without being asked. Nothing to configure."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Av"
+            "value": "Kanal finner ut hvem leverandøren din er, sorterer direkte-TV, filmer og serier på egen hånd, og henter TV-guiden uten å bli bedt om det. Ingenting å stille inn."
+          }
+        }
+      }
+    },
+    "welcome.disclaimer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal is a player. It does not provide or host any channels — bring the subscription you already pay for."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanal er en avspiller. Den leverer ingen kanaler selv — ta med abonnementet du allerede betaler for."
+          }
+        }
+      }
+    },
+    "welcome.field.prompt": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlist or provider link"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spilleliste- eller leverandørlenke"
+          }
+        }
+      }
+    },
+    "welcome.handoff.action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up from my phone"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sett opp fra telefonen"
+          }
+        }
+      }
+    },
+    "welcome.handoff.hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faster than typing with the remote. Or paste the link below."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raskere enn å taste med fjernkontrollen. Eller lim inn lenken nedenfor."
+          }
+        }
+      }
+    },
+    "welcome.headline.bottom": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WE'LL DO THE REST."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VI GJØR RESTEN."
+          }
+        }
+      }
+    },
+    "welcome.headline.top": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PASTE THE LINK."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LIM INN LENKEN."
           }
         }
       }

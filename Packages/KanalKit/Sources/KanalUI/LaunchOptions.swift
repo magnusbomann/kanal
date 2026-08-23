@@ -28,6 +28,12 @@ enum LaunchOptions {
         value(for: "-kanal-play-movie").flatMap(Int.init)
     }
 
+    /// `-kanal-source <url>` loads a playlist directly, so a UI test can reach
+    /// the player without tapping through setup.
+    static var seededSource: URL? {
+        value(for: "-kanal-source").flatMap(URL.init(string:))
+    }
+
     private static func value(for flag: String) -> String? {
         let arguments = ProcessInfo.processInfo.arguments
         guard let index = arguments.firstIndex(of: flag),
@@ -40,5 +46,6 @@ enum LaunchOptions {
     static var liveMode: String? { nil }
     static var opensSettings: Bool { false }
     static var autoplayMovieIndex: Int? { nil }
+    static var seededSource: URL? { nil }
     #endif
 }

@@ -13,6 +13,7 @@ public struct HomeView: View {
     @Environment(\.horizontalSizeClass) private var sizeClass
     #endif
     @State private var isShowingSettings = LaunchOptions.opensSettings
+    @State private var isUnlockingSwitch = false
 
     public init() {}
 
@@ -146,6 +147,13 @@ public struct HomeView: View {
         .sheet(isPresented: $isShowingSettings) {
             NavigationStack { SettingsView() }
         }
+        .sheet(isPresented: $isUnlockingSwitch) {
+            ParentalCodeView(purpose: .unlock) { entered in
+                guard model.parentalCode.matches(entered) else { return false }
+                model.beginChoosingProfile()
+                return true
+            }
+        }
     }
 
     private var header: some View {
@@ -162,6 +170,22 @@ public struct HomeView: View {
                     ProgressView()
                         .controlSize(.small)
                         .tint(KanalColor.tertiaryText)
+                }
+                if let profile = model.activeProfile, model.profiles.count > 1 || profile.isRestricted {
+                    // The way back to "who is watching?". Behind the code when
+                    // a restricted profile is in use — that is the whole point
+                    // of the code, and this is the door it guards.
+                    Button {
+                        if model.canLeaveProfileWithoutCode {
+                            model.beginChoosingProfile()
+                        } else {
+                            isUnlockingSwitch = true
+                        }
+                    } label: {
+                        ProfileAvatar(profile: profile, size: 38)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(Text(UIStrings.switchProfile))
                 }
                 Button {
                     isShowingSettings = true

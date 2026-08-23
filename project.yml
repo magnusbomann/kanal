@@ -79,13 +79,31 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: "App Icon & Top Shelf Image"
         ENABLE_PREVIEWS: YES
 
+  KanalUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: App/UITests
+    dependencies:
+      - target: Kanal
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bomann.kanal.uitests
+        TEST_TARGET_NAME: Kanal
+        GENERATE_INFOPLIST_FILE: YES
+
 schemes:
   Kanal:
     build:
       targets:
         Kanal: all
+        KanalUITests: [test]
     run:
       config: Debug
+    test:
+      config: Debug
+      targets:
+        - KanalUITests
   KanalTV:
     build:
       targets:

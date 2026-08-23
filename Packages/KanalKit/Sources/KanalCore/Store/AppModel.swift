@@ -27,7 +27,25 @@ public final class AppModel {
     public private(set) var phase: Phase = .starting
     public private(set) var sources: [PlaylistSource] = []
     public private(set) var activeSourceID: UUID?
-    public private(set) var library: Library = .empty
+    /// Everything the source returned, before any profile is considered.
+    ///
+    /// Only the profile machinery reads this. Every screen reads `library`, so
+    /// a screen that forgets about age limits cannot exist.
+    public internal(set) var catalogue: Library = .empty
+    /// What the person watching right now is allowed to see.
+    public internal(set) var library: Library = .empty
+    public internal(set) var profiles: [Profile] = []
+    public internal(set) var activeProfileID: UUID?
+    /// Whether the "who is watching?" screen is up.
+    ///
+    /// Kept apart from `phase` on purpose: the picker is shown *over* whatever
+    /// the app is doing, which is what turns choosing a profile into the moment
+    /// the catalogue loads instead of an extra wait bolted in front of it.
+    public internal(set) var isChoosingProfile = false
+    public internal(set) var ratings = RatingIndex()
+    /// Set when a restricted profile is active and something was withheld —
+    /// the count behind "some things are hidden here".
+    public internal(set) var withheldCount = 0
     public private(set) var guide: XMLTVParser.Guide?
     public private(set) var isRefreshingGuide = false
     /// A refresh running behind an already-visible catalogue.
@@ -36,6 +54,11 @@ public final class AppModel {
     public private(set) var diagnostics = SourceDiagnostics()
     /// Whether an artwork provider is configured — drives required attribution.
     public private(set) var usesArtworkProvider = false
+    /// Whether national board ratings can be fetched at all. Without a key the
+    /// app still works — a grown-up's approvals carry the load — but the
+    /// profile editor says so rather than leaving a parent wondering why
+    /// nothing fills in on its own.
+    public internal(set) var canVerifyRatings = false
     /// Whether the intro has been seen. Kept in its own file rather than in
     /// `WatchState`, so adding it cannot fail to decode anyone's favourites.
     public private(set) var hasCompletedIntro = false
@@ -49,6 +72,8 @@ public final class AppModel {
 
     public let metadata: MetadataService
     public let discovery: DiscoveryService
+    public let ratingService: RatingService
+    public let parentalCode = ParentalCode()
     /// Recommendation rows, already filtered to what this library carries.
     public private(set) var discoveryShelves: [DiscoveryShelf] = []
     /// Matched once whenever the library or the rows change.
@@ -59,12 +84,14 @@ public final class AppModel {
     public private(set) var visibleDiscoveryShelves: [(shelf: DiscoveryShelf, items: [MediaItem])] = []
     public private(set) var discoveryRanking: [String: Int] = [:]
     private let loader: LibraryLoader
-    private let storage: KanalStorage
+    let storage: KanalStorage
     private var watchStateSaveTask: Task<Void, Never>?
     private var matchingTask: Task<Void, Never>?
+    var verificationTask: Task<Void, Never>?
 
     private static let sourcesFile = "sources.json"
     private static let introFile = "intro-completed.json"
+    static let profilesFile = "profiles.json"
 
     public init(
         loader: LibraryLoader = LibraryLoader(),
@@ -78,11 +105,30 @@ public final class AppModel {
         let tmdbKey = Bundle.main.object(forInfoDictionaryKey: "TMDBAPIKey") as? String
         self.metadata = metadata ?? MetadataService(tmdbAPIKey: tmdbKey, storage: storage)
         self.discovery = DiscoveryService(apiKey: tmdbKey, storage: storage)
+        self.ratingService = RatingService(tmdbAPIKey: tmdbKey, storage: storage)
     }
 
     public var activeSource: PlaylistSource? {
         sources.first { $0.id == activeSourceID } ?? sources.first
     }
+
+    public var activeProfile: Profile? {
+        profiles.first { $0.id == activeProfileID }
+    }
+
+    /// The rules in force right now.
+    ///
+    /// Falls back to a restricted profile with nothing approved when no profile
+    /// has been chosen. That is the safe end of the failure: a moment of an
+    /// empty library, rather than a moment of the whole catalogue.
+    public var policy: ContentPolicy {
+        ContentPolicy(
+            profile: activeProfile ?? Profile(name: "", maturity: .allAges),
+            ratings: ratings
+        )
+    }
+
+    public var isRestricted: Bool { activeProfile?.isRestricted ?? true }
 
     // MARK: Lifecycle
 
@@ -92,16 +138,33 @@ public final class AppModel {
         usesArtworkProvider = await metadata.hasArtworkProvider
         hasCompletedIntro = await storage.load(Bool.self, from: Self.introFile) ?? false
 
+        await ratingService.load()
+        ratings = await ratingService.current
+        canVerifyRatings = await ratingService.canVerifyAutomatically
+
         await discovery.loadCache()
         discoveryShelves = await discovery.cached
         let stored = await storage.load([PlaylistSource].self, from: Self.sourcesFile) ?? []
-        watchState = await storage.load(WatchState.self, from: WatchState.fileName) ?? WatchState()
         sources = stored
         activeSourceID = stored.first?.id
+        profiles = await storage.load([Profile].self, from: Self.profilesFile) ?? []
 
         guard let source = activeSource else {
             phase = .welcome
             return
+        }
+
+        // Someone who has been using Kanal since before profiles existed keeps
+        // everything they had, as a grown-up.
+        if profiles.isEmpty { await adoptExistingHousehold() }
+
+        // Ask who is watching before anything is drawn, and load the catalogue
+        // behind the question. A real provider is 135 MB; the seconds a person
+        // spends picking their own face are seconds nobody spends waiting.
+        if shouldAskWhoIsWatching {
+            isChoosingProfile = true
+        } else if let only = profiles.first {
+            await activate(only)
         }
 
         // Show the catalogue we already have before going anywhere near the
@@ -110,7 +173,7 @@ public final class AppModel {
         // is the difference between an app that feels instant and one that
         // does not.
         if let cached = await loader.loadCache(for: source.id, storage: storage) {
-            library = cached
+            await setCatalogue(cached)
             // Draw first. Matching recommendations builds the search index,
             // which on a real catalogue is seconds of work nobody should wait
             // through to see their own channels.
@@ -144,6 +207,9 @@ public final class AppModel {
     }
 
     public func add(_ source: PlaylistSource) async {
+        // The first playlist creates the household's first profile, so there is
+        // always somebody a library belongs to.
+        if profiles.isEmpty { await createOwnerProfile() }
         sources.append(source)
         activeSourceID = source.id
         await persistSources()
@@ -172,7 +238,7 @@ public final class AppModel {
         sources.removeAll { $0.id == source.id }
         if activeSourceID == source.id {
             activeSourceID = sources.first?.id
-            library = .empty
+            await setCatalogue(.empty)
             guide = nil
         }
         await persistSources()
@@ -186,7 +252,7 @@ public final class AppModel {
     public func switchTo(_ source: PlaylistSource) async {
         guard source.id != activeSourceID else { return }
         activeSourceID = source.id
-        library = .empty
+        await setCatalogue(.empty)
         guide = nil
         await refresh(source)
     }
@@ -208,7 +274,7 @@ public final class AppModel {
 
         do {
             let result = try await loader.loadLibrary(for: source)
-            self.library = result.library
+            await setCatalogue(result.library)
             scheduleDiscoveryMatching()
             let epgURL = result.epgURL
 
@@ -240,7 +306,7 @@ public final class AppModel {
     }
 
     /// Runs the matching after the current screen has had a chance to draw.
-    private func scheduleDiscoveryMatching() {
+    func scheduleDiscoveryMatching() {
         matchingTask?.cancel()
         matchingTask = Task { @MainActor in
             // One turn of the run loop is enough for the first frame.
@@ -313,6 +379,7 @@ public final class AppModel {
     }
 
     private func addPastedPlaylist(_ text: String) async {
+        if profiles.isEmpty { await createOwnerProfile() }
         let playlist = M3UParser().parse(text)
         guard !playlist.items.isEmpty else {
             phase = .failed(String(localized: CoreStrings.emptyPlaylist))
@@ -321,7 +388,7 @@ public final class AppModel {
         let source = PlaylistSource(kind: .localFile, name: "Pasted playlist", epgURL: playlist.epgURL)
         sources.append(source)
         activeSourceID = source.id
-        library = Library(items: playlist.items)
+        await setCatalogue(Library(items: playlist.items))
         phase = .ready
         await persistSources()
         if let epgURL = playlist.epgURL { loadGuide(from: epgURL) }
@@ -337,13 +404,19 @@ public final class AppModel {
     }
 
     /// Progress updates arrive every few seconds during playback; coalesce them.
+    ///
+    /// Written to the active profile's own file. Favourites and history belong
+    /// to a person, not to a device — and a child's cartoons turning up in a
+    /// parent's Continue watching would be the harmless half of getting that
+    /// wrong.
     private func scheduleWatchStateSave() {
         watchStateSaveTask?.cancel()
         let snapshot = watchState
+        let file = activeProfile?.watchStateFileName ?? WatchState.fileName
         watchStateSaveTask = Task { [storage] in
             try? await Task.sleep(for: .seconds(2))
             guard !Task.isCancelled else { return }
-            await storage.save(snapshot, to: WatchState.fileName)
+            await storage.save(snapshot, to: file)
         }
     }
 }

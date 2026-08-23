@@ -256,6 +256,40 @@ public enum CoreStrings {
     public static let otherCategory = resource(
         "category.other", "Fallback name for entries with no provider category"
     )
+
+    // MARK: Profiles and age limits
+
+    public static let profileDefaultOwnerName = resource(
+        "profile.defaultOwnerName",
+        "Name given to the profile created for the person who set the app up"
+    )
+    public static let profileUnnamed = resource(
+        "profile.unnamed", "Shown in place of a profile name that was left blank"
+    )
+
+    /// Medietilsynet's "A" — permitted for all ages. Shown as a badge.
+    public static let ratingAllAges = resource(
+        "rating.allAges.badge", "Very short age badge meaning permitted for all ages"
+    )
+
+    public static let maturityAllAges = resource(
+        "maturity.allAges", "Age limit option: suitable for everyone"
+    )
+    public static let maturitySix = resource(
+        "maturity.six", "Age limit option: six years and up"
+    )
+    public static let maturityNine = resource(
+        "maturity.nine", "Age limit option: nine years and up"
+    )
+    public static let maturityTwelve = resource(
+        "maturity.twelve", "Age limit option: twelve years and up"
+    )
+    public static let maturityFifteen = resource(
+        "maturity.fifteen", "Age limit option: fifteen years and up"
+    )
+    public static let maturityAdult = resource(
+        "maturity.adult", "Age limit option: an adult's profile, nothing withheld"
+    )
 }
 
 public extension LocalizedStringResource {

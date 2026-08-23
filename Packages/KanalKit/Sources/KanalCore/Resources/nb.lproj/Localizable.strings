@@ -61,7 +61,16 @@
 "kind.movies" = "Filmer";
 "kind.series" = "Serier";
 "loading.source %@" = "Laster %@";
+"maturity.adult" = "Voksen – ingenting skjules";
+"maturity.allAges" = "Alle";
+"maturity.fifteen" = "15 år";
+"maturity.nine" = "9 år";
+"maturity.six" = "6 år";
+"maturity.twelve" = "12 år";
 "pairing.mismatch" = "Koden stemte ikke. Vis en ny og prøv igjen.";
 "pairing.notFound" = "Fant ikke Apple TV-en. Sjekk at begge enhetene er på samme Wi-Fi.";
 "pairing.unreadableCode" = "Koden kunne ikke leses.";
 "player.alternativeEngine.failed" = "Denne strømmen ville ikke åpne. Den kan være nede, eller leverandøren din kan ha nådd grensen for antall tilkoblinger.";
+"profile.defaultOwnerName" = "Meg";
+"profile.unnamed" = "Profil";
+"rating.allAges.badge" = "A";

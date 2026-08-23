@@ -97,10 +97,12 @@ public struct PlayerChrome: View {
                 Image(systemName: "xmark")
                     .font(.system(size: 15, weight: .bold))
                     .foregroundStyle(.white)
-                    .frame(width: 40, height: 40)
+                    .frame(width: KanalMetrics.minTarget, height: KanalMetrics.minTarget)
                     .kanalGlassOverVideo(cornerRadius: 100)
+                    .contentShape(.circle)
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier("player.close")
             .accessibilityLabel(Text(UIStrings.closePlayer))
 
             VStack(alignment: .leading, spacing: 2) {
@@ -126,10 +128,12 @@ public struct PlayerChrome: View {
                     Image(systemName: "captions.bubble")
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(.white)
-                        .frame(width: 40, height: 40)
+                        .frame(width: KanalMetrics.minTarget, height: KanalMetrics.minTarget)
                         .kanalGlassOverVideo(cornerRadius: 100)
+                        .contentShape(.circle)
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("player.tracks")
                 .accessibilityLabel(Text(UIStrings.audioAndSubtitles))
             }
 
@@ -159,8 +163,10 @@ public struct PlayerChrome: View {
                     .foregroundStyle(.white)
                     .frame(width: 76, height: 76)
                     .kanalGlassOverVideo(cornerRadius: 100)
+                    .contentShape(.circle)
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier("player.playPause")
             .accessibilityLabel(Text(controller.isPlaying ? UIStrings.pause : UIStrings.play))
 
             if !controller.isLive {
@@ -179,8 +185,10 @@ public struct PlayerChrome: View {
                 .foregroundStyle(.white)
                 .frame(width: 56, height: 56)
                 .kanalGlassOverVideo(cornerRadius: 100)
+                .contentShape(.circle)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(seconds < 0 ? "player.back" : "player.forward")
     }
 
     @ViewBuilder

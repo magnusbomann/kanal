@@ -253,7 +253,7 @@ struct AirPlayButton: View {
     var body: some View {
         #if os(iOS)
         RoutePicker()
-            .frame(width: 40, height: 40)
+            .frame(width: KanalMetrics.minTarget, height: KanalMetrics.minTarget)
             .kanalGlassOverVideo(cornerRadius: 100)
         #else
         EmptyView()

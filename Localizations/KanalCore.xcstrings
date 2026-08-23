@@ -1,227 +1,6 @@
 {
   "sourceLanguage": "en",
   "strings": {
-    "kind.liveTV": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Live TV"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Direkte"
-          }
-        }
-      }
-    },
-    "kind.movies": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Films"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Filmer"
-          }
-        }
-      }
-    },
-    "kind.series": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Series"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Serier"
-          }
-        }
-      }
-    },
-    "error.noPlaylistLink": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "This source has no playlist link."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Denne kilden mangler spillelistelenke."
-          }
-        }
-      }
-    },
-    "error.emptyPlaylist": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The playlist loaded, but it contained no channels."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spillelisten ble lastet, men inneholdt ingen kanaler."
-          }
-        }
-      }
-    },
-    "error.http %lld": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The server replied with error %lld."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Serveren svarte med feil %lld."
-          }
-        }
-      }
-    },
-    "error.badResponse": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "That server answered, but not in a way Kanal understands."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Serveren svarte, men ikke på en måte Kanal forstår."
-          }
-        }
-      }
-    },
-    "error.unauthorized": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The username or password was rejected."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Brukernavnet eller passordet ble avvist."
-          }
-        }
-      }
-    },
-    "error.expired": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "This subscription has expired."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dette abonnementet har utløpt."
-          }
-        }
-      }
-    },
-    "error.expiredOn %@": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "This subscription expired %@."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dette abonnementet utløp %@."
-          }
-        }
-      }
-    },
-    "error.noMetadataKey": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No TMDB key is configured."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ingen TMDB-nøkkel er satt opp."
-          }
-        }
-      }
-    },
-    "error.rateLimited": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "TMDB asked us to slow down."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "TMDB ba oss senke farten."
-          }
-        }
-      }
-    },
-    "error.requestFailed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Could not build the request."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Klarte ikke å bygge forespørselen."
-          }
-        }
-      }
-    },
     "category.other": {
       "extractionState": "manual",
       "localizations": {
@@ -273,121 +52,172 @@
         }
       }
     },
-    "pairing.mismatch": {
+    "error.badResponse": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "That code didn't match. Show a fresh one and try again."
+            "value": "That server answered, but not in a way Kanal understands."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Koden stemte ikke. Vis en ny og prøv igjen."
+            "value": "Serveren svarte, men ikke på en måte Kanal forstår."
           }
         }
       }
     },
-    "pairing.unreadableCode": {
+    "error.emptyPlaylist": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "That code is not readable."
+            "value": "The playlist loaded, but it contained no channels."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Koden kunne ikke leses."
+            "value": "Spillelisten ble lastet, men inneholdt ingen kanaler."
           }
         }
       }
     },
-    "pairing.notFound": {
+    "error.expired": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn't find that Apple TV. Check both devices are on the same Wi-Fi."
+            "value": "This subscription has expired."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fant ikke Apple TV-en. Sjekk at begge enhetene er på samme Wi-Fi."
+            "value": "Dette abonnementet har utløpt."
           }
         }
       }
     },
-    "loading.source %@": {
+    "error.expiredOn %@": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Loading %@"
+            "value": "This subscription expired %@."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Laster %@"
+            "value": "Dette abonnementet utløp %@."
           }
         }
       }
     },
-    "genre.entertainment": {
+    "error.http %lld": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Entertainment"
+            "value": "The server replied with error %lld."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Underholdning"
+            "value": "Serveren svarte med feil %lld."
           }
         }
       }
     },
-    "genre.comedy": {
+    "error.noMetadataKey": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Comedy"
+            "value": "No TMDB key is configured."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Komedie"
+            "value": "Ingen TMDB-nøkkel er satt opp."
           }
         }
       }
     },
-    "genre.drama": {
+    "error.noPlaylistLink": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drama"
+            "value": "This source has no playlist link."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drama"
+            "value": "Denne kilden mangler spillelistelenke."
+          }
+        }
+      }
+    },
+    "error.rateLimited": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TMDB asked us to slow down."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TMDB ba oss senke farten."
+          }
+        }
+      }
+    },
+    "error.requestFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not build the request."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klarte ikke å bygge forespørselen."
+          }
+        }
+      }
+    },
+    "error.unauthorized": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The username or password was rejected."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brukernavnet eller passordet ble avvist."
           }
         }
       }
@@ -405,6 +235,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Action"
+          }
+        }
+      }
+    },
+    "genre.adult": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adult"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voksen"
           }
         }
       }
@@ -443,223 +290,53 @@
         }
       }
     },
-    "genre.kids": {
+    "genre.biography": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kids"
+            "value": "Biography"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Barn"
+            "value": "Biografi"
           }
         }
       }
     },
-    "genre.family": {
+    "genre.classics": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Family"
+            "value": "Classics"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Familie"
+            "value": "Klassikere"
           }
         }
       }
     },
-    "genre.documentary": {
+    "genre.comedy": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Documentary"
+            "value": "Comedy"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dokumentar"
-          }
-        }
-      }
-    },
-    "genre.sport": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sport"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sport"
-          }
-        }
-      }
-    },
-    "genre.football": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Football"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fotball"
-          }
-        }
-      }
-    },
-    "genre.news": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "News"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nyheter"
-          }
-        }
-      }
-    },
-    "genre.music": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Music"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Musikk"
-          }
-        }
-      }
-    },
-    "genre.lifestyle": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lifestyle"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Livsstil"
-          }
-        }
-      }
-    },
-    "genre.food": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Food"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mat"
-          }
-        }
-      }
-    },
-    "genre.travel": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Travel"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reise"
-          }
-        }
-      }
-    },
-    "genre.nature": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nature"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Natur"
-          }
-        }
-      }
-    },
-    "genre.science": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Science"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vitenskap"
-          }
-        }
-      }
-    },
-    "genre.history": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "History"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Historie"
+            "value": "Komedie"
           }
         }
       }
@@ -681,70 +358,104 @@
         }
       }
     },
-    "genre.thriller": {
+    "genre.documentary": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Thriller"
+            "value": "Documentary"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Thriller"
+            "value": "Dokumentar"
           }
         }
       }
     },
-    "genre.horror": {
+    "genre.drama": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Horror"
+            "value": "Drama"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Skrekk"
+            "value": "Drama"
           }
         }
       }
     },
-    "genre.romance": {
+    "genre.education": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Romance"
+            "value": "Education"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Romantikk"
+            "value": "Læring"
           }
         }
       }
     },
-    "genre.scifi": {
+    "genre.entertainment": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sci-fi"
+            "value": "Entertainment"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sci-fi"
+            "value": "Underholdning"
+          }
+        }
+      }
+    },
+    "genre.events": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Events"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrangementer"
+          }
+        }
+      }
+    },
+    "genre.family": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Family"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Familie"
           }
         }
       }
@@ -766,53 +477,206 @@
         }
       }
     },
-    "genre.western": {
+    "genre.food": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Western"
+            "value": "Food"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Western"
+            "value": "Mat"
           }
         }
       }
     },
-    "genre.war": {
+    "genre.football": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "War"
+            "value": "Football"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Krig"
+            "value": "Fotball"
           }
         }
       }
     },
-    "genre.biography": {
+    "genre.gaming": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Biography"
+            "value": "Gaming"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Biografi"
+            "value": "Gaming"
+          }
+        }
+      }
+    },
+    "genre.general": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generelt"
+          }
+        }
+      }
+    },
+    "genre.health": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Health"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Helse"
+          }
+        }
+      }
+    },
+    "genre.history": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "History"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Historie"
+          }
+        }
+      }
+    },
+    "genre.horror": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Horror"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skrekk"
+          }
+        }
+      }
+    },
+    "genre.international": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "International"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internasjonalt"
+          }
+        }
+      }
+    },
+    "genre.kids": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kids"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Barn"
+          }
+        }
+      }
+    },
+    "genre.lifestyle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lifestyle"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Livsstil"
+          }
+        }
+      }
+    },
+    "genre.local": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokalt"
+          }
+        }
+      }
+    },
+    "genre.music": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Music"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Musikk"
           }
         }
       }
@@ -830,6 +694,74 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mysterium"
+          }
+        }
+      }
+    },
+    "genre.nature": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nature"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Natur"
+          }
+        }
+      }
+    },
+    "genre.news": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "News"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nyheter"
+          }
+        }
+      }
+    },
+    "genre.premium": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Premium"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Premium"
+          }
+        }
+      }
+    },
+    "genre.radio": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Radio"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Radio"
           }
         }
       }
@@ -868,121 +800,53 @@
         }
       }
     },
-    "genre.education": {
+    "genre.romance": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Education"
+            "value": "Romance"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Læring"
+            "value": "Romantikk"
           }
         }
       }
     },
-    "genre.health": {
+    "genre.science": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Health"
+            "value": "Science"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Helse"
+            "value": "Vitenskap"
           }
         }
       }
     },
-    "genre.gaming": {
+    "genre.scifi": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gaming"
+            "value": "Sci-fi"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gaming"
-          }
-        }
-      }
-    },
-    "genre.classics": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Classics"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Klassikere"
-          }
-        }
-      }
-    },
-    "genre.adult": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Adult"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Voksen"
-          }
-        }
-      }
-    },
-    "genre.radio": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Radio"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Radio"
-          }
-        }
-      }
-    },
-    "genre.weather": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Weather"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vær"
+            "value": "Sci-fi"
           }
         }
       }
@@ -1004,87 +868,325 @@
         }
       }
     },
-    "genre.events": {
+    "genre.sport": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Events"
+            "value": "Sport"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Arrangementer"
+            "value": "Sport"
           }
         }
       }
     },
-    "genre.general": {
+    "genre.thriller": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "General"
+            "value": "Thriller"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Generelt"
+            "value": "Thriller"
           }
         }
       }
     },
-    "genre.local": {
+    "genre.travel": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Local"
+            "value": "Travel"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lokalt"
+            "value": "Reise"
           }
         }
       }
     },
-    "genre.international": {
+    "genre.war": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "International"
+            "value": "War"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Internasjonalt"
+            "value": "Krig"
           }
         }
       }
     },
-    "genre.premium": {
+    "genre.weather": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Premium"
+            "value": "Weather"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Premium"
+            "value": "Vær"
+          }
+        }
+      }
+    },
+    "genre.western": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Western"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Western"
+          }
+        }
+      }
+    },
+    "kind.liveTV": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live TV"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direkte"
+          }
+        }
+      }
+    },
+    "kind.movies": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Films"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filmer"
+          }
+        }
+      }
+    },
+    "kind.series": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Series"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serier"
+          }
+        }
+      }
+    },
+    "loading.source %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading %@"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laster %@"
+          }
+        }
+      }
+    },
+    "maturity.adult": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adult — nothing hidden"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voksen – ingenting skjules"
+          }
+        }
+      }
+    },
+    "maturity.allAges": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All ages"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle"
+          }
+        }
+      }
+    },
+    "maturity.fifteen": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 and up"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 år"
+          }
+        }
+      }
+    },
+    "maturity.nine": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "9 and up"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "9 år"
+          }
+        }
+      }
+    },
+    "maturity.six": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 and up"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 år"
+          }
+        }
+      }
+    },
+    "maturity.twelve": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 and up"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 år"
+          }
+        }
+      }
+    },
+    "pairing.mismatch": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That code didn't match. Show a fresh one and try again."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koden stemte ikke. Vis en ny og prøv igjen."
+          }
+        }
+      }
+    },
+    "pairing.notFound": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't find that Apple TV. Check both devices are on the same Wi-Fi."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fant ikke Apple TV-en. Sjekk at begge enhetene er på samme Wi-Fi."
+          }
+        }
+      }
+    },
+    "pairing.unreadableCode": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That code is not readable."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koden kunne ikke leses."
           }
         }
       }
@@ -1102,6 +1204,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "Denne strømmen ville ikke åpne. Den kan være nede, eller leverandøren din kan ha nådd grensen for antall tilkoblinger."
+          }
+        }
+      }
+    },
+    "profile.defaultOwnerName": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Me"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meg"
+          }
+        }
+      }
+    },
+    "profile.unnamed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profile"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil"
+          }
+        }
+      }
+    },
+    "rating.allAges.badge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A"
           }
         }
       }
