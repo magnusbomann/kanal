@@ -22,6 +22,19 @@ public struct HomeView: View {
             LazyVStack(alignment: .leading, spacing: KanalMetrics.xl) {
                 header
 
+                // A child's library can legitimately be empty — nothing has
+                // been approved yet. Saying so is the difference between "this
+                // app is broken" and "ask a grown-up", and the person who has
+                // to tell them apart is seven.
+                if model.library.isEmpty, model.isRestricted, model.phase == .ready {
+                    EmptyStateView(
+                        symbol: "hand.raised.fill",
+                        title: String(UIStrings.childLibraryEmptyTitle),
+                        message: String(UIStrings.childLibraryEmptyBody)
+                    )
+                    .frame(minHeight: 320)
+                }
+
                 if !model.continueWatching.isEmpty {
                     Shelf(title: String(UIStrings.shelfContinueWatching), itemWidth: cardWidth(.backdrop)) {
                         ForEach(model.continueWatching) { item in
@@ -88,11 +101,9 @@ public struct HomeView: View {
                                 progressFraction: model.progress(for: item)?.fraction,
                                 enrich: item
                             ) {
-                                if item.kind == .series, let group = seriesGroup(for: item) {
-                                    navigator.push(.series(id: group.id))
-                                } else {
-                                    navigator.play(item)
-                                }
+                                navigator.showDetails(
+                                    for: item, seriesGroup: seriesGroup(for: item)
+                                )
                             }
                         }
                     }
@@ -135,7 +146,7 @@ public struct HomeView: View {
                                 subtitle: movie.year.map(String.init),
                                 enrich: movie
                             ) {
-                                navigator.play(movie)
+                                navigator.showDetails(for: movie)
                             }
                         }
                     }

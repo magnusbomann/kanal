@@ -58,20 +58,29 @@ public struct ContentPolicy: Sendable {
         // is one tap, and panels do file adult entries inside otherwise
         // ordinary sections; this is the floor under that mistake.
         if AdultContentDetector.isAdult(item) { return .denied(.adultContent) }
-        if profile.blockedItemIDs.contains(item.id) { return .denied(.blockedByParent) }
+        let key = RatingKey.of(item)
+        if profile.blockedTitleKeys.contains(key) { return .denied(.blockedByParent) }
 
-        let rating = ratings.rating(for: item)
-        // A board rating above the limit overrules an approved category — a
-        // grown-up ticking "Action" was not agreeing to every film in it.
-        if let rating, rating.isVerified, rating.rating > profile.maturity {
+        // Three strengths of decision, weakest first: approving a section is
+        // broad and casual, a board rating is specific and usually right, and
+        // approving one title by name is a grown-up looking straight at that
+        // title. So a rating overrules a section, and a named approval
+        // overrules the rating.
+        //
+        // The last step is not a formality. Identifying a title from a
+        // provider's playlist is guesswork often enough — "Frost" is Disney's
+        // *Frozen* here and a different 2013 film to a search engine — that a
+        // rating a parent can see and disagree with is worth more than one
+        // they cannot.
+        if profile.allowedTitleKeys.contains(key) { return .allowed }
+
+        let rating = ratings[key]
+        // Applies whether the rating was verified or is the provider's own
+        // marker: both are trusted to withhold, only one is trusted to permit.
+        if let rating, rating.rating > profile.maturity {
             return .denied(.aboveAgeLimit(rating.rating))
         }
-        // A provider's own "18+" denies but never permits; see `isVerified`.
-        if let rating, !rating.isVerified, rating.rating > profile.maturity {
-            return .denied(.aboveAgeLimit(rating.rating))
-        }
 
-        if profile.allowedItemIDs.contains(item.id) { return .allowed }
         if let category = item.category, profile.allowedCategories.contains(category) {
             return .allowed
         }
@@ -110,6 +119,29 @@ public struct ContentPolicy: Sendable {
     public func apply(to library: Library) -> Library {
         guard profile.isRestricted else { return library }
         return Library(items: library.items.filter(allows))
+    }
+
+    /// Titles an approved section would have shown, held back by a rating.
+    ///
+    /// This list is the reason a rating is allowed to overrule an approval at
+    /// all. A parent who ticked "Kids Movies" and then cannot find a film they
+    /// know is fine needs somewhere to look, see why, and disagree — otherwise
+    /// the safe behaviour is indistinguishable from a broken catalogue.
+    public func withheldByRating(
+        in library: Library, limit: Int = 200
+    ) -> [(item: MediaItem, rating: MaturityRating)] {
+        guard profile.isRestricted else { return [] }
+        var found: [(item: MediaItem, rating: MaturityRating)] = []
+        for item in library.items {
+            guard found.count < limit else { break }
+            guard !AdultContentDetector.isAdult(item) else { continue }
+            let inApprovedSection = item.category.map(profile.allowedCategories.contains) == true
+                || item.rawGroup.map(profile.allowedCategories.contains) == true
+            guard inApprovedSection else { continue }
+            guard case .denied(.aboveAgeLimit(let rating)) = decision(for: item) else { continue }
+            found.append((item, rating))
+        }
+        return found
     }
 
     /// Categories worth offering a grown-up when they set up a child.

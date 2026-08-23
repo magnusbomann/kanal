@@ -22,11 +22,24 @@ public struct PlaybackRequest: Identifiable {
 }
 
 /// Shared navigation state, so a card in any tab can open the player.
+/// A title someone wants to know about before committing to it.
+public struct DetailRequest: Identifiable {
+    public let item: MediaItem
+    public let seriesGroup: SeriesGroup?
+    public var id: String { seriesGroup?.id ?? item.id }
+
+    public init(item: MediaItem, seriesGroup: SeriesGroup? = nil) {
+        self.item = item
+        self.seriesGroup = seriesGroup
+    }
+}
+
 @MainActor
 @Observable
 public final class Navigator {
     public var path = NavigationPath()
     public var playing: PlaybackRequest?
+    public var showingDetails: DetailRequest?
 
     public init() {}
 
@@ -43,6 +56,14 @@ public final class Navigator {
     /// Plays a specific stream the viewer chose from the alternatives.
     public func play(_ variant: MediaItem, from group: ChannelGroup) {
         playing = PlaybackRequest(plan: PlaybackPlan(group: group, explicitlyChosen: variant))
+    }
+
+    /// Opens the screen that says what something is before playing it.
+    ///
+    /// Only for films and shows. A channel is a thing you put on, not a thing
+    /// you read about, so tapping one plays it.
+    public func showDetails(for item: MediaItem, seriesGroup: SeriesGroup? = nil) {
+        showingDetails = DetailRequest(item: item, seriesGroup: seriesGroup)
     }
 
     public func push(_ route: Route) {

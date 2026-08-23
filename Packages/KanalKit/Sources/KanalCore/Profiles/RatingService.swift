@@ -114,7 +114,7 @@ public actor RatingService {
             let isSeries = item.kind == .series
             do {
                 let matches = try await client.search(name, year: item.year, isSeries: isSeries)
-                guard let best = matches.first else {
+                guard let best = Self.confidentMatch(for: name, year: item.year, among: matches) else {
                     knownUnrated.insert(key)
                     continue
                 }
@@ -144,6 +144,46 @@ public actor RatingService {
 
         await persist()
         return changed ? index : nil
+    }
+
+    // MARK: - Identifying
+
+    /// The one title this entry certainly is, or nothing.
+    ///
+    /// Taking the first search result is what a metadata layer does, and it is
+    /// the wrong instinct here. Measured against a real playlist: "Frost (2013)"
+    /// is Disney's *Frozen* to a Norwegian viewer and a different 2013 film
+    /// called *Frost* to TMDB's search, which answered with the latter and its
+    /// British 15 certificate. That rating would have pulled a children's film
+    /// out of a child's profile on the strength of a coincidence.
+    ///
+    /// So two entries that both fit is not a tie to break — it is an answer we
+    /// do not have. Recording nothing leaves the entry unrated, which costs a
+    /// grown-up's approval at worst and never invents a limit.
+    static func confidentMatch(
+        for name: String, year: Int?, among candidates: [TMDBTitle]
+    ) -> TMDBTitle? {
+        let needle = SearchNormalizer.normalize(name)
+        guard !needle.isEmpty else { return nil }
+
+        var fits: [TMDBTitle] = []
+        for candidate in candidates {
+            // The name has to be the same name, not merely a close one. A
+            // prefix match is good enough to choose a poster and nowhere near
+            // good enough to decide what a child may watch.
+            guard candidate.allTitles.contains(where: { SearchNormalizer.normalize($0) == needle })
+            else { continue }
+            // A year that disagrees settles it; a year nobody stated does not.
+            if let year, let candidateYear = candidate.year, abs(candidateYear - year) > 1 {
+                continue
+            }
+            fits.append(candidate)
+        }
+
+        // Two different films of the same name in the same year is exactly the
+        // case that produced the wrong answer above.
+        guard Set(fits.map(\.id)).count == 1 else { return nil }
+        return fits.first
     }
 
     // MARK: - Manual

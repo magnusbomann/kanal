@@ -21,6 +21,7 @@ struct ProfileEditorView: View {
     @State private var isChild = false
     @State private var maturity: MaturityRating = .six
     @State private var allowedCategories: Set<String> = []
+    @State private var allowedTitleKeys: Set<String> = []
     @State private var hasLoaded = false
 
     var body: some View {
@@ -30,6 +31,7 @@ struct ProfileEditorView: View {
             if isChild {
                 limitSection
                 accessSection
+                if !withheld.isEmpty { withheldSection }
             }
             if existing != nil, model.profiles.count > 1 {
                 deleteSection
@@ -185,6 +187,52 @@ struct ProfileEditorView: View {
         }
     }
 
+    /// Titles an approved section would have shown, held back by an age
+    /// rating — and the place a grown-up disagrees with one.
+    ///
+    /// Identifying a film from a provider's playlist is guesswork often enough
+    /// that a rating nobody can see or overrule would eventually hide something
+    /// a parent knows is fine, with no way to say so.
+    private var withheldSection: some View {
+        Section {
+            ForEach(withheld, id: \.item.id) { entry in
+                Button {
+                    if allowedTitleKeys.contains(RatingKey.of(entry.item)) {
+                        allowedTitleKeys.remove(RatingKey.of(entry.item))
+                    } else {
+                        allowedTitleKeys.insert(RatingKey.of(entry.item))
+                    }
+                } label: {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(verbatim: entry.item.seriesName ?? entry.item.title)
+                                .font(KanalFont.body(15))
+                                .foregroundStyle(KanalColor.primaryText)
+                            Text(UIStrings.ratedBadge(entry.rating.badge))
+                                .font(KanalFont.caption(11))
+                                .foregroundStyle(KanalColor.tertiaryText)
+                        }
+                        Spacer()
+                        Image(
+                            systemName: allowedTitleKeys.contains(RatingKey.of(entry.item))
+                                ? "checkmark.circle.fill" : "circle"
+                        )
+                        .foregroundStyle(
+                            allowedTitleKeys.contains(RatingKey.of(entry.item))
+                                ? KanalColor.accentSolid : KanalColor.tertiaryText
+                        )
+                    }
+                    .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+            }
+        } header: {
+            Text(UIStrings.sectionWithheldByRating)
+        } footer: {
+            Text(UIStrings.withheldByRatingFooter)
+        }
+    }
+
     private func categoryRow(_ name: String, count: Int, isSuggested: Bool) -> some View {
         Button {
             if allowedCategories.contains(name) {
@@ -241,6 +289,16 @@ struct ProfileEditorView: View {
         )
     }
 
+    /// What an age rating is currently holding back inside an approved section.
+    private var withheld: [(item: MediaItem, rating: MaturityRating)] {
+        var draft = existing ?? Profile(name: name)
+        draft.maturity = isChild ? maturity : .adult
+        draft.allowedCategories = allowedCategories
+        draft.allowedTitleKeys = []
+        return ContentPolicy(profile: draft, ratings: model.ratings)
+            .withheldByRating(in: model.catalogue, limit: 60)
+    }
+
     /// Sections that look like children's television, biggest first.
     private var suggestions: [(name: String, count: Int)] {
         ContentPolicy.suggestedChildCategories(in: model.catalogue)
@@ -284,6 +342,7 @@ struct ProfileEditorView: View {
         isChild = existing.isRestricted
         maturity = existing.isRestricted ? existing.maturity : .six
         allowedCategories = existing.allowedCategories
+        allowedTitleKeys = existing.allowedTitleKeys
     }
 
     private func save() {
@@ -293,6 +352,7 @@ struct ProfileEditorView: View {
         profile.colorIndex = colorIndex
         profile.maturity = isChild ? maturity : .adult
         profile.allowedCategories = isChild ? allowedCategories : []
+        profile.allowedTitleKeys = isChild ? allowedTitleKeys : []
 
         Task {
             if existing == nil {

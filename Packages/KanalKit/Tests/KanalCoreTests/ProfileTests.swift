@@ -279,3 +279,112 @@ struct ProfileStorageTests {
         #expect(one.watchStateFileName != two.watchStateFileName)
     }
 }
+
+@Suite("Identifying a title before rating it")
+struct RatingMatchTests {
+
+    static func candidate(_ id: Int, _ titles: [String], year: Int?) -> TMDBTitle {
+        TMDBTitle(
+            id: id, isSeries: false,
+            localizedTitle: titles[0], originalTitle: titles[0],
+            alternateTitles: Array(titles.dropFirst()),
+            overview: nil, year: year, posterPath: nil, backdropPath: nil, voteAverage: nil
+        )
+    }
+
+    @Test("One title with the same name and year is a match")
+    func single() {
+        let found = RatingService.confidentMatch(
+            for: "Løvenes konge", year: 1994,
+            among: [Self.candidate(8587, ["Løvenes konge", "The Lion King"], year: 1994)]
+        )
+        #expect(found?.id == 8587)
+    }
+
+    /// The case measured against a real playlist: to a Norwegian viewer "Frost"
+    /// is Disney's *Frozen*, and TMDB's search answers with a different 2013
+    /// film of the same name. A rating taken from the wrong one pulled a
+    /// children's film out of a child's profile.
+    @Test("Two films of the same name and year is not an answer")
+    func ambiguous() {
+        let found = RatingService.confidentMatch(
+            for: "Frost", year: 2013,
+            among: [
+                Self.candidate(109445, ["Frost", "Frozen"], year: 2013),
+                Self.candidate(222333, ["Frost"], year: 2013),
+            ]
+        )
+        #expect(found == nil)
+    }
+
+    @Test("A year that disagrees rules a candidate out")
+    func wrongYear() {
+        let found = RatingService.confidentMatch(
+            for: "Frost", year: 2013,
+            among: [Self.candidate(999, ["Frost"], year: 1950)]
+        )
+        #expect(found == nil)
+    }
+
+    /// Good enough to pick a poster, nowhere near good enough to decide what a
+    /// child may watch.
+    @Test("A name that merely starts the same is not a match")
+    func prefixIsNotEnough() {
+        let found = RatingService.confidentMatch(
+            for: "Frost", year: nil,
+            among: [Self.candidate(1, ["Frost Nixon"], year: 2008)]
+        )
+        #expect(found == nil)
+    }
+}
+
+@Suite("Overruling a rating")
+struct ParentOverrideTests {
+
+    static let film = ContentPolicyTests.movie("Frost", category: "Kids Movies", year: 2013)
+    static let library = Library(items: [film])
+
+    static var ratings: RatingIndex {
+        var index = RatingIndex()
+        index.record(
+            ContentRating(rating: .fifteen, source: .board, country: "GB"),
+            for: RatingKey.make(title: "Frost", year: 2013)
+        )
+        return index
+    }
+
+    /// Identifying a film from a playlist is guesswork often enough that a
+    /// wrong rating has to be something a parent can see and undo.
+    @Test("A rating held back inside an approved section is listed for review")
+    func listed() {
+        let profile = Profile(name: "Emil", maturity: .six, allowedCategories: ["Kids Movies"])
+        let withheld = ContentPolicy(profile: profile, ratings: Self.ratings)
+            .withheldByRating(in: Self.library)
+        #expect(withheld.count == 1)
+        #expect(withheld.first?.rating == .fifteen)
+    }
+
+    @Test("Approving one title by name beats the rating on it")
+    func namedApprovalWins() {
+        let profile = Profile(
+            name: "Emil", maturity: .six,
+            allowedCategories: ["Kids Movies"], allowedTitleKeys: [RatingKey.of(Self.film)]
+        )
+        #expect(ContentPolicy(profile: profile, ratings: Self.ratings).allows(Self.film))
+    }
+
+    /// The order that keeps the override from becoming a hole: a name is a
+    /// grown-up looking at that title, a section is not.
+    @Test("Approving the section does not beat the rating")
+    func sectionApprovalDoesNot() {
+        let profile = Profile(name: "Emil", maturity: .six, allowedCategories: ["Kids Movies"])
+        #expect(!ContentPolicy(profile: profile, ratings: Self.ratings).allows(Self.film))
+    }
+
+    @Test("Adult material is not overridable by name")
+    func adultStaysOut() {
+        let porn = ContentPolicyTests.movie("Late Night", category: "XXX", year: 2020)
+        let profile = Profile(name: "Emil", maturity: .six, allowedTitleKeys: [RatingKey.of(porn)])
+        #expect(!ContentPolicy(profile: profile, ratings: RatingIndex()).allows(porn))
+    }
+}

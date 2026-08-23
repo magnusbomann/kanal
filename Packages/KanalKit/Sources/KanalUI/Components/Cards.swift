@@ -55,8 +55,7 @@ public struct ChannelCard: View {
                 .padding(KanalMetrics.sm)
                 .clipped()
         }
-        .aspectRatio(KanalMetrics.backdropAspect, contentMode: .fit)
-        .clipShape(.rect(cornerRadius: KanalMetrics.cardRadius, style: .continuous))
+        .kanalArtworkTile(aspect: KanalMetrics.backdropAspect)
         .overlay(alignment: .topLeading) {
             if let nowPlaying, nowPlaying.isOnAir() {
                 LiveBadge().padding(KanalMetrics.sm)
@@ -147,8 +146,7 @@ public struct PosterCard: View {
                 Artwork(url: artworkURL, title: title, symbol: "film")
             }
         }
-        .aspectRatio(KanalMetrics.posterAspect, contentMode: .fill)
-        .clipShape(.rect(cornerRadius: KanalMetrics.cardRadius, style: .continuous))
+        .kanalArtworkTile(aspect: KanalMetrics.posterAspect)
         .overlay(alignment: .bottom) {
             if let progressFraction {
                 ProgressLine(fraction: progressFraction)
@@ -181,8 +179,7 @@ public struct ResumeCard: View {
                         EnrichedArtwork(item: item)
                     }
                 }
-                    .aspectRatio(KanalMetrics.backdropAspect, contentMode: .fill)
-                    .clipShape(.rect(cornerRadius: KanalMetrics.cardRadius, style: .continuous))
+                    .kanalArtworkTile(aspect: KanalMetrics.backdropAspect)
                     .overlay(alignment: .center) {
                         Image(systemName: "play.fill")
                             .font(.system(size: 18, weight: .black))

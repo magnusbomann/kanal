@@ -2277,6 +2277,40 @@
         }
       }
     },
+    "profiles.emptyChild.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A grown-up decides what shows up in this profile. Ask them to add something in Profiles."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En voksen bestemmer hva som dukker opp i denne profilen. Be dem legge til noe under Profiler."
+          }
+        }
+      }
+    },
+    "profiles.emptyChild.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing here yet"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingenting her ennå"
+          }
+        }
+      }
+    },
     "profiles.hidden.footer": {
       "extractionState": "manual",
       "localizations": {
@@ -2447,6 +2481,23 @@
         }
       }
     },
+    "profiles.ratedBadge %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rated %@"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aldersgrense %@"
+          }
+        }
+      }
+    },
     "profiles.section": {
       "extractionState": "manual",
       "localizations": {
@@ -2511,6 +2562,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "I denne husstanden"
+          }
+        }
+      }
+    },
+    "profiles.section.withheldByRating": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Held back by an age rating"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Holdt tilbake av aldersgrense"
           }
         }
       }
@@ -2596,6 +2664,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hvem ser på?"
+          }
+        }
+      }
+    },
+    "profiles.withheldByRating.footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These are in a section you approved, but rated above the limit. Tick one to let it through anyway."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disse ligger i en kategori du har godkjent, men er merket over grensen. Huk av for å slippe dem gjennom likevel."
           }
         }
       }
@@ -4035,6 +4120,159 @@
           "stringUnit": {
             "state": "translated",
             "value": "LIM INN LENKEN."
+          }
+        }
+      }
+    },
+    "detail.play": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spill av"
+          }
+        }
+      }
+    },
+    "detail.play.episode %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play %@"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spill %@"
+          }
+        }
+      }
+    },
+    "detail.resume": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue watching"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fortsett å se"
+          }
+        }
+      }
+    },
+    "detail.overview": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Om"
+          }
+        }
+      }
+    },
+    "detail.cast": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cast"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medvirkende"
+          }
+        }
+      }
+    },
+    "detail.episodes": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Episodes"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Episoder"
+          }
+        }
+      }
+    },
+    "detail.noInfo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing is known about this title beyond what your provider called it."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vi vet ingenting om denne tittelen ut over det leverandøren din kalte den."
+          }
+        }
+      }
+    },
+    "detail.runtime %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min"
+          }
+        }
+      }
+    },
+    "person.knownFor": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Known for"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kjent for"
           }
         }
       }

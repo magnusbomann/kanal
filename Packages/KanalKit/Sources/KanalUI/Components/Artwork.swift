@@ -69,3 +69,29 @@ public struct Artwork: View {
         return Color(hue: Double(hash % 360) / 360, saturation: 0.45, brightness: 0.62)
     }
 }
+
+public extension View {
+
+    /// Pins artwork to a fixed shape and clips whatever overflows.
+    ///
+    /// Artwork fills its tile, and a filling image is bigger than the tile by
+    /// definition — that is what filling means. The trap is asking the *image*
+    /// for the tile's size: `aspectRatio(_:contentMode: .fill)` on something
+    /// already scaled to fill has no definite size to report, so the card
+    /// measures small and draws huge. The row below then lands on top of it.
+    ///
+    /// So the shape comes from an empty view, which has no opinion and cannot
+    /// grow, and the artwork is laid over it. Every tile in the app goes
+    /// through here rather than repeating the pair by hand.
+    func kanalArtworkTile(aspect: CGFloat, cornerRadius: CGFloat? = nil) -> some View {
+        Color.clear
+            .aspectRatio(aspect, contentMode: .fit)
+            .overlay { self }
+            .clipShape(
+                .rect(
+                    cornerRadius: cornerRadius ?? KanalMetrics.cardRadius,
+                    style: .continuous
+                )
+            )
+    }
+}

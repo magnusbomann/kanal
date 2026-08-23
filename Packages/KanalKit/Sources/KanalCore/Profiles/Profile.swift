@@ -24,10 +24,14 @@ public struct Profile: Identifiable, Codable, Sendable, Hashable {
     /// spelling — the same key `LibraryFilter` and favourites use, so an
     /// approval survives a change of interface language.
     public var allowedCategories: Set<String>
-    /// Individual entries approved one at a time, by stable id.
-    public var allowedItemIDs: Set<String>
-    /// Entries pulled back out of an approved category.
-    public var blockedItemIDs: Set<String>
+    /// Individual titles a grown-up approved one at a time.
+    ///
+    /// Keyed by `RatingKey`, not by entry id. An entry's id is built from its
+    /// stream URL and panels reissue those, so a token rotation would silently
+    /// drop every decision a parent had made. The title and year do not rotate.
+    public var allowedTitleKeys: Set<String>
+    /// Titles pulled back out of an approved category.
+    public var blockedTitleKeys: Set<String>
     public var createdAt: Date
 
     public init(
@@ -37,8 +41,8 @@ public struct Profile: Identifiable, Codable, Sendable, Hashable {
         colorIndex: Int = 0,
         maturity: MaturityRating = .adult,
         allowedCategories: Set<String> = [],
-        allowedItemIDs: Set<String> = [],
-        blockedItemIDs: Set<String> = [],
+        allowedTitleKeys: Set<String> = [],
+        blockedTitleKeys: Set<String> = [],
         createdAt: Date = .now
     ) {
         self.id = id
@@ -47,8 +51,8 @@ public struct Profile: Identifiable, Codable, Sendable, Hashable {
         self.colorIndex = colorIndex
         self.maturity = maturity
         self.allowedCategories = allowedCategories
-        self.allowedItemIDs = allowedItemIDs
-        self.blockedItemIDs = blockedItemIDs
+        self.allowedTitleKeys = allowedTitleKeys
+        self.blockedTitleKeys = blockedTitleKeys
         self.createdAt = createdAt
     }
 
@@ -67,11 +71,11 @@ public struct Profile: Identifiable, Codable, Sendable, Hashable {
         allowedCategories = try container.decodeIfPresent(
             Set<String>.self, forKey: .allowedCategories
         ) ?? []
-        allowedItemIDs = try container.decodeIfPresent(
-            Set<String>.self, forKey: .allowedItemIDs
+        allowedTitleKeys = try container.decodeIfPresent(
+            Set<String>.self, forKey: .allowedTitleKeys
         ) ?? []
-        blockedItemIDs = try container.decodeIfPresent(
-            Set<String>.self, forKey: .blockedItemIDs
+        blockedTitleKeys = try container.decodeIfPresent(
+            Set<String>.self, forKey: .blockedTitleKeys
         ) ?? []
         createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt) ?? .now
     }

@@ -21,6 +21,9 @@ import Foundation
 public actor MetadataService {
 
     private var providers: [MetadataProvider]
+    /// Kept alongside the providers because detail requests are a different
+    /// shape: one title at a time, only once someone has shown interest.
+    private var detailClient: TMDBClient?
     private let storage: KanalStorage
 
     /// Query → the other names that query goes by.
@@ -31,6 +34,9 @@ public actor MetadataService {
     private var misses: Set<String> = []
 
     private var saveTask: Task<Void, Never>?
+    private var details: [Int: TitleDetails] = [:]
+    private var people: [Int: PersonProfile] = [:]
+    private var detailsInFlight: Set<Int> = []
     /// Guards against a scrolling grid firing dozens of parallel lookups.
     private var inFlight: Set<String> = []
 
@@ -42,6 +48,8 @@ public actor MetadataService {
 
     private static let resolutionsFile = "title-resolutions.json"
     private static let identifiedFile = "title-identified.json"
+    private static let detailsFile = "title-details.json"
+    private static let peopleFile = "people.json"
 
     /// - Parameter tmdbAPIKey: optional. Present only adds artwork; Kanal's
     ///   search works identically without it.
@@ -63,6 +71,9 @@ public actor MetadataService {
             if let tmdbAPIKey, let tmdb = TMDBProvider(apiKey: tmdbAPIKey) {
                 built.append(tmdb)
             }
+            if let tmdbAPIKey {
+                detailClient = TMDBClient(apiKey: tmdbAPIKey)
+            }
             self.providers = built
         }
     }
@@ -79,6 +90,8 @@ public actor MetadataService {
     public func loadCaches() async {
         resolutions = await storage.load([String: Resolution].self, from: Self.resolutionsFile) ?? [:]
         identified = await storage.load([String: ResolvedTitle].self, from: Self.identifiedFile) ?? [:]
+        details = await storage.load([Int: TitleDetails].self, from: Self.detailsFile) ?? [:]
+        people = await storage.load([Int: PersonProfile].self, from: Self.peopleFile) ?? [:]
     }
 
     // MARK: - Translating a query
@@ -132,6 +145,52 @@ public actor MetadataService {
 
         if !anyProviderFailed { misses.insert(key) }
         return ([], nil)
+    }
+
+    // MARK: - Detail screen
+
+    /// Whether a detail screen has anything to show at all.
+    public var canShowDetails: Bool { detailClient != nil }
+
+    /// Everything about one library entry, for the screen shown before playing.
+    ///
+    /// Two steps: work out which film or show this is, then fetch its record.
+    /// Both halves are cached, so opening the same title twice costs nothing.
+    public func details(for item: MediaItem) async -> TitleDetails? {
+        guard let client = detailClient, item.kind != .liveTV else { return nil }
+        guard let identified = await metadata(for: item),
+              let tmdbID = Self.tmdbID(from: identified.id)
+        else { return nil }
+
+        if let cached = details[tmdbID] { return cached }
+        guard !detailsInFlight.contains(tmdbID) else { return nil }
+        detailsInFlight.insert(tmdbID)
+        defer { detailsInFlight.remove(tmdbID) }
+
+        guard let fetched = try? await client.fullDetails(
+            id: tmdbID, isSeries: item.kind == .series
+        ) else { return nil }
+
+        details[tmdbID] = fetched
+        scheduleSave()
+        return fetched
+    }
+
+    /// One of the people in it.
+    public func person(id: Int) async -> PersonProfile? {
+        if let cached = people[id] { return cached }
+        guard let client = detailClient,
+              let fetched = try? await client.person(id: id)
+        else { return nil }
+        people[id] = fetched
+        scheduleSave()
+        return fetched
+    }
+
+    /// Provider ids look like "tmdb:8587"; anything else is not one.
+    static func tmdbID(from identifier: String) -> Int? {
+        guard identifier.hasPrefix("tmdb:") else { return nil }
+        return Int(identifier.dropFirst("tmdb:".count))
     }
 
     // MARK: - Artwork and plots
@@ -227,11 +286,15 @@ public actor MetadataService {
         saveTask?.cancel()
         let resolutions = resolutions
         let identified = identified
+        let details = details
+        let people = people
         saveTask = Task { [storage] in
             try? await Task.sleep(for: .seconds(3))
             guard !Task.isCancelled else { return }
             await storage.save(resolutions, to: Self.resolutionsFile)
             await storage.save(identified, to: Self.identifiedFile)
+            await storage.save(details, to: Self.detailsFile)
+            await storage.save(people, to: Self.peopleFile)
         }
     }
 }

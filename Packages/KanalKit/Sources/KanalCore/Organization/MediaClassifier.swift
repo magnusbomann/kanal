@@ -100,8 +100,17 @@ public enum CategoryNormalizer {
         pattern: #"[\[\(\|]\s*[A-Za-z]{2,3}\s*[\]\)\|]"#
     )
     private static let leadingMarker = try! NSRegularExpression(
-        pattern: #"^\s*[A-Za-z]{2,3}\s*[:\-–—\|]\s*"#
+        pattern: #"^\s*([A-Za-z]{2,3})\s*[:\-–—\|]\s*"#
     )
+
+    /// Whether a short prefix names a place or a language, rather than being
+    /// the first syllable of an ordinary word.
+    static func isRegionOrLanguageCode(_ code: String) -> Bool {
+        let upper = code.uppercased()
+        if Locale.Region.isoRegions.contains(where: { $0.identifier == upper }) { return true }
+        let lower = code.lowercased()
+        return Locale.LanguageCode.isoLanguageCodes.contains { $0.identifier == lower }
+    }
 
     private static let noiseTokens: Set<String> = [
         "vod", "live", "channels", "channel", "tv", "hd", "fhd", "sd", "uhd", "4k",
@@ -116,10 +125,19 @@ public enum CategoryNormalizer {
         value = bracketedMarker.stringByReplacingMatches(
             in: value, range: NSRange(value.startIndex..., in: value), withTemplate: " "
         )
-        // Leading "NO -" / "NO:" style markers.
-        value = leadingMarker.stringByReplacingMatches(
-            in: value, range: NSRange(value.startIndex..., in: value), withTemplate: ""
-        )
+        // Leading "NO -" / "NO:" style markers — but only when the marker is
+        // actually a country or language code.
+        //
+        // Stripping any two or three letters before a dash turned "Sci-Fi"
+        // into "Fi", which the country lookup then rendered as Finland.
+        if let match = leadingMarker.firstMatch(
+            in: value, range: NSRange(value.startIndex..., in: value)
+        ),
+            let codeRange = Range(match.range(at: 1), in: value),
+            let fullRange = Range(match.range, in: value),
+            isRegionOrLanguageCode(String(value[codeRange])) {
+            value = String(value[fullRange.upperBound...])
+        }
         value = value.replacingOccurrences(of: "_", with: " ")
         value = TitleCleaner.normalizeWhitespace(value)
 

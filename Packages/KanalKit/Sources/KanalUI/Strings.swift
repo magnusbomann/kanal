@@ -233,6 +233,30 @@ public enum UIStrings {
         )
     }
 
+    // MARK: - Detail screen
+
+    public static let detailPlay = text("detail.play", "Starts the film")
+    public static func detailPlayEpisode(_ code: String) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "detail.play.episode \(code)", bundle: bundle,
+            comment: "Starts a specific episode. The placeholder is a code such as S01E01."
+        )
+    }
+    public static let detailResume = text("detail.resume", "Continues from where it was left")
+    public static let detailOverview = text("detail.overview", "Heading above the plot summary")
+    public static let detailCast = text("detail.cast", "Heading above the list of actors")
+    public static let detailEpisodes = text("detail.episodes", "Heading above the episode list")
+    public static let detailNoInfo = text(
+        "detail.noInfo", "Shown when nothing is known about a title beyond its name"
+    )
+    public static func detailRuntime(_ minutes: Int) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "detail.runtime \(minutes)", bundle: bundle,
+            comment: "How long a film runs, in minutes"
+        )
+    }
+    public static let personKnownFor = text("person.knownFor", "Heading above a person's best-known work")
+
     // MARK: - Browsing
 
     public static let seriesNotFound = text("series.notFound", "Title when a show is no longer in the library")
@@ -318,6 +342,21 @@ public enum UIStrings {
     public static let playbackOfflineBody = text(
         "player.offline.body", "Explains the device could not reach the provider"
     )
+
+    public static let sectionWithheldByRating = text(
+        "profiles.section.withheldByRating",
+        "Section listing titles an age rating is holding back from an approved category"
+    )
+    public static let withheldByRatingFooter = text(
+        "profiles.withheldByRating.footer",
+        "Explains that a grown-up can let a specific title through anyway"
+    )
+    public static func ratedBadge(_ badge: String) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "profiles.ratedBadge \(badge)", bundle: bundle,
+            comment: "Shows the age rating a title was given, e.g. \"Rated 12\""
+        )
+    }
 
     // MARK: - Parental code
 
@@ -557,6 +596,13 @@ public enum UIStrings {
     public static let codeFooterUnset = text(
         "code.footer.unset", "Explains that without a code nothing is locked"
     )
+    public static let childLibraryEmptyTitle = text(
+        "profiles.emptyChild.title", "Title when a child's profile has nothing approved yet"
+    )
+    public static let childLibraryEmptyBody = text(
+        "profiles.emptyChild.body", "Explains that a grown-up decides what appears here"
+    )
+
     // MARK: - Blocked content
 
     public static let blockedTitle = text(

@@ -13,7 +13,15 @@ public struct RootView: View {
     public init() {}
 
     public var body: some View {
-        content
+        // Wrapped so the startup task survives.
+        //
+        // `content` switches between phases, and `start()` changes the phase
+        // — so a task attached to it is cancelled by its own first await, and
+        // anything after that never runs. The container's identity is stable,
+        // and the task with it.
+        ZStack {
+            content
+        }
             .environment(model)
             .environment(navigator)
             .tint(KanalColor.accentSolid)
@@ -31,6 +39,14 @@ public struct RootView: View {
                 if let index = LaunchOptions.autoplayMovieIndex,
                    model.library.movies.indices.contains(index) {
                     navigator.play(model.library.movies[index])
+                }
+                if let index = LaunchOptions.detailsMovieIndex {
+                    // The root view swaps as the phase settles, which would
+                    // take the sheet with it.
+                    try? await Task.sleep(for: .milliseconds(600))
+                    if model.library.movies.indices.contains(index) {
+                        navigator.showDetails(for: model.library.movies[index])
+                    }
                 }
                 #endif
             }
@@ -143,6 +159,11 @@ public struct MainTabView: View {
         #if os(iOS)
         .tabBarMinimizeBehavior(.onScrollDown)
         #endif
+        // Presented here rather than beside the player's full-screen cover:
+        // two modals on one view is not something SwiftUI presents reliably.
+        .sheet(item: $navigator.showingDetails) { request in
+            TitleDetailView(item: request.item, seriesGroup: request.seriesGroup)
+        }
     }
 
     @ViewBuilder

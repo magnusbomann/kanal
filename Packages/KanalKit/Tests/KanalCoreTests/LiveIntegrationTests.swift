@@ -129,6 +129,32 @@ struct LiveIntegrationTests {
         #expect(Library(items: []).item(matching: recommended) == nil)
     }
 
+    @Test(
+        "A real title's details and cast come back",
+        .enabled(if: ProcessInfo.processInfo.environment["KANAL_TMDB_KEY"] != nil)
+    )
+    func detailsEndToEnd() async throws {
+        let client = try #require(TMDBClient(
+            apiKey: ProcessInfo.processInfo.environment["KANAL_TMDB_KEY"]!,
+            language: "nb-NO"
+        ))
+        // Blade Runner 2049.
+        let details = try #require(try await client.fullDetails(id: 335984, isSeries: false))
+        #expect(details.title.localizedCaseInsensitiveContains("Blade Runner"))
+        #expect(details.year == 2017)
+        #expect(details.rating != nil)
+        #expect(!details.genres.isEmpty)
+        #expect(details.cast.count >= 5)
+        #expect(details.backdropURL != nil)
+        // The plot must never come back empty, even where Norwegian has none.
+        #expect(details.overview?.isEmpty == false)
+
+        let member = try #require(details.cast.first)
+        let person = try #require(try await client.person(id: member.id))
+        #expect(person.name == member.name)
+        #expect(!person.knownFor.isEmpty)
+    }
+
     @Test("A free public playlist still parses")
     func iptvOrgPlaylist() async throws {
         let loader = LibraryLoader()

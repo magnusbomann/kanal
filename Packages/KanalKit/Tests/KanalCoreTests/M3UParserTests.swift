@@ -169,3 +169,33 @@ struct CategoryNormalizerTests {
         #expect(CategoryNormalizer.normalize("MTV music") == "MTV Music")
     }
 }
+
+@Suite("Category name pitfalls")
+struct CategoryPitfallTests {
+
+    /// Found by looking at a screenshot: "Sci-Fi" was being read as the
+    /// country marker "Sci" followed by "Fi", and rendered as Finland.
+    @Test("A genre that starts like a country code is left alone", arguments: [
+        "Sci-Fi", "Sci-fi", "Doc-Series", "Pay-Per-View",
+    ])
+    func genreNotMistakenForCountry(name: String) {
+        let normalized = CategoryNormalizer.normalize(name)
+        #expect(normalized?.lowercased().contains(name.prefix(3).lowercased()) == true,
+                "\(name) lost its first word, became \(normalized ?? "nil")")
+    }
+
+    @Test("A real country marker is still stripped", arguments: [
+        ("NO| Norge", "Norge"), ("SE - Sport", "Sport"), ("EN: Movies", "Movies"),
+    ])
+    func realMarkersStillStripped(input: String, expected: String) {
+        #expect(CategoryNormalizer.normalize(input) == expected)
+    }
+
+    @Test("Only genuine codes count as markers")
+    func codeRecognition() {
+        #expect(CategoryNormalizer.isRegionOrLanguageCode("NO"))
+        #expect(CategoryNormalizer.isRegionOrLanguageCode("en"))
+        #expect(CategoryNormalizer.isRegionOrLanguageCode("Sci") == false)
+        #expect(CategoryNormalizer.isRegionOrLanguageCode("Pay") == false)
+    }
+}

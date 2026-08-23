@@ -145,7 +145,7 @@ public struct MoviesView: View {
                     progressFraction: model.progress(for: movie)?.fraction,
                     enrich: movie
                 ) {
-                    navigator.play(movie)
+                    navigator.showDetails(for: movie)
                 }
                 .contextMenu {
                     FavoriteButton(id: movie.id)
@@ -202,7 +202,8 @@ public struct SeriesView: View {
                     subtitle: String(UIStrings.episodeCount(group.episodes.count)),
                     enrich: group.episodes.first
                 ) {
-                    navigator.push(.series(id: group.id))
+                    guard let first = group.episodes.first else { return }
+                    navigator.showDetails(for: first, seriesGroup: group)
                 }
                 .contextMenu {
                     FavoriteButton(id: group.id)

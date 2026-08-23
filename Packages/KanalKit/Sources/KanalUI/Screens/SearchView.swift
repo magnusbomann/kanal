@@ -56,7 +56,11 @@ public struct SearchView: View {
             }
             ForEach(outcome.items) { item in
                 Button {
-                    navigator.play(item)
+                    if item.kind == .liveTV {
+                        navigator.play(item)
+                    } else {
+                        navigator.showDetails(for: item)
+                    }
                 } label: {
                     SearchRow(item: item)
                 }

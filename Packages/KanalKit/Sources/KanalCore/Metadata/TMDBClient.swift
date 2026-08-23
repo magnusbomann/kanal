@@ -85,7 +85,8 @@ public struct TMDBClient: Sendable {
     private let credential: Credential
     private let session: URLSession
     /// The language localised titles and plots come back in.
-    private let language: String
+    /// Visible to the detail requests, which live in their own file.
+    let language: String
 
     public init?(
         apiKey: String,
@@ -237,6 +238,12 @@ public struct TMDBClient: Sendable {
             backdropPath: row["backdrop_path"] as? String,
             voteAverage: row["vote_average"] as? Double
         )
+    }
+
+    /// A decoded object, or nil when the response was not one.
+    func json(path: String, query: [URLQueryItem]) async throws -> [String: Any]? {
+        let data = try await get(path: path, query: query)
+        return try? JSONSerialization.jsonObject(with: data) as? [String: Any]
     }
 
     private func get(path: String, query: [URLQueryItem]) async throws -> Data {

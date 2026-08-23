@@ -18,7 +18,7 @@ public struct ProfilesView: View {
         List {
             peopleSection
             codeSection
-            if model.isRestricted {
+            if model.activeProfile?.isRestricted == true {
                 withheldSection
             }
         }

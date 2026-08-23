@@ -111,12 +111,13 @@ public extension AppModel {
 
     func setItem(_ item: MediaItem, allowed: Bool, for profile: Profile) async {
         guard var updated = profiles.first(where: { $0.id == profile.id }) else { return }
+        let key = RatingKey.of(item)
         if allowed {
-            updated.allowedItemIDs.insert(item.id)
-            updated.blockedItemIDs.remove(item.id)
+            updated.allowedTitleKeys.insert(key)
+            updated.blockedTitleKeys.remove(key)
         } else {
-            updated.allowedItemIDs.remove(item.id)
-            updated.blockedItemIDs.insert(item.id)
+            updated.allowedTitleKeys.remove(key)
+            updated.blockedTitleKeys.insert(key)
         }
         await updateProfile(updated)
     }
@@ -155,6 +156,14 @@ public extension AppModel {
 
     /// Recomputes the visible library from the catalogue.
     func applyPolicy() {
+        // Nobody has chosen yet — the picker is up and no library is on screen.
+        // Filtering four hundred thousand entries down to the nothing a
+        // non-existent profile may see is work with no reader.
+        guard activeProfile != nil else {
+            library = .empty
+            withheldCount = 0
+            return
+        }
         let policy = policy
         if policy.isUnrestricted {
             library = catalogue
