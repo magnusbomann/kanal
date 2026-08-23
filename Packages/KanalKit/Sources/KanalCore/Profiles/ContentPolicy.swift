@@ -81,14 +81,66 @@ public struct ContentPolicy: Sendable {
             return .denied(.aboveAgeLimit(rating.rating))
         }
 
-        if let category = item.category, profile.allowedCategories.contains(category) {
-            return .allowed
+        // What counts as permission depends on what the thing *is*, because
+        // the two kinds differ in whether an age limit can exist at all.
+        switch item.kind {
+        case .liveTV:
+            // No board rates a channel — what it is showing changes every
+            // hour — so a grown-up's own approval is the only key there is.
+            // Channel sections are small enough to actually read, which is
+            // what makes approving one an informed decision.
+            return isInApprovedSection(item) ? .allowed : .denied(.unrated)
+
+        case .movie, .series:
+            // A section is *where to look*, never permission on its own.
+            //
+            // This is the correction to the first version of this rule, and
+            // Family Guy is why. A provider files it under "Animation", a
+            // parent reasonably ticks "Animation" for a nine-year-old, and a
+            // section-grants-access rule then shows it — the app having
+            // recommended the section itself. Genre is not audience: the same
+            // bucket holds Bluey and American Dad.
+            //
+            // So a film or episode needs a rating of its own. Norway rates
+            // Family Guy 15, which is exactly the answer, and an approved
+            // section only decides which titles are worth spending a lookup
+            // on. Anything still unrated stays out and is counted, so the
+            // interface can say "checking" rather than looking broken.
+            if let rating, rating.isVerified { return .allowed }
+            return .denied(.unrated)
         }
-        if let raw = item.rawGroup, profile.allowedCategories.contains(raw) { return .allowed }
+    }
 
-        if let rating, rating.isVerified { return .allowed }
+    /// Whether a grown-up approved the section this entry arrived in.
+    func isInApprovedSection(_ item: MediaItem) -> Bool {
+        if let category = item.category, profile.allowedCategories.contains(category) { return true }
+        if let raw = item.rawGroup, profile.allowedCategories.contains(raw) { return true }
+        return false
+    }
 
-        return .denied(.unrated)
+    /// Films and episodes in an approved section that are still waiting on a
+    /// rating, in the order they should be looked up.
+    ///
+    /// This is the pool verification works through. Restricting it to approved
+    /// sections is what keeps the job finite: a real catalogue holds thirty
+    /// thousand films, and nobody needs an age limit for a film their child
+    /// was never going to be offered.
+    public func awaitingRating(in catalogue: Library) -> [MediaItem] {
+        awaitingRating(among: catalogue.items)
+    }
+
+    /// The same question asked of a list that is already narrowed — used to
+    /// thin the pool between passes without walking the catalogue again.
+    public func awaitingRating(among items: [MediaItem]) -> [MediaItem] {
+        guard profile.isRestricted else { return [] }
+        return items.filter { item in
+            guard item.kind != .liveTV else { return false }
+            guard isInApprovedSection(item) else { return false }
+            guard !AdultContentDetector.isAdult(item) else { return false }
+            let key = RatingKey.of(item)
+            guard !profile.allowedTitleKeys.contains(key) else { return false }
+            return ratings[key]?.isVerified != true
+        }
     }
 
     public func allows(_ item: MediaItem) -> Bool { decision(for: item).isAllowed }
@@ -135,9 +187,7 @@ public struct ContentPolicy: Sendable {
         for item in library.items {
             guard found.count < limit else { break }
             guard !AdultContentDetector.isAdult(item) else { continue }
-            let inApprovedSection = item.category.map(profile.allowedCategories.contains) == true
-                || item.rawGroup.map(profile.allowedCategories.contains) == true
-            guard inApprovedSection else { continue }
+            guard isInApprovedSection(item) else { continue }
             guard case .denied(.aboveAgeLimit(let rating)) = decision(for: item) else { continue }
             found.append((item, rating))
         }
@@ -173,21 +223,39 @@ public struct ContentPolicy: Sendable {
         return Array(found.sorted { $0.count > $1.count }.prefix(limit))
     }
 
-    /// Section names that mean "children's" across the languages IPTV panels
-    /// are written in, plus the children's broadcasters everyone carries.
+    /// Words that name an **audience**, in the languages IPTV panels are
+    /// written in.
+    ///
+    /// The distinction this list turns on, learned the hard way: a genre is not
+    /// an audience. "Animation", "Cartoons", "Tegnefilm" and "Family" all had
+    /// to come out, because the bucket that holds Bluey also holds Family Guy,
+    /// South Park and Rick and Morty — and a suggestion a parent is likely to
+    /// trust must not need vetting.
+    ///
+    /// Broadcaster names came out for the same reason. "Disney" is Disney+,
+    /// which carries FX; "Nickelodeon" and "Nick" are the general channels.
+    /// Only their explicitly junior feeds are unambiguous, and those are
+    /// matched as phrases below.
     private static let childHints: Set<String> = [
-        "kids", "kid", "children", "child", "barn", "barnekanaler", "barnetv",
-        // "anime" is deliberately absent: the word says nothing about audience,
-        // and a suggestion a parent is likely to trust must not need vetting.
-        "junior", "cartoon", "cartoons", "tegnefilm", "tecknat", "animation",
-        "family", "familie", "familj", "disney", "nickelodeon", "nick",
-        "boomerang", "cbeebies", "cbbc", "babytv", "kika", "niños", "infantil",
-        "enfants", "kinder", "bambini",
+        // "barne" and "børne" are the Nordic compound stems: a provider writing
+        // "Barne-TV" leaves that token behind once punctuation is stripped.
+        "kids", "kid", "children", "child", "barn", "barne", "barnas", "børn",
+        "børne", "barnekanaler", "barnetv", "barneserier", "barnefilm",
+        "barnefilmer", "junior",
+        "cbeebies", "cbbc", "babytv", "kika", "niños", "infantil", "enfants",
+        "kinder", "bambini", "boomerang", "preschool", "førskole",
+    ]
+
+    /// Multi-word names that are unambiguous only together.
+    private static let childPhrases: [String] = [
+        "disney junior", "disney jr", "nick jr", "nickelodeon junior",
+        "cartoon network kids", "kids tv", "tv for kids", "for barn",
     ]
 
     static func looksLikeChildren(_ category: String) -> Bool {
         let normalized = SearchNormalizer.normalize(category)
         guard !normalized.isEmpty else { return false }
+        if childPhrases.contains(where: normalized.contains) { return true }
         return normalized.split(separator: " ").contains { childHints.contains(String($0)) }
     }
 }

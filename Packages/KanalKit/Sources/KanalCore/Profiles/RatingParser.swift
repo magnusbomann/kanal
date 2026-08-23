@@ -17,18 +17,31 @@ public enum RatingParser {
     private static let boards: [String: [String: Int]] = [
         "NO": ["A": 0, "6": 6, "7": 9, "9": 9, "11": 12, "12": 12, "15": 15, "18": 18],
         "DK": ["A": 0, "7": 9, "11": 12, "15": 15],
-        "SE": ["Btl": 0, "7": 9, "11": 12, "15": 15],
-        "FI": ["S": 0, "T": 0, "7": 9, "12": 12, "16": 18, "18": 18],
-        "IS": ["L": 0, "6": 6, "9": 9, "12": 12, "16": 18, "18": 18],
+        // Sweden writes these out in words as often as not.
+        "SE": [
+            "Btl": 0, "Barntillåten": 0, "Från 7 år": 9, "7": 9, "11": 12,
+            "Från 11 år": 12, "15": 15, "Från 15 år": 15,
+        ],
+        // Finland prefixes an age with K, and uses S or T for "everyone".
+        //
+        // A 16 becomes fifteen, not eighteen. Countries with a 16 step have no
+        // 15 — 16 *is* their equivalent of Norway's 15, and mapping it up to 18
+        // treated an ordinary teenage film as adults-only. Rounding is for
+        // steps that fall between ours, not for a step that plainly matches.
+        "FI": [
+            "S": 0, "T": 0, "K7": 9, "7": 9, "K12": 12, "12": 12,
+            "K16": 15, "16": 15, "K18": 18, "18": 18,
+        ],
+        "IS": ["L": 0, "6": 6, "9": 9, "12": 12, "16": 15, "18": 18],
         "US": [
             "G": 0, "TV-Y": 0, "TV-G": 0, "TV-Y7": 9, "PG": 9, "TV-PG": 9,
             "PG-13": 12, "TV-14": 15, "R": 15, "TV-MA": 18, "NC-17": 18,
         ],
         "GB": ["U": 0, "PG": 9, "12": 12, "12A": 12, "15": 15, "18": 18, "R18": 18],
-        "DE": ["0": 0, "6": 6, "12": 12, "16": 18, "18": 18],
-        "NL": ["AL": 0, "6": 6, "9": 9, "12": 12, "14": 15, "16": 18, "18": 18],
-        "FR": ["U": 0, "10": 12, "12": 12, "16": 18, "18": 18],
-        "ES": ["APTA": 0, "7": 9, "12": 12, "16": 18, "18": 18],
+        "DE": ["0": 0, "6": 6, "12": 12, "16": 15, "18": 18],
+        "NL": ["AL": 0, "6": 6, "9": 9, "12": 12, "14": 15, "16": 15, "18": 18],
+        "FR": ["U": 0, "10": 12, "12": 12, "16": 15, "18": 18],
+        "ES": ["APTA": 0, "7": 9, "12": 12, "16": 15, "18": 18],
         "IT": ["T": 0, "6": 6, "12": 12, "14": 15, "18": 18],
         "AU": ["G": 0, "PG": 9, "M": 15, "MA15+": 15, "R18+": 18, "X18+": 18],
     ]
@@ -54,7 +67,17 @@ public enum RatingParser {
         if let age = bareAge(in: trimmed) { return MaturityRating.nearest(atLeast: age) }
 
         // Codes that mean the same thing wherever they appear, and only those.
-        return lookup(trimmed, in: boards["US"] ?? [:]).map(MaturityRating.nearest(atLeast:))
+        if let known = lookup(trimmed, in: boards["US"] ?? [:]) {
+            return MaturityRating.nearest(atLeast: known)
+        }
+
+        // Last resort: a code carrying exactly one number is stating an age.
+        //
+        // Boards invent notation faster than any table is maintained — "K7",
+        // "Från 15 år", "B-15", "U/A 16+" — and every one of them puts the age
+        // in the string. Read only when there is a single number and it is a
+        // plausible age, so nothing is inferred from a code that has none.
+        return singleAge(in: trimmed).map(MaturityRating.nearest(atLeast:))
     }
 
     /// Any age limit stated in free text — a provider's category or title.
@@ -94,6 +117,26 @@ public enum RatingParser {
         guard !digits.isEmpty, digits.count == code.filter({ $0.isNumber || $0.isLetter }).count,
               let age = Int(digits), (0...21).contains(age)
         else { return nil }
+        return age
+    }
+
+    /// The one number in a rating code, when there is exactly one.
+    private static func singleAge(in code: String) -> Int? {
+        var numbers: [Int] = []
+        var current = ""
+        for character in code {
+            if character.isNumber {
+                current.append(character)
+            } else if !current.isEmpty {
+                numbers.append(Int(current) ?? -1)
+                current = ""
+            }
+        }
+        if !current.isEmpty { numbers.append(Int(current) ?? -1) }
+
+        guard numbers.count == 1, let age = numbers.first, (0...21).contains(age) else {
+            return nil
+        }
         return age
     }
 

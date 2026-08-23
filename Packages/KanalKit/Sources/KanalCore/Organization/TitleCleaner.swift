@@ -10,6 +10,8 @@ public enum TitleCleaner {
     public struct Result: Sendable, Equatable {
         public var title: String
         public var seriesName: String?
+        /// The episode's own title, when the provider wrote one after the code.
+        public var episodeTitle: String?
         public var season: Int?
         public var episode: Int?
         public var year: Int?
@@ -74,10 +76,20 @@ public enum TitleCleaner {
 
         working = normalizeWhitespace(working)
 
-        let seriesName = episodeInfo.map { _ in working }
+        // The show is what preceded the marker. Anything after it names this
+        // one episode, and must never end up in the show's name.
+        let seriesName = episodeInfo.map { info in
+            let name = stripQualityWords(info.before)
+            return name.isEmpty ? working : name
+        }
+        let episodeTitle = episodeInfo
+            .map { stripQualityWords($0.after) }
+            .flatMap { $0.isEmpty ? nil : $0 }
         let title: String
-        if let episodeInfo, !working.isEmpty {
-            title = "\(working) \(String(format: "S%02dE%02d", episodeInfo.season, episodeInfo.episode))"
+        if let episodeInfo {
+            let show = seriesName ?? working
+            let code = String(format: "S%02dE%02d", episodeInfo.season, episodeInfo.episode)
+            title = show.isEmpty ? code : "\(show) \(code)"
         } else {
             title = working
         }
@@ -85,6 +97,7 @@ public enum TitleCleaner {
         return Result(
             title: title.isEmpty ? raw : title,
             seriesName: seriesName?.isEmpty == true ? nil : seriesName,
+            episodeTitle: episodeTitle,
             season: episodeInfo?.season,
             episode: episodeInfo?.episode,
             year: yearInfo?.year,
@@ -114,7 +127,24 @@ public enum TitleCleaner {
         return (code, rest)
     }
 
-    struct EpisodeInfo { var season: Int; var episode: Int; var remainder: String }
+    /// What surrounded an episode marker.
+    ///
+    /// The two halves mean different things and must not be joined. What comes
+    /// before "S01E01" is the show; what comes after is that episode's own
+    /// title. Treating them as one string names every episode differently and
+    /// splits a series into as many one-episode shows.
+    struct EpisodeInfo {
+        var season: Int
+        var episode: Int
+        /// The show's name.
+        var before: String
+        /// This episode's title, when the provider gave one.
+        var after: String
+
+        var remainder: String {
+            TitleCleaner.normalizeWhitespace(before + " " + after)
+        }
+    }
 
     static func extractEpisode(from input: String) -> EpisodeInfo? {
         // S01E04 / s1 e4, then 1x04, then "Season 1 Episode 4".
@@ -129,11 +159,11 @@ public enum TitleCleaner {
                   let episode = Int(input[eRange])
             else { continue }
 
-            var remainder = String(input[input.startIndex..<fullRange.lowerBound])
-                + " "
-                + String(input[fullRange.upperBound...])
-            remainder = normalizeWhitespace(remainder).trimmingCharacters(in: separators)
-            return EpisodeInfo(season: season, episode: episode, remainder: remainder)
+            let before = normalizeWhitespace(String(input[input.startIndex..<fullRange.lowerBound]))
+                .trimmingCharacters(in: separators)
+            let after = normalizeWhitespace(String(input[fullRange.upperBound...]))
+                .trimmingCharacters(in: separators)
+            return EpisodeInfo(season: season, episode: episode, before: before, after: after)
         }
         return nil
     }
@@ -167,6 +197,16 @@ public enum TitleCleaner {
             .trimmingCharacters(in: separators)
         guard !head.isEmpty else { return nil }
         return (tail, head)
+    }
+
+    /// Removes quality and language noise from a fragment of a title.
+    static func stripQualityWords(_ input: String) -> String {
+        let words = input.split(separator: " ").filter { word in
+            !qualityTokens.contains(
+                word.trimmingCharacters(in: CharacterSet(charactersIn: "[]()")).lowercased()
+            )
+        }
+        return words.joined(separator: " ").trimmingCharacters(in: separators)
     }
 
     static func normalizeWhitespace(_ input: String) -> String {

@@ -122,13 +122,14 @@
 "profiles.add" = "Add profile";
 "profiles.ageLimit" = "Age limit";
 "profiles.allCategories" = "All categories";
-"profiles.allowed.footer" = "Approved sections are still checked against official age ratings — anything rated above the limit is removed on its own.";
-"profiles.allowed.footer.noRatings" = "Kanal has no ratings source set up, so a child sees exactly the sections you approve here and nothing else.";
+"profiles.allowed.footer" = "Channels you tick are shown as they are — no one rates a live channel. For films and series a tick only tells Kanal where to look: each title is checked against official age ratings, and only those at or below the limit appear. Anything still unrated stays hidden until you allow it by name.";
+"profiles.allowed.footer.noRatings" = "Kanal has no ratings source set up, so films and series cannot be checked and stay hidden. Channels you tick still appear, and you can allow individual titles by name.";
+"profiles.awaitingRating" = "Waiting for an age rating";
 "profiles.delete" = "Delete profile";
 "profiles.edit.title" = "Edit profile";
 "profiles.emptyChild.body" = "A grown-up decides what shows up in this profile. Ask them to add something in Profiles.";
 "profiles.emptyChild.title" = "Nothing here yet";
-"profiles.hidden.footer" = "Kanal hides everything nobody has rated or approved. Add sections in this profile to show more.";
+"profiles.hidden.footer" = "Kanal hides anything without an age rating at or below this profile's limit. Add sections in this profile to widen what gets checked.";
 "profiles.hiddenCount" = "Hidden in this profile";
 "profiles.inUse" = "In use";
 "profiles.isAdult.footer" = "An adult profile sees the whole playlist.";

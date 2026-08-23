@@ -575,6 +575,15 @@ public enum UIStrings {
     public static let updatingLibrary = text(
         "profiles.updatingLibrary", "Quiet note that the library is refreshing behind the picker"
     )
+    public static let labelAwaitingRating = text(
+        "profiles.awaitingRating", "Label for how many titles are still being checked"
+    )
+    public static func checkingRatings(_ count: Int) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "profiles.checkingRatings \(count)", bundle: bundle,
+            comment: "Progress note while age ratings are being looked up"
+        )
+    }
     public static let labelHiddenHere = text(
         "profiles.hiddenCount", "Label for how many entries this profile does not see"
     )

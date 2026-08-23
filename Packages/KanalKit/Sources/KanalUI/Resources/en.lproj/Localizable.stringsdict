@@ -114,6 +114,22 @@
 			<string>%lld series</string>
 		</dict>
 	</dict>
+	<key>profiles.checkingRatings %lld</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Checking the age rating of %lld title…</string>
+			<key>other</key>
+			<string>Checking the age rating of %lld titles…</string>
+		</dict>
+	</dict>
 	<key>progress.minutesLeft %lld</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>

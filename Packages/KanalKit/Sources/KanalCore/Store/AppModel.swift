@@ -46,6 +46,10 @@ public final class AppModel {
     /// Set when a restricted profile is active and something was withheld —
     /// the count behind "some things are hidden here".
     public internal(set) var withheldCount = 0
+    /// Titles in this profile's approved sections still waiting on an age
+    /// rating. Drives "checking 340 of 1,200" rather than a library that looks
+    /// mysteriously thin while the lookups run.
+    public internal(set) var ratingsPending = 0
     public private(set) var guide: XMLTVParser.Guide?
     public private(set) var isRefreshingGuide = false
     /// A refresh running behind an already-visible catalogue.

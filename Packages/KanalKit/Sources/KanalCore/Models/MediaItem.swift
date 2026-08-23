@@ -33,6 +33,9 @@ public struct MediaItem: Identifiable, Codable, Sendable, Hashable {
 
     // Series grouping — only set when `kind == .series`.
     public var seriesName: String?
+    /// This episode's own title, when the provider wrote one after the code —
+    /// "Pilot" in "Breaking Bad S01E01 Pilot".
+    public var episodeTitle: String?
     public var season: Int?
     public var episode: Int?
     /// The provider's own id for the show, when the source is a panel that can
@@ -58,6 +61,7 @@ public struct MediaItem: Identifiable, Codable, Sendable, Hashable {
         language: String? = nil,
         countryCode: String? = nil,
         seriesName: String? = nil,
+        episodeTitle: String? = nil,
         season: Int? = nil,
         episode: Int? = nil,
         providerSeriesID: Int? = nil,
@@ -78,6 +82,7 @@ public struct MediaItem: Identifiable, Codable, Sendable, Hashable {
         self.language = language
         self.countryCode = countryCode
         self.seriesName = seriesName
+        self.episodeTitle = episodeTitle
         self.season = season
         self.episode = episode
         self.providerSeriesID = providerSeriesID

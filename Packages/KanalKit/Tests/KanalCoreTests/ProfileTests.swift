@@ -38,7 +38,9 @@ struct RatingParserTests {
         ("A", "NO", MaturityRating.allAges),
         ("U", "GB", MaturityRating.allAges),
         ("12A", "GB", MaturityRating.twelve),
-        ("16", "DE", MaturityRating.adult),
+        // Germany's 16 is where Norway puts 15, not 18 — see the equivalence
+        // note in RatingParser. Rounding it up made teenage films adults-only.
+        ("16", "DE", MaturityRating.fifteen),
         ("Btl", "SE", MaturityRating.allAges),
     ])
     func boards(code: String, country: String, expected: MaturityRating) {
@@ -121,10 +123,22 @@ struct ContentPolicyTests {
         )
     }
 
+    static func episode(_ show: String, category: String?, year: Int? = 1999) -> MediaItem {
+        MediaItem(
+            id: "\(show) S01E01", kind: .series, title: "\(show) S01E01",
+            rawTitle: "\(show) S01E01",
+            streamURL: URL(string: "http://p.tv/series/\(abs(show.hashValue))")!,
+            rawGroup: category, category: category,
+            seriesName: show, season: 1, episode: 1, year: year
+        )
+    }
+
     static let library = Library(items: [
         movie("Bamse på tur", category: "Kids"),
         movie("Late Night Horror", category: "Horror"),
         movie("Adults Only Feature", category: "XXX"),
+        episode("Bluey", category: "Animation"),
+        episode("Family Guy", category: "Animation"),
         channel("NRK Super", category: "Kids"),
         channel("V Sport 1", category: "Sport"),
         channel("Hot TV", category: "Adult"),
@@ -153,13 +167,75 @@ struct ContentPolicyTests {
 
     // MARK: - Approving
 
-    @Test("An approved section opens exactly that section")
+    /// Channels and films are permitted by different things, because only one
+    /// of them can carry an age limit at all.
+    @Test("An approved section opens its channels, but not its films")
     func approvedCategory() {
         let policy = ContentPolicy(
             profile: Self.child(allowing: ["Kids"]), ratings: RatingIndex()
         )
         let visible = policy.apply(to: Self.library).items.map(\.title).sorted()
-        #expect(visible == ["Bamse på tur", "NRK Super"])
+        #expect(visible == ["NRK Super"])
+    }
+
+    /// The bug this rule exists for, in full.
+    ///
+    /// A provider files Family Guy under "Animation". Kanal itself used to
+    /// suggest "Animation" as a children's section, a parent reasonably ticked
+    /// it for a nine-year-old, and the section then granted access — so an
+    /// adult cartoon appeared in a child's profile on the app's own
+    /// recommendation. Two things had to change, and both are asserted here.
+    @Test("Ticking an animation section does not hand a child Family Guy")
+    func animationSectionIsNotAPass() {
+        let profile = Self.child(.nine, allowing: ["Animation"])
+        var ratings = RatingIndex()
+        // Norway rates Family Guy 15, which is what TMDB actually answers.
+        ratings.record(
+            ContentRating(rating: .fifteen, source: .board, country: "NO"),
+            for: RatingKey.make(title: "Family Guy", year: nil)
+        )
+        let policy = ContentPolicy(profile: profile, ratings: ratings)
+
+        #expect(!policy.allows(Self.episode("Family Guy", category: "Animation")))
+        // And Bluey, which nobody has rated yet, is not smuggled in either —
+        // it waits for its own answer rather than riding the section.
+        #expect(!policy.allows(Self.episode("Bluey", category: "Animation")))
+
+        // Once rated, it appears on its own merit.
+        ratings.record(
+            ContentRating(rating: .allAges, source: .board, country: "NO"),
+            for: RatingKey.make(title: "Bluey", year: nil)
+        )
+        #expect(ContentPolicy(profile: profile, ratings: ratings)
+            .allows(Self.episode("Bluey", category: "Animation")))
+    }
+
+    /// Genre words name a shelf, not an audience.
+    @Test("Genre and broadcaster names are never suggested as children's", arguments: [
+        "Animation", "Cartoons", "Tegnefilm", "Family", "Familie",
+        "Disney", "Disney Plus", "Nickelodeon", "Anime", "Comedy",
+    ])
+    func genresAreNotAudiences(name: String) {
+        #expect(!ContentPolicy.looksLikeChildren(name))
+    }
+
+    @Test("Names that really do mean children still are", arguments: [
+        "Kids", "NO | Barn", "Barne-TV", "Disney Junior", "Nick Jr",
+        "CBeebies", "Children", "Kinder", "Enfants",
+    ])
+    func audiencesAreRecognised(name: String) {
+        #expect(ContentPolicy.looksLikeChildren(name))
+    }
+
+    /// What the verification pass works through: the approved sections, from
+    /// the whole catalogue rather than from what is already on screen.
+    @Test("Unrated titles in approved sections are queued for checking")
+    func poolIsTheApprovedSections() {
+        let policy = ContentPolicy(
+            profile: Self.child(.nine, allowing: ["Animation"]), ratings: RatingIndex()
+        )
+        let waiting = policy.awaitingRating(in: Self.library).map { $0.seriesName ?? $0.title }
+        #expect(Set(waiting) == ["Bluey", "Family Guy"])
     }
 
     /// Live channels have no age limit — what they are showing changes every
@@ -191,6 +267,8 @@ struct ContentPolicyTests {
         )
         let policy = ContentPolicy(profile: Self.child(allowing: ["Kids"]), ratings: ratings)
         #expect(!policy.allows(Self.movie("Bamse på tur", category: "Kids")))
+        // The channel in the same approved section is unaffected: no board
+        // rates a channel, so a grown-up's approval is all there ever is.
         #expect(policy.allows(Self.channel("NRK Super", category: "Kids")))
     }
 
@@ -249,13 +327,14 @@ struct ContentPolicyTests {
 
     // MARK: - Suggestions
 
-    @Test("Children's sections are suggested, adult ones never are")
+    @Test("Children's sections are suggested, adult and genre ones never are")
     func suggestions() {
         let names = ContentPolicy.suggestedChildCategories(in: Self.library).map(\.name)
         #expect(names.contains("Kids"))
         #expect(!names.contains("Horror"))
         #expect(!names.contains("XXX"))
         #expect(!names.contains("Adult"))
+        #expect(!names.contains("Animation"))
     }
 }
 
@@ -386,5 +465,117 @@ struct ParentOverrideTests {
         let porn = ContentPolicyTests.movie("Late Night", category: "XXX", year: 2020)
         let profile = Profile(name: "Emil", maturity: .six, allowedTitleKeys: [RatingKey.of(porn)])
         #expect(!ContentPolicy(profile: profile, ratings: RatingIndex()).allows(porn))
+    }
+}
+
+
+@Suite("Choosing between boards")
+struct RatingVerdictTests {
+
+    typealias Board = (code: String, country: String)
+
+    /// Norway's own answer settles it, wherever it sits in the list.
+    @Test("The viewer's own board wins outright")
+    func homeBoardWins() {
+        let boards: [Board] = [("15", "NO"), ("K7", "FI"), ("16", "DE")]
+        let verdict = RatingService.verdict(from: boards, home: "NO")
+        #expect(verdict?.rating == .fifteen)
+        #expect(verdict?.country == "NO")
+    }
+
+    /// Bob's Burgers: Finland K7, Britain 12, Germany 16. Taking whichever
+    /// answered first made the verdict depend on list order, and that order
+    /// put the most lenient board in front.
+    @Test("With no home answer, the strictest board wins")
+    func strictestWinsAbroad() {
+        let boards: [Board] = [("K7", "FI"), ("12", "GB"), ("16", "DE")]
+        let verdict = RatingService.verdict(from: boards, home: "NO")
+        #expect(verdict?.rating == .fifteen)
+    }
+
+    /// One board writing something we cannot read must not end the lookup —
+    /// this is what left Bob's Burgers unrated entirely.
+    @Test("An unreadable code is skipped, not fatal")
+    func unreadableCodeIsSkipped() {
+        let boards: [Board] = [("Ukjent", "NO"), ("12", "GB")]
+        #expect(RatingService.verdict(from: boards, home: "NO")?.rating == .twelve)
+    }
+
+    @Test("Nothing readable at all is no answer")
+    func nothingReadable() {
+        #expect(RatingService.verdict(from: [("???", "NO")], home: "NO") == nil)
+        #expect(RatingService.verdict(from: [], home: "NO") == nil)
+    }
+
+    /// A 16 is the foreign equivalent of Norway's 15, not of 18. Rounding it
+    /// up made ordinary teenage films adults-only.
+    @Test("A foreign 16 lands on fifteen", arguments: ["DE", "FI", "NL", "FR", "ES"])
+    func sixteenIsFifteen(country: String) {
+        let code = country == "FI" ? "K16" : "16"
+        #expect(RatingParser.rating(code: code, country: country) == .fifteen)
+    }
+
+    @Test("Board notation that is not a bare number still reads", arguments: [
+        ("K7", "FI", MaturityRating.nine),
+        ("Från 15 år", "SE", MaturityRating.fifteen),
+        ("Btl", "SE", MaturityRating.allAges),
+        ("B-15", "MX", MaturityRating.fifteen),
+        // India is not a board we carry, so its notation is read for the age
+        // it states and rounded up. The 16-means-15 equivalence applies only
+        // where we actually know the scale — guessing at an unfamiliar one is
+        // how a limit gets invented.
+        ("U/A 16+", "IN", MaturityRating.adult),
+    ])
+    func notationIsRead(code: String, country: String, expected: MaturityRating) {
+        #expect(RatingParser.rating(code: code, country: country) == expected)
+    }
+}
+
+@Suite("Identifying which title this is")
+struct ConfidentMatchTests {
+
+    static func title(_ id: Int, _ name: String, year: Int?, popularity: Double) -> TMDBTitle {
+        TMDBTitle(
+            id: id, isSeries: true, localizedTitle: name, originalTitle: name,
+            alternateTitles: [], year: year, popularity: popularity
+        )
+    }
+
+    /// TMDB lists two series called "Bluey": the one every four-year-old
+    /// watches, and an Australian police drama from 1976. Refusing to choose
+    /// hid the children's programme — the failure this feature exists to
+    /// prevent, pointing the other way.
+    @Test("A landslide favourite wins when no year was stated")
+    func famousTitleWins() {
+        let match = RatingService.confidentMatch(for: "Bluey", year: nil, among: [
+            Self.title(1, "Bluey", year: 1976, popularity: 0.6),
+            Self.title(2, "Bluey", year: 2018, popularity: 480),
+        ])
+        #expect(match?.id == 2)
+    }
+
+    /// The Frost case: two 2013 films of the same name, neither obviously the
+    /// one meant. A wrong answer here invents an age limit, so there is none.
+    @Test("Two comparable titles remain unanswered")
+    func ambiguityStaysUnanswered() {
+        #expect(RatingService.confidentMatch(for: "Frost", year: nil, among: [
+            Self.title(1, "Frost", year: 2013, popularity: 12),
+            Self.title(2, "Frost", year: 2013, popularity: 9),
+        ]) == nil)
+    }
+
+    @Test("A stated year that both candidates fit is still no answer")
+    func statedYearDoesNotBreakTies() {
+        #expect(RatingService.confidentMatch(for: "Frost", year: 2013, among: [
+            Self.title(1, "Frost", year: 2013, popularity: 900),
+            Self.title(2, "Frost", year: 2013, popularity: 3),
+        ]) == nil)
+    }
+
+    @Test("A name that merely starts the same is not a match")
+    func prefixIsNotAMatch() {
+        #expect(RatingService.confidentMatch(for: "Bluey", year: nil, among: [
+            Self.title(1, "Bluey Minisodes", year: 2024, popularity: 40),
+        ]) == nil)
     }
 }

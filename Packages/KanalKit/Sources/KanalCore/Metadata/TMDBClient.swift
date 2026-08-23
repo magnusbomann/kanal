@@ -15,6 +15,10 @@ public struct TMDBTitle: Codable, Sendable, Hashable, Identifiable {
     public var posterPath: String?
     public var backdropPath: String?
     public var voteAverage: Double?
+    /// TMDB's own measure of how much attention a title gets. Used only to
+    /// separate a famous title from an obscure one that happens to share its
+    /// name — never to rank anything a viewer sees.
+    public var popularity: Double?
 
     /// Everything this title can be called, deduplicated.
     public var allTitles: [String] {
@@ -176,14 +180,21 @@ public struct TMDBClient: Sendable {
     ///   one that rated the title wins, so a Norwegian viewer gets
     ///   Medietilsynet's answer where there is one and a neighbouring board's
     ///   otherwise.
-    public func certification(
+    /// Every preferred board's answer, in preference order.
+    ///
+    /// Returning only the first country that *had* a code was a quiet bug:
+    /// Bob's Burgers has no Nordic certificate, so Finland's `K7` was returned,
+    /// failed to parse, and the British `12` and German `16` sitting right
+    /// behind it were never consulted. The title came back unrated. Handing
+    /// back the whole ordered list lets the caller keep trying.
+    public func certifications(
         id: Int, isSeries: Bool, preferring countries: [String]
-    ) async throws -> (code: String, country: String)? {
+    ) async throws -> [(code: String, country: String)] {
         let path = isSeries ? "tv/\(id)/content_ratings" : "movie/\(id)/release_dates"
         let data = try await get(path: path, query: [])
         guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let rows = root["results"] as? [[String: Any]]
-        else { return nil }
+        else { return [] }
 
         var byCountry: [String: String] = [:]
         for row in rows {
@@ -201,10 +212,11 @@ public struct TMDBClient: Sendable {
             byCountry[country] = code
         }
 
-        for country in countries.map({ $0.uppercased() }) {
-            if let code = byCountry[country] { return (code, country) }
-        }
-        return nil
+        return countries
+            .map { $0.uppercased() }
+            .compactMap { country in
+                byCountry[country].map { (code: $0, country: country) }
+            }
     }
 
     // MARK: - Plumbing
@@ -236,7 +248,8 @@ public struct TMDBClient: Sendable {
             year: year,
             posterPath: row["poster_path"] as? String,
             backdropPath: row["backdrop_path"] as? String,
-            voteAverage: row["vote_average"] as? Double
+            voteAverage: row["vote_average"] as? Double,
+            popularity: row["popularity"] as? Double
         )
     }
 

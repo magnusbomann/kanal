@@ -28,6 +28,11 @@ enum LaunchOptions {
         value(for: "-kanal-play-movie").flatMap(Int.init)
     }
 
+    /// `-kanal-open-series 0` opens the nth show's detail screen.
+    static var openSeriesIndex: Int? {
+        value(for: "-kanal-open-series").flatMap(Int.init)
+    }
+
     /// `-kanal-details 0` opens the detail screen for the nth film.
     static var detailsMovieIndex: Int? {
         value(for: "-kanal-details").flatMap(Int.init)
@@ -51,6 +56,7 @@ enum LaunchOptions {
     static var liveMode: String? { nil }
     static var opensSettings: Bool { false }
     static var autoplayMovieIndex: Int? { nil }
+    static var openSeriesIndex: Int? { nil }
     static var detailsMovieIndex: Int? { nil }
     static var seededSource: URL? { nil }
     #endif

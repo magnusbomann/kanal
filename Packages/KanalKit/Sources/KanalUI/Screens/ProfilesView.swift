@@ -111,6 +111,12 @@ public struct ProfilesView: View {
                 String(UIStrings.labelHiddenHere),
                 value: model.withheldCount.formatted()
             )
+            if model.ratingsPending > 0 {
+                LabeledContent(
+                    String(UIStrings.labelAwaitingRating),
+                    value: model.ratingsPending.formatted()
+                )
+            }
         } footer: {
             Text(UIStrings.withheldFooter)
         }

@@ -194,19 +194,66 @@ public extension AppModel {
     /// ratings nobody will consult would be rude.
     func scheduleVerification() {
         verificationTask?.cancel()
-        guard isRestricted, !library.isEmpty else { return }
-        let items = library.movies + library.series.flatMap(\.episodes)
-        guard !items.isEmpty else { return }
+        ratingsPending = 0
+        guard isRestricted, !catalogue.isEmpty else { return }
+
+        let policy = policy
+        let catalogue = catalogue
 
         verificationTask = Task { @MainActor [ratingService] in
-            // Let the screen settle first; nothing here is urgent.
+            // Let the first screen draw; nothing here is urgent.
             try? await Task.sleep(for: .seconds(2))
             guard !Task.isCancelled else { return }
-            guard let updated = await ratingService.verify(items) else { return }
+
+            // The pool comes from the **catalogue**, not from `library`.
+            //
+            // Verifying what was already visible was backwards: it only ever
+            // re-confirmed entries a child could see anyway, a slice at a
+            // time, and left the rest of an approved section showing
+            // unchecked. Family Guy sat thousands of entries down an
+            // "Animation" section and was never reached.
+            //
+            // Built off the main actor. It is a pass over every entry the
+            // provider sent — four hundred thousand of them — and each one
+            // normalises a title, which is exactly the kind of work that turns
+            // into dropped frames if done where the scrolling happens.
+            var outstanding = await Self.pool(policy: policy, catalogue: catalogue)
             guard !Task.isCancelled else { return }
-            self.ratings = updated
-            self.applyPolicy()
+            self.ratingsPending = outstanding.count
+
+            while !outstanding.isEmpty {
+                guard let progress = await ratingService.verify(outstanding) else { return }
+                guard !Task.isCancelled else { return }
+
+                if progress.changed {
+                    self.ratings = await ratingService.snapshot
+                    self.applyPolicy()
+                }
+                self.ratingsPending = progress.remaining
+                guard progress.remaining > 0 else { return }
+
+                if progress.wasRateLimited {
+                    // Backing off rather than hammering: the answers are
+                    // permanent, so there is never a reason to be in a hurry.
+                    try? await Task.sleep(for: .seconds(20))
+                    guard !Task.isCancelled else { return }
+                }
+
+                // Narrowed against what is left rather than rebuilt from the
+                // catalogue, so the expensive pass happens once.
+                let current = self.policy
+                let checked = outstanding
+                outstanding = await Task.detached(priority: .utility) {
+                    current.awaitingRating(among: checked)
+                }.value
+            }
         }
+    }
+
+    private static func pool(policy: ContentPolicy, catalogue: Library) async -> [MediaItem] {
+        await Task.detached(priority: .utility) {
+            policy.awaitingRating(in: catalogue)
+        }.value
     }
 
     // MARK: - Persistence

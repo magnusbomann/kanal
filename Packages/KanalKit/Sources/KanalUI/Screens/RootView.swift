@@ -40,6 +40,13 @@ public struct RootView: View {
                    model.library.movies.indices.contains(index) {
                     navigator.play(model.library.movies[index])
                 }
+                if let index = LaunchOptions.openSeriesIndex,
+                   model.library.series.indices.contains(index) {
+                    let group = model.library.series[index]
+                    if let first = group.episodes.first {
+                        navigator.showDetails(for: first, seriesGroup: group)
+                    }
+                }
                 if let index = LaunchOptions.detailsMovieIndex {
                     // The root view swaps as the phase settles, which would
                     // take the sheet with it.

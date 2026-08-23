@@ -378,29 +378,50 @@ public struct SeriesDetailView: View {
 
 struct EpisodeRow: View {
     let episode: MediaItem
+    /// How far in, when it has been started. Nil for unwatched.
+    var progress: Double?
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: KanalMetrics.md) {
-                Text(episode.episodeCode ?? "–")
-                    .kanalLabel(12)
-                    .foregroundStyle(KanalColor.accentSolid)
-                    .frame(width: 56, alignment: .leading)
-                Text(episode.title)
-                    .font(KanalFont.body(15))
-                    .foregroundStyle(KanalColor.primaryText)
-                    .lineLimit(1)
-                Spacer(minLength: 0)
-                Image(systemName: "play.circle.fill")
-                    .font(.system(size: 20))
-                    .foregroundStyle(KanalColor.secondaryText)
+            VStack(spacing: KanalMetrics.sm) {
+                HStack(spacing: KanalMetrics.md) {
+                    Text(episode.episodeCode ?? "–")
+                        .kanalLabel(12)
+                        .foregroundStyle(KanalColor.accentSolid)
+                        .frame(width: 56, alignment: .leading)
+
+                    // The episode's own title, not the show's — the show's name
+                    // is already at the top of the screen.
+                    Text(episodeTitle)
+                        .font(KanalFont.body(15))
+                        .foregroundStyle(KanalColor.primaryText)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+
+                    Spacer(minLength: 0)
+                    Image(systemName: "play.circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundStyle(KanalColor.secondaryText)
+                }
+
+                if let progress, progress > 0.01 {
+                    ProgressLine(fraction: progress)
+                        .padding(.leading, 56 + KanalMetrics.md)
+                }
             }
             .padding(.horizontal, KanalMetrics.md)
+            .padding(.vertical, KanalMetrics.sm)
             .frame(minHeight: KanalMetrics.minTarget + 8)
             .background(KanalColor.surface, in: .rect(cornerRadius: 14, style: .continuous))
         }
         .buttonStyle(KanalCardButtonStyle())
+    }
+
+    /// The provider's own episode title when there is one, and the code when
+    /// there is not — repeating the show's name on every row says nothing.
+    private var episodeTitle: String {
+        episode.episodeTitle ?? episode.episodeCode ?? episode.title
     }
 }
 

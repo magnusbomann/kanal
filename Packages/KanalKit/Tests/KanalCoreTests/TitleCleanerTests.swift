@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import KanalCore
 
@@ -63,5 +64,63 @@ struct TitleCleanerTests {
     func neverEmpty() {
         #expect(TitleCleaner.clean("HD").title == "HD")
         #expect(TitleCleaner.clean("   ").title == "   ")
+    }
+}
+
+@Suite("Show names and episode titles")
+struct EpisodeNamingTests {
+
+    /// The bug this guards: joining the text on both sides of the code gave
+    /// every episode a different show name, so one series became dozens of
+    /// one-episode shows.
+    @Test("The show is what precedes the code, not what surrounds it")
+    func splitsAroundTheCode() {
+        let result = TitleCleaner.clean("Breaking Bad S01E01 - Pilot")
+        #expect(result.seriesName == "Breaking Bad")
+        #expect(result.episodeTitle == "Pilot")
+        #expect(result.title == "Breaking Bad S01E01")
+    }
+
+    @Test("Every episode of a run shares one show name", arguments: [
+        "Breaking Bad S01E01 - Pilot",
+        "Breaking Bad S01E02 - Cat's in the Bag",
+        "Breaking Bad S02E13 - ABQ",
+        "Breaking Bad S05E16 Felina",
+    ])
+    func oneShowManyEpisodes(raw: String) {
+        #expect(TitleCleaner.clean(raw).seriesName == "Breaking Bad")
+    }
+
+    @Test("An episode with no title of its own has none invented")
+    func noEpisodeTitle() {
+        let result = TitleCleaner.clean("Breaking Bad S01E04")
+        #expect(result.seriesName == "Breaking Bad")
+        #expect(result.episodeTitle == nil)
+    }
+
+    @Test("Quality noise after the code is not mistaken for a title")
+    func qualityIsNotATitle() {
+        let result = TitleCleaner.clean("NO| Breaking Bad S01E04 1080p")
+        #expect(result.seriesName == "Breaking Bad")
+        #expect(result.episodeTitle == nil)
+        #expect(result.qualityTag == "1080P")
+    }
+
+    @Test("Grouping folds a whole run into one show")
+    func groupsIntoOneShow() {
+        let items = (1...6).map { number -> MediaItem in
+            let raw = "Breaking Bad S0\(number <= 3 ? 1 : 2)E0\(number) - Episode \(number)"
+            let cleaned = TitleCleaner.clean(raw)
+            return MediaItem(
+                id: raw, kind: .series, title: cleaned.title, rawTitle: raw,
+                streamURL: URL(string: "http://p.tv/play/\(number)")!,
+                seriesName: cleaned.seriesName, episodeTitle: cleaned.episodeTitle,
+                season: cleaned.season, episode: cleaned.episode
+            )
+        }
+        let library = Library(items: items)
+        #expect(library.series.count == 1, "a run must not become several shows")
+        #expect(library.series.first?.episodes.count == 6)
+        #expect(library.series.first?.seasonNumbers == [1, 2])
     }
 }

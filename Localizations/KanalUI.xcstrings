@@ -832,6 +832,142 @@
         }
       }
     },
+    "detail.cast": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cast"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medvirkende"
+          }
+        }
+      }
+    },
+    "detail.episodes": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Episodes"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Episoder"
+          }
+        }
+      }
+    },
+    "detail.noInfo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing is known about this title beyond what your provider called it."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vi vet ingenting om denne tittelen ut over det leverandøren din kalte den."
+          }
+        }
+      }
+    },
+    "detail.overview": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Om"
+          }
+        }
+      }
+    },
+    "detail.play": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spill av"
+          }
+        }
+      }
+    },
+    "detail.play.episode %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play %@"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spill %@"
+          }
+        }
+      }
+    },
+    "detail.resume": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue watching"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fortsett å se"
+          }
+        }
+      }
+    },
+    "detail.runtime %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min"
+          }
+        }
+      }
+    },
     "detect.empty": {
       "extractionState": "manual",
       "localizations": {
@@ -1869,6 +2005,23 @@
         }
       }
     },
+    "person.knownFor": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Known for"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kjent for"
+          }
+        }
+      }
+    },
     "player.audioTrack": {
       "extractionState": "manual",
       "localizations": {
@@ -2215,13 +2368,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Approved sections are still checked against official age ratings — anything rated above the limit is removed on its own."
+            "value": "Channels you tick are shown as they are — no one rates a live channel. For films and series a tick only tells Kanal where to look: each title is checked against official age ratings, and only those at or below the limit appear. Anything still unrated stays hidden until you allow it by name."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Godkjente kategorier sjekkes fortsatt mot offisielle aldersgrenser – det som er merket høyere enn grensen, faller ut av seg selv."
+            "value": "Kanaler du huker av, vises som de er – ingen aldersmerker en direktekanal. For filmer og serier sier avhukingen bare hvor Kanal skal lete: hver tittel sjekkes mot offisielle aldersgrenser, og bare de på eller under grensen vises. Det som fortsatt mangler aldersgrense, forblir skjult til du godkjenner det ved navn."
           }
         }
       }
@@ -2232,13 +2385,71 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kanal has no ratings source set up, so a child sees exactly the sections you approve here and nothing else."
+            "value": "Kanal has no ratings source set up, so films and series cannot be checked and stay hidden. Channels you tick still appear, and you can allow individual titles by name."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kanal har ingen kilde for aldersgrenser satt opp, så et barn ser nøyaktig de kategoriene du godkjenner her – og ingenting annet."
+            "value": "Kanal har ingen kilde for aldersgrenser satt opp, så filmer og serier kan ikke sjekkes og forblir skjult. Kanaler du huker av, vises likevel, og du kan godkjenne enkelttitler ved navn."
+          }
+        }
+      }
+    },
+    "profiles.awaitingRating": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for an age rating"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Venter på aldersgrense"
+          }
+        }
+      }
+    },
+    "profiles.checkingRatings %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Checking the age rating of %lld title…"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Checking the age rating of %lld titles…"
+                }
+              }
+            }
+          }
+        },
+        "nb": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Sjekker aldersgrensen på %lld tittel …"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Sjekker aldersgrensen på %lld titler …"
+                }
+              }
+            }
           }
         }
       }
@@ -2317,13 +2528,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kanal hides everything nobody has rated or approved. Add sections in this profile to show more."
+            "value": "Kanal hides anything without an age rating at or below this profile's limit. Add sections in this profile to widen what gets checked."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kanal skjuler alt ingen har aldersmerket eller godkjent. Legg til kategorier i profilen for å vise mer."
+            "value": "Kanal skjuler alt uten en aldersgrense på eller under grensen for denne profilen. Legg til kategorier i profilen for å utvide hva som sjekkes."
           }
         }
       }
@@ -4120,159 +4331,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "LIM INN LENKEN."
-          }
-        }
-      }
-    },
-    "detail.play": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Play"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spill av"
-          }
-        }
-      }
-    },
-    "detail.play.episode %@": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Play %@"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spill %@"
-          }
-        }
-      }
-    },
-    "detail.resume": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Continue watching"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fortsett å se"
-          }
-        }
-      }
-    },
-    "detail.overview": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "About"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Om"
-          }
-        }
-      }
-    },
-    "detail.cast": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cast"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Medvirkende"
-          }
-        }
-      }
-    },
-    "detail.episodes": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Episodes"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Episoder"
-          }
-        }
-      }
-    },
-    "detail.noInfo": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nothing is known about this title beyond what your provider called it."
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vi vet ingenting om denne tittelen ut over det leverandøren din kalte den."
-          }
-        }
-      }
-    },
-    "detail.runtime %lld": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld min"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld min"
-          }
-        }
-      }
-    },
-    "person.knownFor": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Known for"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kjent for"
           }
         }
       }

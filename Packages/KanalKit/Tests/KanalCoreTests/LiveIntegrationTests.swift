@@ -284,3 +284,62 @@ struct LiveEPGTests {
 private extension String {
     func ifEmpty(_ fallback: String) -> String { isEmpty ? fallback : self }
 }
+
+/// The age-rating lookup, against the real boards.
+///
+/// Written after Family Guy turned up in a nine-year-old's profile. The parsing
+/// is unit-tested against fixed codes; what this checks is the part no fixture
+/// can — that TMDB still answers for these titles, that the Norwegian board is
+/// the one consulted, and that the numbers come out where a parent expects.
+@Suite(
+    "Live age ratings",
+    .enabled(if: ProcessInfo.processInfo.environment["KANAL_LIVE_TESTS"] == "1")
+)
+struct LiveRatingTests {
+
+    private static var client: TMDBClient? {
+        guard let key = ProcessInfo.processInfo.environment["TMDB_API_KEY"], !key.isEmpty else {
+            return nil
+        }
+        return TMDBClient(apiKey: key)
+    }
+
+    /// The shows that started this. All three live in a provider's
+    /// "Animation" section next to genuine children's television.
+    @Test("Adult cartoons are not children's television", arguments: [
+        "Family Guy", "American Dad!", "Bob's Burgers", "Rick and Morty", "South Park",
+    ])
+    func adultCartoonsRateHigh(name: String) async throws {
+        let rating = try await Self.rating(for: name, isSeries: true)
+        let found = try #require(rating, "\(name) came back unrated")
+        // The exact number is a board's business and gets revised; what has to
+        // hold is that none of these is anywhere near a nine-year-old.
+        #expect(found >= .twelve, "\(name) rated \(found.badge)")
+    }
+
+    /// The other half of the same question: being strict is only worth
+    /// anything if real children's programmes still come through. These are
+    /// the titles whose absence would make a child's profile look broken.
+    @Test("Real children's television rates low", arguments: [
+        "Bluey", "Paw Patrol", "Peppa Pig", "Postman Pat", "Pingu",
+    ])
+    func childrensTelevisionRatesLow(name: String) async throws {
+        let rating = try await Self.rating(for: name, isSeries: true)
+        let found = try #require(rating, "\(name) came back unrated")
+        #expect(found <= .nine, "\(name) rated \(found.badge)")
+    }
+
+    /// Exercises the same path `RatingService` uses: search, insist on a
+    /// confident match, then ask the boards in preference order.
+    private static func rating(for name: String, isSeries: Bool) async throws -> MaturityRating? {
+        guard let client else { return nil }
+        let matches = try await client.search(name, year: nil, isSeries: isSeries)
+        guard let best = RatingService.confidentMatch(for: name, year: nil, among: matches) else {
+            return nil
+        }
+        let boards = try await client.certifications(
+            id: best.id, isSeries: isSeries, preferring: ["NO", "DK", "SE", "FI", "GB", "DE", "US"]
+        )
+        return RatingService.verdict(from: boards, home: "NO")?.rating
+    }
+}

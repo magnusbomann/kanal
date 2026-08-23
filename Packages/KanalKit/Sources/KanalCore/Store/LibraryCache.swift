@@ -13,7 +13,7 @@ import Foundation
 public enum LibraryCache {
 
     private static let magic: UInt32 = 0x4B_4E_4C_31  // "KNL1"
-    private static let version: UInt16 = 1
+    private static let version: UInt16 = 2
 
     public struct Snapshot: Sendable {
         public var items: [MediaItem]
@@ -73,6 +73,7 @@ public enum LibraryCache {
             writer.writeOptionalString(item.language)
             writer.writeOptionalString(item.countryCode)
             writer.writeOptionalString(item.seriesName)
+            writer.writeOptionalString(item.episodeTitle)
             writer.writeOptionalString(item.qualityTag)
             writer.writeStrings(item.alternateTitles)
             writer.writeOptionalInt32(item.channelNumber)
@@ -133,6 +134,7 @@ public enum LibraryCache {
             let language = reader.readOptionalString()
             let countryCode = reader.readOptionalString()
             let seriesName = reader.readOptionalString()
+            let episodeTitle = reader.readOptionalString()
             let qualityTag = reader.readOptionalString()
             guard let alternates = reader.readStrings() else { return nil }
 
@@ -147,6 +149,7 @@ public enum LibraryCache {
                     channelNumber: reader.readOptionalInt32(),
                     language: language, countryCode: countryCode,
                     seriesName: seriesName,
+                    episodeTitle: episodeTitle,
                     season: reader.readOptionalInt32(),
                     episode: reader.readOptionalInt32(),
                     providerSeriesID: reader.readOptionalInt32(),

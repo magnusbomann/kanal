@@ -31,10 +31,10 @@ public actor RatingService {
 
     /// How many titles one verification pass will fetch.
     ///
-    /// TMDB's rate limit is generous but not infinite, and a real catalogue has
-    /// thirty thousand films. Bounded work per pass, resumed next launch, keeps
-    /// this off the critical path forever.
-    private static let batchLimit = 120
+    /// Bounded so a pass stays interruptible and one rate-limit reply costs
+    /// little. The caller runs passes back to back until the pool is empty, so
+    /// this is a step size rather than a ceiling on the work.
+    private static let batchLimit = 250
 
     public init(tmdbAPIKey: String?, storage: KanalStorage = .shared) {
         self.storage = storage
@@ -80,34 +80,58 @@ public actor RatingService {
 
     // MARK: - Boards
 
-    /// Looks up board ratings for titles a restricted profile can currently
-    /// reach, so anything rated above the limit falls back out of an approved
-    /// category on its own.
+    /// How far through the pool this pass got.
+    public struct Progress: Sendable {
+        /// Titles that gained a rating in this pass.
+        public var resolved: Int
+        /// Titles in the pool still without an answer.
+        public var remaining: Int
+        /// Whether the caller needs to rebuild the filtered library.
+        public var changed: Bool
+        /// Set when the pass stopped early because the service asked us to.
+        public var wasRateLimited: Bool
+    }
+
+    /// Looks up board ratings for a pool of titles, a batch at a time.
     ///
-    /// Returns the index only when something changed, so callers can skip a
-    /// rebuild of the filtered library in the common case of nothing new.
+    /// The pool is whatever the caller decided is worth knowing about — in
+    /// practice, the sections a grown-up approved for a child. It is walked in
+    /// order and the answers are permanent, so calling this repeatedly works
+    /// through the whole pool and picks up where it left off next launch.
+    ///
+    /// Returns nil only when there is nothing to do at all.
     @discardableResult
-    public func verify(_ items: [MediaItem]) async -> RatingIndex? {
+    public func verify(_ items: [MediaItem]) async -> Progress? {
         guard let client, !isVerifying else { return nil }
         isVerifying = true
         defer { isVerifying = false }
 
         // Live channels are skipped: a channel is not a title, and no board
         // rates one. Those are a grown-up's decision by design.
-        let wanted = items
-            .filter { $0.kind != .liveTV }
-            .reduce(into: [(key: String, item: MediaItem)]()) { found, item in
-                let key = RatingKey.of(item)
-                guard index[key] == nil, !knownUnrated.contains(key),
-                      !found.contains(where: { $0.key == key })
-                else { return }
-                found.append((key, item))
-            }
-            .prefix(Self.batchLimit)
+        //
+        // Deduplicated through a Set rather than by scanning what has been
+        // collected so far. A pool is thousands of episodes of the same few
+        // shows, and the scan made this quadratic — seconds of main-thread
+        // work before a single request went out.
+        var seenKeys = Set<String>()
+        var wanted: [(key: String, item: MediaItem)] = []
+        var remaining = 0
+        for item in items where item.kind != .liveTV {
+            let key = RatingKey.of(item)
+            guard index[key]?.isVerified != true, !knownUnrated.contains(key),
+                  seenKeys.insert(key).inserted
+            else { continue }
+            remaining += 1
+            if wanted.count < Self.batchLimit { wanted.append((key, item)) }
+        }
 
-        guard !wanted.isEmpty else { return nil }
+        guard !wanted.isEmpty else {
+            return Progress(resolved: 0, remaining: 0, changed: false, wasRateLimited: false)
+        }
 
         var changed = false
+        var resolved = 0
+        var wasRateLimited = false
         for (key, item) in wanted {
             if Task.isCancelled { break }
             let name = item.seriesName ?? item.title
@@ -118,24 +142,30 @@ public actor RatingService {
                     knownUnrated.insert(key)
                     continue
                 }
-                let found = try await client.certification(
+                // Every board in preference order, taking the first that
+                // yields a number we understand. Norway's answer wins where
+                // there is one; a title only the German board rated still gets
+                // an answer instead of falling through as unrated.
+                let boards = try await client.certifications(
                     id: best.id, isSeries: isSeries, preferring: countries
                 )
-                guard let found,
-                      let rating = RatingParser.rating(code: found.code, country: found.country)
-                else {
+                let verdict = Self.verdict(from: boards, home: countries.first)
+
+                guard let verdict else {
                     knownUnrated.insert(key)
                     continue
                 }
                 index.record(
-                    ContentRating(rating: rating, source: .board, country: found.country),
+                    ContentRating(rating: verdict.rating, source: .board, country: verdict.country),
                     for: key
                 )
                 changed = true
+                resolved += 1
             } catch TMDBClient.Failure.rateLimited {
                 // Stop, and record nothing. Caching "unrated" because the
                 // service was busy would hide a children's film permanently —
                 // the same mistake the metadata layer already learned once.
+                wasRateLimited = true
                 break
             } catch {
                 continue
@@ -143,7 +173,43 @@ public actor RatingService {
         }
 
         await persist()
-        return changed ? index : nil
+        return Progress(
+            resolved: resolved,
+            remaining: max(remaining - resolved, 0),
+            changed: changed,
+            wasRateLimited: wasRateLimited
+        )
+    }
+
+    /// The current index, for a caller that needs to rebuild after a pass.
+    public var snapshot: RatingIndex { index }
+
+    /// Which board to believe when they disagree.
+    ///
+    /// Bob's Burgers is the case that settled this: Finland rates it K7,
+    /// Britain 12, Germany 16. Taking whichever board answered first made the
+    /// verdict depend on the order of a list, and that order happened to put
+    /// the most lenient one in front.
+    ///
+    /// So: the viewer's own country decides, because that is the number a
+    /// parent here recognises and the one their child's school friends go by.
+    /// With no answer at home, the strictest of the rest wins — boards
+    /// disagreeing by nine years is precisely when to err towards asking a
+    /// grown-up, and being one step strict costs a tap while being one step
+    /// lenient costs the thing this feature exists for.
+    static func verdict(
+        from boards: [(code: String, country: String)], home: String?
+    ) -> (rating: MaturityRating, country: String)? {
+        var readable: [(rating: MaturityRating, country: String)] = []
+        for board in boards {
+            guard let rating = RatingParser.rating(code: board.code, country: board.country)
+            else { continue }
+            if let home, board.country.caseInsensitiveCompare(home) == .orderedSame {
+                return (rating, board.country)
+            }
+            readable.append((rating, board.country))
+        }
+        return readable.max { $0.rating < $1.rating }
     }
 
     // MARK: - Identifying
@@ -180,10 +246,32 @@ public actor RatingService {
             fits.append(candidate)
         }
 
-        // Two different films of the same name in the same year is exactly the
-        // case that produced the wrong answer above.
-        guard Set(fits.map(\.id)).count == 1 else { return nil }
-        return fits.first
+        let unique = Dictionary(grouping: fits, by: \.id).values.compactMap(\.first)
+        if unique.count == 1 { return unique.first }
+        guard unique.count > 1 else { return nil }
+
+        // Several titles of the same name. When the playlist stated a year,
+        // they have all already matched it, and there is genuinely nothing to
+        // choose between them — that is the Frost case, and the answer is no
+        // answer.
+        if year != nil { return nil }
+
+        // With no year, refusing outright was too blunt. TMDB lists two series
+        // called "Bluey": the one every four-year-old watches, and an
+        // Australian police drama from 1976. Treating that as unanswerable
+        // hid the children's programme, which is the failure this feature was
+        // supposed to prevent in the other direction.
+        //
+        // So one candidate may win, but only by a landslide. Anything closer
+        // stays unanswered rather than guessed.
+        let ranked = unique.sorted { ($0.popularity ?? 0) > ($1.popularity ?? 0) }
+        guard let leader = ranked.first, let runnerUp = ranked.dropFirst().first else {
+            return nil
+        }
+        let lead = leader.popularity ?? 0
+        let next = runnerUp.popularity ?? 0
+        guard lead >= 1, lead >= next * 10 else { return nil }
+        return leader
     }
 
     // MARK: - Manual

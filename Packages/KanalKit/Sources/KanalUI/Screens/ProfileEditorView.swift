@@ -178,6 +178,18 @@ struct ProfileEditorView: View {
                     }
                 }
             }
+            if isEditingActiveProfile, model.ratingsPending > 0 {
+                // Says out loud why the child's library is still thin. Without
+                // this the honest behaviour — hide until checked — is
+                // indistinguishable from a broken catalogue, which is exactly
+                // how it looked the first time this was tried.
+                HStack(spacing: KanalMetrics.sm) {
+                    ProgressView().controlSize(.small)
+                    Text(UIStrings.checkingRatings(model.ratingsPending))
+                        .font(KanalFont.body(13))
+                        .foregroundStyle(KanalColor.secondaryText)
+                }
+            }
         } header: {
             Text(UIStrings.sectionAllowedContent)
         } footer: {
@@ -185,6 +197,12 @@ struct ProfileEditorView: View {
                 ? UIStrings.allowedContentFooter
                 : UIStrings.allowedContentFooterNoProvider)
         }
+    }
+
+    /// Progress only means anything for the profile actually loaded — the
+    /// lookups run against that one.
+    private var isEditingActiveProfile: Bool {
+        existing?.id == model.activeProfileID
     }
 
     /// Titles an approved section would have shown, held back by an age

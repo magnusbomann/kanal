@@ -102,6 +102,7 @@ public struct M3UParser: Sendable {
                     language: pendingAttributes["tvg-language"],
                     countryCode: pendingAttributes["tvg-country"] ?? cleaned.countryCode,
                     seriesName: kind == .series ? cleaned.seriesName : nil,
+                    episodeTitle: kind == .series ? cleaned.episodeTitle : nil,
                     season: kind == .series ? cleaned.season : nil,
                     episode: kind == .series ? cleaned.episode : nil,
                     year: cleaned.year,

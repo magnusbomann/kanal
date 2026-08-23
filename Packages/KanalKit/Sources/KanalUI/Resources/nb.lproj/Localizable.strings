@@ -122,13 +122,14 @@
 "profiles.add" = "Ny profil";
 "profiles.ageLimit" = "Aldersgrense";
 "profiles.allCategories" = "Alle kategorier";
-"profiles.allowed.footer" = "Godkjente kategorier sjekkes fortsatt mot offisielle aldersgrenser – det som er merket høyere enn grensen, faller ut av seg selv.";
-"profiles.allowed.footer.noRatings" = "Kanal har ingen kilde for aldersgrenser satt opp, så et barn ser nøyaktig de kategoriene du godkjenner her – og ingenting annet.";
+"profiles.allowed.footer" = "Kanaler du huker av, vises som de er – ingen aldersmerker en direktekanal. For filmer og serier sier avhukingen bare hvor Kanal skal lete: hver tittel sjekkes mot offisielle aldersgrenser, og bare de på eller under grensen vises. Det som fortsatt mangler aldersgrense, forblir skjult til du godkjenner det ved navn.";
+"profiles.allowed.footer.noRatings" = "Kanal har ingen kilde for aldersgrenser satt opp, så filmer og serier kan ikke sjekkes og forblir skjult. Kanaler du huker av, vises likevel, og du kan godkjenne enkelttitler ved navn.";
+"profiles.awaitingRating" = "Venter på aldersgrense";
 "profiles.delete" = "Slett profil";
 "profiles.edit.title" = "Endre profil";
 "profiles.emptyChild.body" = "En voksen bestemmer hva som dukker opp i denne profilen. Be dem legge til noe under Profiler.";
 "profiles.emptyChild.title" = "Ingenting her ennå";
-"profiles.hidden.footer" = "Kanal skjuler alt ingen har aldersmerket eller godkjent. Legg til kategorier i profilen for å vise mer.";
+"profiles.hidden.footer" = "Kanal skjuler alt uten en aldersgrense på eller under grensen for denne profilen. Legg til kategorier i profilen for å utvide hva som sjekkes.";
 "profiles.hiddenCount" = "Skjult i denne profilen";
 "profiles.inUse" = "I bruk";
 "profiles.isAdult.footer" = "En voksenprofil ser hele spillelisten.";

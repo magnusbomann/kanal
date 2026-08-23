@@ -23,6 +23,7 @@ public struct TitleDetailView: View {
     @State private var details: TitleDetails?
     @State private var isLoading = true
     @State private var person: CastMember?
+    @State private var season: Int?
 
     public init(item: MediaItem, seriesGroup: SeriesGroup? = nil) {
         self.item = item
@@ -38,7 +39,7 @@ public struct TitleDetailView: View {
                     actions
                     if let overview { about(overview) }
                     if let cast = details?.cast, !cast.isEmpty { castRow(cast) }
-                    if let group = seriesGroup, !group.episodes.isEmpty { episodes(group) }
+                    if let group = seriesGroup { episodeSection(group) }
                     if isLoading == false && details == nil { noInformation }
                 }
                 .padding(.horizontal, KanalMetrics.lg)
@@ -50,6 +51,12 @@ public struct TitleDetailView: View {
         .task(id: item.id) {
             details = await model.metadata.details(for: item)
             isLoading = false
+        }
+        .task(id: seriesGroup?.id) {
+            // A panel lists shows without their episodes; they arrive on
+            // request. A flat playlist already has them and this does nothing.
+            guard let seriesGroup else { return }
+            await model.loadEpisodesIfNeeded(for: seriesGroup)
         }
         .sheet(item: $person) { member in
             PersonSheet(member: member)
@@ -102,7 +109,11 @@ public struct TitleDetailView: View {
                 if let minutes = details?.runtimeMinutes {
                     MetaChip(String(UIStrings.detailRuntime(minutes)))
                 }
-                if let seasons = details?.seasonCount, seasons > 0 {
+                // What the provider carries, not what the show has. A chip
+                // saying five seasons above three of them is a lie by omission.
+                if let carried = seriesGroup.map({ seasonNumbers($0).count }), carried > 0 {
+                    MetaChip(String(UIStrings.seasonCount(carried)))
+                } else if let seasons = details?.seasonCount, seasons > 0 {
                     MetaChip(String(UIStrings.seasonCount(seasons)))
                 }
             }
@@ -178,20 +189,106 @@ public struct TitleDetailView: View {
         }
     }
 
-    private func episodes(_ group: SeriesGroup) -> some View {
+    @ViewBuilder
+    private func episodeSection(_ group: SeriesGroup) -> some View {
+        let seasons = seasonNumbers(group)
+
         VStack(alignment: .leading, spacing: KanalMetrics.sm) {
-            Text(UIStrings.detailEpisodes)
-                .kanalLabel(12)
-                .foregroundStyle(KanalColor.tertiaryText)
-            LazyVStack(spacing: KanalMetrics.sm) {
-                ForEach(model.episodes(for: group).prefix(30)) { episode in
-                    EpisodeRow(episode: episode) {
-                        navigator.play(episode)
-                        dismiss()
+            HStack(alignment: .firstTextBaseline) {
+                Text(UIStrings.detailEpisodes)
+                    .kanalLabel(12)
+                    .foregroundStyle(KanalColor.tertiaryText)
+                Spacer()
+                if !visibleEpisodes(group).isEmpty {
+                    Text(UIStrings.episodeCount(visibleEpisodes(group).count))
+                        .font(KanalFont.body(12))
+                        .foregroundStyle(KanalColor.tertiaryText)
+                }
+            }
+
+            if model.isLoadingEpisodes(group) {
+                HStack(spacing: KanalMetrics.sm) {
+                    ProgressView().controlSize(.small)
+                    Text(UIStrings.loadingEpisodes)
+                        .font(KanalFont.body(13))
+                        .foregroundStyle(KanalColor.secondaryText)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, KanalMetrics.md)
+
+            } else if let failure = model.episodeLoadFailure(for: group) {
+                VStack(alignment: .leading, spacing: KanalMetrics.sm) {
+                    Text(failure)
+                        .font(KanalFont.body(13))
+                        .foregroundStyle(KanalColor.secondaryText)
+                    Button(String(UIStrings.tryAgain)) {
+                        Task { await model.loadEpisodesIfNeeded(for: group) }
                     }
+                    .buttonStyle(KanalSecondaryButtonStyle(size: 13))
+                }
+
+            } else {
+                // Only worth a picker when there is more than one season to
+                // pick between.
+                if seasons.count > 1 {
+                    seasonPicker(seasons)
+                }
+                episodeList(group)
+            }
+        }
+    }
+
+    private func seasonPicker(_ seasons: [Int]) -> some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: KanalMetrics.sm) {
+                ForEach(seasons, id: \.self) { number in
+                    Button(String(UIStrings.seasonNumber(number))) {
+                        season = number
+                    }
+                    .buttonStyle(KanalChipButtonStyle(isSelected: selectedSeason(seasons) == number))
+                }
+            }
+            .padding(.vertical, 2)
+        }
+        .scrollIndicators(.hidden)
+        .scrollClipDisabled()
+    }
+
+    /// Every episode of the chosen season. Not truncated: a long-running show
+    /// is exactly the case where someone is looking for one particular episode.
+    private func episodeList(_ group: SeriesGroup) -> some View {
+        LazyVStack(spacing: KanalMetrics.sm) {
+            ForEach(visibleEpisodes(group)) { episode in
+                EpisodeRow(
+                    episode: episode,
+                    progress: model.progress(for: episode)?.fraction
+                ) {
+                    navigator.play(episode)
+                    dismiss()
                 }
             }
         }
+    }
+
+    private func seasonNumbers(_ group: SeriesGroup) -> [Int] {
+        Array(Set(model.episodes(for: group).compactMap(\.season))).sorted()
+    }
+
+    /// Falls back to the first season rather than showing nothing before a
+    /// choice has been made.
+    private func selectedSeason(_ seasons: [Int]) -> Int? {
+        season ?? seasons.first
+    }
+
+    private func visibleEpisodes(_ group: SeriesGroup) -> [MediaItem] {
+        let all = model.episodes(for: group)
+        let seasons = seasonNumbers(group)
+        guard seasons.count > 1, let chosen = selectedSeason(seasons) else {
+            return all.sorted { ($0.season ?? 0, $0.episode ?? 0) < ($1.season ?? 0, $1.episode ?? 0) }
+        }
+        return all
+            .filter { $0.season == chosen }
+            .sorted { ($0.episode ?? 0) < ($1.episode ?? 0) }
     }
 
     private var noInformation: some View {
@@ -217,7 +314,7 @@ public struct TitleDetailView: View {
     /// For a show, the episode to start on: where they left off, else the first.
     private var playableItem: MediaItem {
         guard let group = seriesGroup else { return item }
-        let episodes = model.episodes(for: group)
+        let episodes = visibleEpisodes(group)
         let unfinished = episodes.first { model.progress(for: $0)?.isWorthResuming == true }
         return unfinished ?? episodes.first ?? item
     }
