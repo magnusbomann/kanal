@@ -31,6 +31,7 @@ public struct ChannelsView: View {
     @Environment(Navigator.self) private var navigator
     @State private var selectedCategory: String?
     @State private var mode: Mode = LaunchOptions.liveMode == "guide" ? .guide : .channels
+    @State private var sources: ChannelGroup?
 
     enum Mode: Hashable { case channels, guide }
 
@@ -59,6 +60,9 @@ public struct ChannelsView: View {
         }
         .background(KanalColor.background)
         .navigationTitle(Text(CoreStrings.liveTV))
+        .sheet(item: $sources) { group in
+            ChannelSourcesSheet(group: group)
+        }
     }
 
     private var channelList: some View {
@@ -67,31 +71,45 @@ public struct ChannelsView: View {
                 names: model.library.channelCategories.map(\.name),
                 selection: $selectedCategory
             )
-            LibraryGrid(items: channels, minimumWidth: gridWidth) { channel in
+            LibraryGrid(items: groups, minimumWidth: gridWidth) { group in
                 ChannelCard(
-                    channel: channel,
-                    nowPlaying: model.nowPlaying(on: channel),
-                    isFavorite: model.watchState.isFavorite(channel.id)
+                    channel: group.primary,
+                    nowPlaying: model.nowPlaying(on: group.primary),
+                    isFavorite: model.watchState.isFavorite(group.primary.id),
+                    sourceCount: group.variants.count
                 ) {
-                    navigator.play(channel)
+                    navigator.play(group, remembered: model.watchState.workingVariants[group.id])
                 }
                 .contextMenu {
-                    FavoriteButton(id: channel.id)
+                    FavoriteButton(id: group.primary.id)
+                    if group.hasAlternatives {
+                        Button {
+                            sources = group
+                        } label: {
+                            Label(String(UIStrings.otherSources), systemImage: "rectangle.stack")
+                        }
+                    }
                 }
             }
         }
     }
 
-    private var channels: [MediaItem] {
-        guard let selectedCategory else { return model.library.channels }
-        return model.library.channels.filter { $0.category == selectedCategory }
+    /// Folded so the same channel is not listed four times over — a real
+    /// provider had 2,047 entries covering 657 actual channels.
+    private var groups: [ChannelGroup] {
+        guard let selectedCategory else { return model.library.channelGroups }
+        return model.library.channelGroups.filter { $0.categories.contains(selectedCategory) }
     }
 
+    /// Two columns on a phone.
+    ///
+    /// 170 plus the 16pt gutter came to 356 against 354 of usable width, so
+    /// the grid quietly fell back to a single very wide column.
     private var gridWidth: CGFloat {
         #if os(tvOS)
         400
         #else
-        170
+        150
         #endif
     }
 }

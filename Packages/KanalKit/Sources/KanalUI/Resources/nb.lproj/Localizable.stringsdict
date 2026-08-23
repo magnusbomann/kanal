@@ -146,5 +146,21 @@
 			<string>%lld oppføringer i spillelisten kunne ikke leses</string>
 		</dict>
 	</dict>
+	<key>sources.count %lld</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld kilde</string>
+			<key>other</key>
+			<string>%lld kilder</string>
+		</dict>
+	</dict>
 </dict>
 </plist>

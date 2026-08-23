@@ -35,8 +35,32 @@ public struct WatchState: Codable, Sendable {
     public var progress: [String: WatchProgress] = [:]
     /// Most recent first.
     public var recentIDs: [String] = []
+    /// Channel group id → the variant that last played successfully.
+    ///
+    /// A provider carries the same channel on several streams and some of them
+    /// are dead. Remembering which one worked means the second viewing does
+    /// not repeat yesterday's failures.
+    public var workingVariants: [String: String] = [:]
 
     public init() {}
+
+    /// Decoded field by field so that adding one cannot make an existing
+    /// file unreadable — losing someone's favourites to a new feature would
+    /// be an unforced error.
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        favoriteIDs = try container.decodeIfPresent(Set<String>.self, forKey: .favoriteIDs) ?? []
+        hiddenCategoryNames = try container.decodeIfPresent(
+            Set<String>.self, forKey: .hiddenCategoryNames
+        ) ?? []
+        progress = try container.decodeIfPresent(
+            [String: WatchProgress].self, forKey: .progress
+        ) ?? [:]
+        recentIDs = try container.decodeIfPresent([String].self, forKey: .recentIDs) ?? []
+        workingVariants = try container.decodeIfPresent(
+            [String: String].self, forKey: .workingVariants
+        ) ?? [:]
+    }
 
     public static let fileName = "watch-state.json"
 
@@ -52,4 +76,8 @@ public struct WatchState: Codable, Sendable {
     }
 
     public func isFavorite(_ id: String) -> Bool { favoriteIDs.contains(id) }
+
+    public mutating func rememberWorkingVariant(_ variantID: String, forGroup groupID: String) {
+        workingVariants[groupID] = variantID
+    }
 }

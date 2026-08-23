@@ -214,6 +214,25 @@ public enum UIStrings {
     public static let filterNoResultsTitle = text("filter.noResults.title", "Title when the filters exclude everything")
     public static let filterNoResultsBody = text("filter.noResults.body", "Suggests removing a filter")
 
+    // MARK: - Alternative streams
+
+    public static let otherSources = text(
+        "sources.action", "Opens the other streams that carry this channel"
+    )
+    public static let sourcesTitle = text("sources.title", "Heading of the alternative streams sheet, in capitals")
+    public static let sourcesHint = text(
+        "sources.hint", "Explains that the chosen stream is remembered"
+    )
+    public static let sourceLastWorked = text(
+        "sources.lastWorked", "Marks the stream that played successfully last time"
+    )
+    public static func sourceCount(_ count: Int) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "sources.count \(count)", bundle: bundle,
+            comment: "How many streams carry this channel"
+        )
+    }
+
     // MARK: - Browsing
 
     public static let seriesNotFound = text("series.notFound", "Title when a show is no longer in the library")
@@ -299,6 +318,18 @@ public enum UIStrings {
     public static let playbackOfflineBody = text(
         "player.offline.body", "Explains the device could not reach the provider"
     )
+
+    // MARK: - Player controls
+
+    public static let closePlayer = text("player.close", "Leaves the player and returns to browsing")
+    public static let play = text("player.play", "Resumes playback")
+    public static let pause = text("player.pause", "Pauses playback")
+    public static let audioAndSubtitles = text(
+        "player.tracks", "Opens the audio and subtitle track picker"
+    )
+    public static let audioTrack = text("player.audioTrack", "Section heading for audio tracks")
+    public static let subtitles = text("player.subtitles", "Section heading for subtitle tracks")
+    public static let subtitlesOff = text("player.subtitles.off", "Turns subtitles off")
 
     // MARK: - Loading and failure
 

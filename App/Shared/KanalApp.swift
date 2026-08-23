@@ -8,7 +8,7 @@ struct KanalApp: App {
             RootView()
                 // Anything AVFoundation cannot open is handed to VLC.
                 .alternativePlayer { request in
-                    AnyView(VLCPlaybackView(request: request).ignoresSafeArea())
+                    VLCPlayback.handle(for: request)
                 }
         }
         #if os(macOS)

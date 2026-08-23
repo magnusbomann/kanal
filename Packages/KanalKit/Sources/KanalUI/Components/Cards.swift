@@ -6,17 +6,21 @@ public struct ChannelCard: View {
     public let channel: MediaItem
     public var nowPlaying: Programme?
     public var isFavorite: Bool
+    /// How many streams carry this channel. One is drawn plainly.
+    public var sourceCount: Int
     public var action: () -> Void
 
     public init(
         channel: MediaItem,
         nowPlaying: Programme? = nil,
         isFavorite: Bool = false,
+        sourceCount: Int = 1,
         action: @escaping () -> Void
     ) {
         self.channel = channel
         self.nowPlaying = nowPlaying
         self.isFavorite = isFavorite
+        self.sourceCount = sourceCount
         self.action = action
     }
 

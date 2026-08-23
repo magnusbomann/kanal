@@ -39,13 +39,17 @@ public struct HomeView: View {
                         itemWidth: cardWidth(.backdrop),
                         onSeeAll: { navigator.push(.allChannels) }
                     ) {
-                        ForEach(model.favoriteChannels) { channel in
+                        ForEach(model.favoriteChannelGroups) { group in
                             ChannelCard(
-                                channel: channel,
-                                nowPlaying: model.nowPlaying(on: channel),
-                                isFavorite: true
+                                channel: group.primary,
+                                nowPlaying: model.nowPlaying(on: group.primary),
+                                isFavorite: true,
+                                sourceCount: group.variants.count
                             ) {
-                                navigator.play(channel)
+                                navigator.play(
+                                    group,
+                                    remembered: model.watchState.workingVariants[group.id]
+                                )
                             }
                         }
                     }
@@ -96,17 +100,21 @@ public struct HomeView: View {
                 ForEach(topChannelCategories, id: \.name) { category in
                     Shelf(
                         title: CategoryLocalizer.display(category.name),
-                        subtitle: String(UIStrings.channelCount(category.items.count)),
+                        subtitle: String(UIStrings.channelCount(groups(in: category.name).count)),
                         itemWidth: cardWidth(.backdrop),
                         onSeeAll: { navigator.push(.category(kind: .liveTV, name: category.name)) }
                     ) {
-                        ForEach(category.items.prefix(20)) { channel in
+                        ForEach(groups(in: category.name).prefix(20)) { group in
                             ChannelCard(
-                                channel: channel,
-                                nowPlaying: model.nowPlaying(on: channel),
-                                isFavorite: model.watchState.isFavorite(channel.id)
+                                channel: group.primary,
+                                nowPlaying: model.nowPlaying(on: group.primary),
+                                isFavorite: model.watchState.isFavorite(group.primary.id),
+                                sourceCount: group.variants.count
                             ) {
-                                navigator.play(channel)
+                                navigator.play(
+                                    group,
+                                    remembered: model.watchState.workingVariants[group.id]
+                                )
                             }
                         }
                     }
@@ -173,6 +181,10 @@ public struct HomeView: View {
         }
         .padding(.horizontal, KanalMetrics.lg)
         .padding(.top, KanalMetrics.md)
+    }
+
+    private func groups(in category: String) -> [ChannelGroup] {
+        model.library.channelGroups.filter { $0.categories.contains(category) }
     }
 
     private var greeting: LocalizedStringResource {

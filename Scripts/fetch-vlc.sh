@@ -44,29 +44,9 @@ fetch() {
   # VideoLAN ships these with full debug symbols — around 1 GB for iOS alone.
   # Stripping is local housekeeping and changes nothing that gets shipped:
   # App Store thinning removes the unused slices at delivery either way.
-  echo "$framework: stripping debug symbols…"
-  while IFS= read -r binary; do
-    strip -S -x "$binary" 2>/dev/null || true
-  done < <(find "$found" -type f -name "$framework" -perm -u+x)
-
-  # The dSYM bundles are most of the weight and are of no use to us — but the
-  # XCFramework's Info.plist names them, and Xcode fails the build over a
-  # DebugSymbolsPath that points at nothing. Drop both together.
-  find "$found" -type d -name dSYMs -exec rm -rf {} + 2>/dev/null || true
-  python3 - "$found" <<'PLIST'
-import plistlib, sys, pathlib
-path = pathlib.Path(sys.argv[1]) / "Info.plist"
-data = plistlib.loads(path.read_bytes())
-for library in data.get("AvailableLibraries", []):
-    library.pop("DebugSymbolsPath", None)
-path.write_bytes(plistlib.dumps(data))
-PLIST
-
   mv "$found" "$VENDOR/"
 
-  # VideoLAN still ships armv7 and armv7s. No device that can run Kanal can
-  # run those, and Apple would strip them at delivery anyway — dropping them
-  # here just spares the repository and every local build the weight.
+  echo "$framework: trimming…"
   python3 "$ROOT/Scripts/thin-vlc.py" "$framework"
 }
 

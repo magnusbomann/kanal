@@ -454,6 +454,13 @@ public extension AppModel {
         library.channels.filter { watchState.isFavorite($0.id) }
     }
 
+    /// Favourites, folded so one channel is one card.
+    var favoriteChannelGroups: [ChannelGroup] {
+        library.channelGroups.filter { group in
+            group.variants.contains { watchState.isFavorite($0.id) }
+        }
+    }
+
     var favoriteSeries: [SeriesGroup] {
         library.series.filter { watchState.isFavorite($0.id) }
     }
@@ -475,6 +482,13 @@ public extension AppModel {
     func upcoming(on channel: MediaItem, limit: Int = 3) -> [Programme] {
         guard let channelID = channel.channelID, let guide else { return [] }
         return guide.schedules[channelID]?.upcoming(limit: limit) ?? []
+    }
+
+    /// Remembers which of a channel's stream variants actually played, so the
+    /// next attempt starts with the one that worked rather than the first one
+    /// the provider happened to list.
+    func rememberWorkingVariant(_ variantID: String, forGroup groupID: String) {
+        watchState.rememberWorkingVariant(variantID, forGroup: groupID)
     }
 
     func toggleFavorite(_ id: String) {

@@ -30,7 +30,7 @@ public struct RootView: View {
                 get: { navigator.playing },
                 set: { navigator.playing = $0 }
             )) { request in
-                PlayerView(item: request.item)
+                PlayerView(plan: request.plan)
                     .environment(model)
             }
     }

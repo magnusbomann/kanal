@@ -35,6 +35,8 @@ public struct SeriesGroup: Identifiable, Sendable, Hashable {
 public struct Library: Sendable {
     public var items: [MediaItem]
     public var channels: [MediaItem]
+    /// Channels with duplicates folded together, alternatives kept.
+    public var channelGroups: [ChannelGroup]
     public var movies: [MediaItem]
     public var series: [SeriesGroup]
 
@@ -83,6 +85,9 @@ public struct Library: Sendable {
             }
         }
 
+        // Only two thousand channels even in a huge catalogue, so this is
+        // cheap enough to do at load rather than defer.
+        self.channelGroups = Library.makeChannelGroups(self.channels)
         self.movies = Library.sortedByTitle(movies)
         self.series = Library.groupSeries(episodes)
 
@@ -96,6 +101,12 @@ public struct Library: Sendable {
 
     public func item(id: String) -> MediaItem? {
         items.first { $0.id == id }
+    }
+
+    /// The group a channel belongs to, for reaching its alternatives.
+    public func channelGroup(containing item: MediaItem) -> ChannelGroup? {
+        let key = ChannelNaming.groupKey(for: item)
+        return channelGroups.first { $0.id == key }
     }
 
     /// Best matches for a query, already ranked.

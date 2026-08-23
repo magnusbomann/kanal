@@ -11,12 +11,13 @@ public enum Route: Hashable {
 }
 
 /// What is currently playing full screen, if anything.
-public struct PlaybackRequest: Identifiable, Hashable {
-    public let item: MediaItem
-    public var id: String { item.id }
+public struct PlaybackRequest: Identifiable {
+    public let plan: PlaybackPlan
+    public var item: MediaItem { plan.item }
+    public var id: String { plan.item.id }
 
-    public init(item: MediaItem) {
-        self.item = item
+    public init(plan: PlaybackPlan) {
+        self.plan = plan
     }
 }
 
@@ -29,8 +30,19 @@ public final class Navigator {
 
     public init() {}
 
+    /// Plays a single entry — a film, an episode, a one-off stream.
     public func play(_ item: MediaItem) {
-        playing = PlaybackRequest(item: item)
+        playing = PlaybackRequest(plan: PlaybackPlan(item: item))
+    }
+
+    /// Plays a channel, with every stream that carries it behind the first.
+    public func play(_ group: ChannelGroup, remembered: String? = nil) {
+        playing = PlaybackRequest(plan: PlaybackPlan(group: group, remembered: remembered))
+    }
+
+    /// Plays a specific stream the viewer chose from the alternatives.
+    public func play(_ variant: MediaItem, from group: ChannelGroup) {
+        playing = PlaybackRequest(plan: PlaybackPlan(group: group, explicitlyChosen: variant))
     }
 
     public func push(_ route: Route) {

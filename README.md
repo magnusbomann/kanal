@@ -172,6 +172,24 @@ The engines are chosen by `PlaybackEngine.preferred(for:)`. `KanalUI` asks for
 the second engine through an environment builder, so the package — and its
 tests — stay free of a very large binary.
 
+### One set of controls, two engines
+
+`AVPlayerViewController` gave pause, scrubbing, track selection and a way out
+for free. Swapping it for VLC on the Matroska path took all of that with it —
+a film opened and the only way to stop watching was to force-quit the app.
+
+Apple's player chrome is private and cannot be restyled, so imitating it would
+have left the two paths *nearly* alike, which is the version that reads as
+broken. Instead both engines expose `PlaybackControlling` and wear the same
+`PlayerChrome`: they match because they are the same view.
+
+The engines hand back only a video surface; `PlayerView` draws the controls.
+An earlier attempt let each engine draw its own, and the VLC one inherited the
+video's safe-area insets and clipped the title behind the Dynamic Island.
+
+What the system path still has that VLC cannot: picture-in-picture and AirPlay.
+Those are attached to the `AVPlayerLayer` and appear in the same chrome.
+
 ### Which VLC, and why
 
 **MobileVLCKit and TVVLCKit 3.7.3**, the stable releases. VLCKit 4.0 has Swift
@@ -186,15 +204,17 @@ toolchain the XCFrameworks are fetched straight from VideoLAN:
 ```
 
 `Vendor/` is gitignored — the frameworks are far too large to commit — so a
-fresh clone runs that once. The script strips debug symbols and drops `armv7`
-and `armv7s`, which no device capable of running Kanal can execute.
+fresh clone runs that once. The script drops `armv7` and `armv7s`, which no device capable of running
+Kanal can execute, and removes simulator debug symbols. Device symbols are
+kept: without them every App Store upload warns "Upload Symbols Failed", and a
+warning that appears every single time is one nobody reads.
 
 ### Size, measured
 
 | | |
 | --- | --- |
 | VideoLAN's download, both platforms | 366 MB |
-| `Vendor/` after stripping and thinning | 211 MB |
+| `Vendor/` after trimming | 525 MB |
 | **Release app for an iPhone** | **36 MB**, of which 33 MB is VLC |
 
 ### Licence

@@ -1,64 +1,78 @@
+import AVFoundation
 import AVKit
 import KanalCore
 import SwiftUI
 
-/// Playback.
+/// Playback, with one set of controls over two engines.
 ///
-/// Wraps `AVPlayerViewController` rather than SwiftUI's `VideoPlayer` because
-/// the system controller is what gives us picture-in-picture, the tvOS transport
-/// bar, subtitle and audio-track menus and AirPlay for free — all things people
-/// expect from an Apple app and no reason to rebuild.
+/// AVFoundation takes live TV and MP4; VLC takes the Matroska that makes up
+/// nearly every film a provider carries. Both wear `PlayerChrome`, because
+/// Apple's own player chrome cannot be restyled and a close imitation of it
+/// would leave the two paths visibly different in a way that reads as a bug.
 public struct PlayerView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.alternativePlayer) private var alternativePlayer
     @Environment(\.dismiss) private var dismiss
 
-    public let item: MediaItem
-    @State private var controller = PlayerController()
+    public let plan: PlaybackPlan
+    public var item: MediaItem { plan.item }
+    @State private var system = SystemPlaybackController()
     @State private var engine: PlaybackEngine = .system
     @State private var alternativeError: String?
-    /// Progress reported by the second engine, which has no AVPlayer to read.
-    @State private var alternativeProgress: (position: TimeInterval, duration: TimeInterval) = (0, 0)
+    @State private var alternativeSnapshot: (position: TimeInterval, duration: TimeInterval) = (0, 0)
+    @State private var handle: AlternativePlayerHandle?
 
-    public init(item: MediaItem) {
-        self.item = item
+    public init(plan: PlaybackPlan) {
+        self.plan = plan
     }
 
     public var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            if engine == .alternative, let alternativePlayer {
-                alternativePlayer(alternativeRequest)
+            if engine == .alternative, let handle {
+                handle.surface
                     .ignoresSafeArea()
                 if let alternativeError {
                     errorOverlay(.other(alternativeError))
+                } else {
+                    PlayerChrome(
+                        controller: handle.controller,
+                        title: item.title,
+                        subtitle: subtitle,
+                        onClose: { dismiss() }
+                    )
                 }
             } else {
-                SystemPlayer(controller: controller)
+                VideoSurface(player: system.player)
                     .ignoresSafeArea()
-                if controller.isStalled {
-                    stallOverlay
-                }
-                if let failure = controller.failure {
+                if let failure = system.failure {
                     errorOverlay(failure)
+                } else {
+                    PlayerChrome(
+                        controller: system,
+                        title: item.title,
+                        subtitle: subtitle,
+                        trailingAccessory: AnyView(AirPlayButton()),
+                        onClose: { dismiss() }
+                    )
                 }
             }
         }
         .task { startPlayback() }
-        // The system player is tried first wherever it might work, but when it
-        // reports a container it cannot open there is no reason to show anyone
-        // an error we can simply route around.
-        .onChange(of: controller.failure) { _, failure in
+        // A container the system player cannot open is routed across rather
+        // than shown to anyone as an error.
+        .onChange(of: system.failure) { _, failure in
             guard let failure, alternativePlayer != nil else { return }
             if case .unsupportedContainer = failure {
-                controller.stop()
+                system.stop()
+                handle = alternativePlayer?(alternativeRequest)
                 engine = .alternative
             }
         }
         .onDisappear {
             recordProgress()
-            controller.stop()
+            system.stop()
         }
         #if os(iOS)
         .statusBarHidden()
@@ -66,16 +80,23 @@ public struct PlayerView: View {
         #endif
     }
 
+    private var subtitle: String? {
+        item.kind == .liveTV
+            ? model.nowPlaying(on: item)?.title
+            : item.category.map(CategoryLocalizer.display)
+    }
+
     private var alternativeRequest: AlternativePlayerRequest {
         AlternativePlayerRequest(
             url: item.streamURL,
             startAt: resumePosition,
+            title: item.title,
+            subtitle: subtitle,
             onProgress: { position, duration in
-                alternativeProgress = (position, duration)
+                alternativeSnapshot = (position, duration)
             },
-            onFailure: { message in
-                alternativeError = message
-            }
+            onFailure: { message in alternativeError = message },
+            onClose: { dismiss() }
         )
     }
 
@@ -87,33 +108,26 @@ public struct PlayerView: View {
         // Without a second engine there is nothing to escalate to, so the
         // system player takes everything and guesses at formats on failure.
         engine = alternativePlayer == nil ? .system : PlaybackEngine.preferred(for: item)
-        guard engine == .system else { return }
-        controller.start(item: item, resumingAt: resumePosition)
+        guard engine == .system else {
+            handle = alternativePlayer?(alternativeRequest)
+            return
+        }
+        system.start(plan: plan, resumingAt: resumePosition)
     }
 
     private func recordProgress() {
+        // A channel that finally played on its third variant should open on
+        // that one next time.
+        if let owner = system.playingOwnerID, owner != item.id {
+            model.rememberWorkingVariant(owner, forGroup: item.id)
+        }
         guard item.kind != .liveTV else { return }
-        let snapshot = engine == .alternative
-            ? PlayerController.Snapshot(
-                position: alternativeProgress.position,
-                duration: alternativeProgress.duration
-            )
-            : controller.snapshot()
+        let snapshot = engine == .alternative ? alternativeSnapshot : system.snapshot()
         guard snapshot.duration > 0 else { return }
         model.record(itemID: item.id, position: snapshot.position, duration: snapshot.duration)
     }
 
-    private var stallOverlay: some View {
-        VStack(spacing: KanalMetrics.md) {
-            ProgressView().tint(.white)
-            Text(UIStrings.buffering)
-                .kanalLabel(12)
-                .foregroundStyle(.white.opacity(0.8))
-        }
-        .padding(KanalMetrics.lg)
-        .kanalGlassOverVideo()
-        .allowsHitTesting(false)
-    }
+    // MARK: Failure
 
     /// Says what actually went wrong. "Cannot Open" covers three unrelated
     /// causes, and a viewer can only act on one of them if told which.
@@ -131,8 +145,12 @@ public struct PlayerView: View {
                 .foregroundStyle(.white.opacity(0.7))
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
-            Button(String(UIStrings.tryAgain)) { controller.retry() }
-                .buttonStyle(KanalSecondaryButtonStyle())
+            HStack(spacing: KanalMetrics.md) {
+                Button(String(UIStrings.closePlayer)) { dismiss() }
+                    .buttonStyle(KanalSecondaryButtonStyle(size: 14))
+                Button(String(UIStrings.tryAgain)) { system.retry() }
+                    .buttonStyle(KanalPrimaryButtonStyle(size: 14))
+            }
         }
         .padding(KanalMetrics.xl)
         .frame(maxWidth: 420)
@@ -163,222 +181,96 @@ public struct PlayerView: View {
         switch failure {
         case .unsupportedContainer(let container):
             String(UIStrings.playbackUnsupportedBody(container.uppercased()))
-        case .serverNotStreamable:
-            String(UIStrings.playbackServerBody)
-        case .rejected:
-            String(UIStrings.playbackRejectedBody)
-        case .offline:
-            String(UIStrings.playbackOfflineBody)
-        case .other(let message):
-            message
+        case .serverNotStreamable: String(UIStrings.playbackServerBody)
+        case .rejected: String(UIStrings.playbackRejectedBody)
+        case .offline: String(UIStrings.playbackOfflineBody)
+        case .other(let message): message
         }
     }
 }
 
-/// Owns the `AVPlayer` and the observations the UI reacts to.
-@MainActor
-@Observable
-public final class PlayerController {
-
-    public struct Snapshot: Sendable {
-        public var position: TimeInterval
-        public var duration: TimeInterval
-    }
-
-    public private(set) var player = AVPlayer()
-    public private(set) var isStalled = false
-    /// Set once every candidate has been tried, never before.
-    public private(set) var failure: PlaybackFailure?
-
-    private var statusObservation: NSKeyValueObservation?
-    private var bufferObservation: NSKeyValueObservation?
-    private var currentItem: MediaItem?
-    private var resumeTarget: TimeInterval?
-    /// Formats still worth trying for this entry.
-    private var candidates: [URL] = []
-    private var candidateIndex = 0
-    private var timeout: Task<Void, Never>?
-
-    public init() {}
-
-    public func start(item: MediaItem, resumingAt resume: TimeInterval?) {
-        currentItem = item
-        resumeTarget = resume
-        failure = nil
-        candidates = StreamCandidates.candidates(for: item)
-        candidateIndex = 0
-
-        configureAudioSession()
-        play(candidates[0], kind: item.kind)
-    }
-
-    /// Attempts one candidate url. Failure advances to the next rather than
-    /// stopping, because a panel that will not serve MKV will often serve the
-    /// same film as HLS if simply asked.
-    private func play(_ url: URL, kind: MediaKind) {
-
-        // A player-style agent keeps providers from refusing the connection.
-        let asset = AVURLAsset(
-            url: url,
-            options: [
-                "AVURLAssetHTTPHeaderFieldsKey": [
-                    "User-Agent": "Kanal/1.0 (AppleCoreMedia)",
-                ],
-            ]
-        )
-        let playerItem = AVPlayerItem(asset: asset)
-        // Live streams should join at the edge, not at the start of the buffer.
-        playerItem.automaticallyPreservesTimeOffsetFromLive = kind == .liveTV
-
-        observe(playerItem, url: url)
-        player.replaceCurrentItem(with: playerItem)
-        player.play()
-        startTimeout(for: url)
-
-        if let resume = resumeTarget, kind != .liveTV {
-            player.seek(to: CMTime(seconds: resume, preferredTimescale: 600))
-        }
-    }
-
-    /// Some streams neither play nor fail.
-    ///
-    /// An AVI, measured on device, leaves `AVPlayerItem.status` at `.unknown`
-    /// indefinitely — no error is ever delivered, so the spinner simply never
-    /// stops. A viewer reads that as the app being broken. Giving up after a
-    /// while and saying why is the only honest behaviour.
-    private func startTimeout(for url: URL) {
-        timeout?.cancel()
-        // Speculative candidates get less patience than the provider's own url.
-        let isLast = candidateIndex + 1 >= candidates.count
-        let seconds: Double = isLast ? 15 : 6
-
-        timeout = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(seconds))
-            guard !Task.isCancelled else { return }
-            await MainActor.run {
-                guard let self, self.player.currentItem?.status != .readyToPlay else { return }
-                self.advance(after: nil, url: url)
-            }
-        }
-    }
-
-    /// Moves to the next candidate, or reports the failure if there are none.
-    ///
-    /// Every candidate before the last is a guess at a format the panel might
-    /// also serve, so *any* failure on one — a 404 as readily as a bad
-    /// container — just means the guess was wrong. Only the provider's own url
-    /// comes last, and only its failure is worth showing to anyone.
-    private func advance(after error: (any Error)?, url: URL) {
-        guard let item = currentItem else { return }
-
-        timeout?.cancel()
-
-        guard candidateIndex + 1 < candidates.count else {
-            failure = PlaybackFailure(error: error, url: url)
-            player.pause()
-            return
-        }
-        candidateIndex += 1
-        play(candidates[candidateIndex], kind: item.kind)
-    }
-
-    public func retry() {
-        guard let currentItem else { return }
-        start(item: currentItem, resumingAt: resumeTarget)
-    }
-
-    /// The url actually being attempted, for diagnostics.
-    public var currentURL: URL? {
-        candidates.indices.contains(candidateIndex) ? candidates[candidateIndex] : nil
-    }
-
-    public func stop() {
-        timeout?.cancel()
-        player.pause()
-        player.replaceCurrentItem(with: nil)
-        statusObservation = nil
-        bufferObservation = nil
-    }
-
-    public func snapshot() -> Snapshot {
-        let position = player.currentTime().seconds
-        let duration = player.currentItem?.duration.seconds ?? 0
-        return Snapshot(
-            position: position.isFinite ? position : 0,
-            duration: duration.isFinite ? duration : 0
-        )
-    }
-
-    private func observe(_ playerItem: AVPlayerItem, url: URL) {
-        statusObservation = playerItem.observe(\.status, options: [.new]) { [weak self] item, _ in
-            Task { @MainActor in
-                guard let self else { return }
-                switch item.status {
-                case .failed:
-                    self.advance(after: item.error, url: url)
-                case .readyToPlay:
-                    self.failure = nil
-                    self.timeout?.cancel()
-                default:
-                    break
-                }
-            }
-        }
-        bufferObservation = playerItem.observe(\.isPlaybackLikelyToKeepUp, options: [.new]) { [weak self] item, _ in
-            Task { @MainActor in
-                self?.isStalled = !item.isPlaybackLikelyToKeepUp
-            }
-        }
-    }
-
-    private func configureAudioSession() {
-        #if !os(macOS)
-        // Keeps audio playing when the phone is on silent, as a TV app should.
-        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
-        try? AVAudioSession.sharedInstance().setActive(true)
-        #endif
-    }
-}
-
-/// `AVPlayerViewController`, bridged.
-struct SystemPlayer {
-    let controller: PlayerController
+/// The video itself: an `AVPlayerLayer` rather than `AVPlayerViewController`,
+/// so our own controls can sit on top. Picture-in-picture is attached here,
+/// since it is one of the few things a custom layer cannot reimplement.
+struct VideoSurface {
+    let player: AVPlayer
 }
 
 #if os(iOS) || os(tvOS)
-extension SystemPlayer: UIViewControllerRepresentable {
-    func makeUIViewController(context: Context) -> AVPlayerViewController {
-        let viewController = AVPlayerViewController()
-        viewController.player = controller.player
-        viewController.allowsPictureInPicturePlayback = true
+extension VideoSurface: UIViewRepresentable {
+    func makeUIView(context: Context) -> PlayerLayerView {
+        let view = PlayerLayerView()
+        view.playerLayer.player = player
+        view.playerLayer.videoGravity = .resizeAspect
         #if os(iOS)
-        viewController.canStartPictureInPictureAutomaticallyFromInline = true
-        viewController.videoGravity = .resizeAspect
+        context.coordinator.attachPictureInPicture(to: view.playerLayer)
         #endif
-        return viewController
+        return view
     }
 
-    func updateUIViewController(_ viewController: AVPlayerViewController, context: Context) {
-        if viewController.player !== controller.player {
-            viewController.player = controller.player
+    func updateUIView(_ view: PlayerLayerView, context: Context) {
+        if view.playerLayer.player !== player { view.playerLayer.player = player }
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
+
+    final class Coordinator {
+        #if os(iOS)
+        private var pictureInPicture: AVPictureInPictureController?
+
+        func attachPictureInPicture(to layer: AVPlayerLayer) {
+            guard AVPictureInPictureController.isPictureInPictureSupported() else { return }
+            let controller = AVPictureInPictureController(playerLayer: layer)
+            controller?.canStartPictureInPictureAutomaticallyFromInline = true
+            pictureInPicture = controller
         }
+        #endif
     }
 }
+
+final class PlayerLayerView: UIView {
+    override static var layerClass: AnyClass { AVPlayerLayer.self }
+    var playerLayer: AVPlayerLayer { layer as! AVPlayerLayer }
+}
 #else
-extension SystemPlayer: NSViewRepresentable {
-    // AppKit ships `AVPlayerView` rather than a view controller.
+extension VideoSurface: NSViewRepresentable {
     func makeNSView(context: Context) -> AVPlayerView {
         let view = AVPlayerView()
-        view.player = controller.player
-        view.controlsStyle = .floating
-        view.allowsPictureInPicturePlayback = true
+        view.player = player
+        view.controlsStyle = .none
         return view
     }
 
     func updateNSView(_ view: AVPlayerView, context: Context) {
-        if view.player !== controller.player {
-            view.player = controller.player
-        }
+        if view.player !== player { view.player = player }
     }
+}
+#endif
+
+/// The system route picker. There is no way to reimplement AirPlay, so this is
+/// Apple's own control dropped into our chrome.
+struct AirPlayButton: View {
+    var body: some View {
+        #if os(iOS)
+        RoutePicker()
+            .frame(width: 40, height: 40)
+            .kanalGlassOverVideo(cornerRadius: 100)
+        #else
+        EmptyView()
+        #endif
+    }
+}
+
+#if os(iOS)
+struct RoutePicker: UIViewRepresentable {
+    func makeUIView(context: Context) -> AVRoutePickerView {
+        let view = AVRoutePickerView()
+        view.tintColor = .white
+        view.activeTintColor = .white
+        view.prioritizesVideoDevices = true
+        return view
+    }
+
+    func updateUIView(_ view: AVRoutePickerView, context: Context) {}
 }
 #endif
