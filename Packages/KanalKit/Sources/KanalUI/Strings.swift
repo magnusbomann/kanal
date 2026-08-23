@@ -213,6 +213,10 @@ public enum UIStrings {
     }
     public static let filterNoResultsTitle = text("filter.noResults.title", "Title when the filters exclude everything")
     public static let filterNoResultsBody = text("filter.noResults.body", "Suggests removing a filter")
+    public static let seriesEmptyTitle = text("series.empty.title", "Title when the source carries no series at all")
+    public static let seriesEmptyBody = text("series.empty.body", "Explains the playlist simply has no series, no filter to remove")
+    public static let moviesEmptyTitle = text("movies.empty.title", "Title when the source carries no films at all")
+    public static let moviesEmptyBody = text("movies.empty.body", "Explains the playlist simply has no films, no filter to remove")
 
     // MARK: - Alternative streams
 

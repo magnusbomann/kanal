@@ -95,6 +95,8 @@
 "licenses.viewSource" = "View source";
 "load.failed.title" = "Couldn't load that playlist";
 "loading.detail" = "Sorting channels, films and series";
+"movies.empty.body" = "This playlist doesn't include any films.";
+"movies.empty.title" = "No films here";
 "pairing.body" = "Open Kanal on your iPhone, tap Settings, then Send to Apple TV. Point the camera at this code.";
 "pairing.code.accessibility" = "Pairing code";
 "pairing.headline" = "SET IT UP\nFROM YOUR PHONE.";
@@ -169,6 +171,8 @@
 "search.title" = "Search";
 "search.widening" = "Checking other spellings";
 "season.number %lld" = "Season %lld";
+"series.empty.body" = "This playlist doesn't include any series.";
+"series.empty.title" = "No series here";
 "series.episodesFailed" = "Couldn't load episodes";
 "series.loadingEpisodes" = "Loading episodes";
 "series.noEpisodes" = "This show has no episodes listed.";

@@ -878,7 +878,7 @@
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vi vet ingenting om denne tittelen ut over det leverandøren din kalte den."
+            "value": "Vi vet ingenting om denne tittelen utover navnet leverandøren din ga den."
           }
         }
       }
@@ -1903,6 +1903,40 @@
         }
       }
     },
+    "movies.empty.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This playlist doesn't include any films."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne spillelisten inneholder ingen filmer."
+          }
+        }
+      }
+    },
+    "movies.empty.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No films here"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingen filmer her"
+          }
+        }
+      }
+    },
     "pairing.body": {
       "extractionState": "manual",
       "localizations": {
@@ -2086,6 +2120,98 @@
           "stringUnit": {
             "state": "translated",
             "value": "Denne strømmen spilles ikke av"
+          }
+        }
+      }
+    },
+    "player.next.countdown %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Playing in %lld second"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Playing in %lld seconds"
+                }
+              }
+            }
+          }
+        },
+        "nb": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Spiller om %lld sekund"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Spiller om %lld sekunder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "player.next.label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next episode"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neste episode"
+          }
+        }
+      }
+    },
+    "player.next.playNow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play now"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spill nå"
+          }
+        }
+      }
+    },
+    "player.next.stop": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avslutt"
           }
         }
       }
@@ -3188,6 +3314,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sesong %lld"
+          }
+        }
+      }
+    },
+    "series.empty.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This playlist doesn't include any series."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne spillelisten inneholder ingen serier."
+          }
+        }
+      }
+    },
+    "series.empty.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No series here"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingen serier her"
           }
         }
       }
@@ -4331,98 +4491,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "LIM INN LENKEN."
-          }
-        }
-      }
-    },
-    "player.next.label": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Next episode"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Neste episode"
-          }
-        }
-      }
-    },
-    "player.next.playNow": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Play now"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spill nå"
-          }
-        }
-      }
-    },
-    "player.next.stop": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stop"
-          }
-        },
-        "nb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Avslutt"
-          }
-        }
-      }
-    },
-    "player.next.countdown %lld": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Playing in %lld second"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Playing in %lld seconds"
-                }
-              }
-            }
-          }
-        },
-        "nb": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Spiller om %lld sekund"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "Spiller om %lld sekunder"
-                }
-              }
-            }
           }
         }
       }

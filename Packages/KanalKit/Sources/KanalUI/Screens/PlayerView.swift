@@ -11,7 +11,10 @@ import SwiftUI
 /// would leave the two paths visibly different in a way that reads as a bug.
 public struct PlayerView: View {
     @Environment(AppModel.self) private var model
-    @Environment(Navigator.self) private var navigator
+    /// Optional on purpose. A non-optional environment lookup is a hard crash
+    /// when the value is absent, and the player is presented from more than
+    /// one place — auto-advance is worth having, but not at that price.
+    @Environment(Navigator.self) private var navigator: Navigator?
     @Environment(\.alternativePlayer) private var alternativePlayer
     @Environment(\.dismiss) private var dismiss
 
@@ -64,6 +67,7 @@ public struct PlayerView: View {
     private func advance(to next: MediaItem) {
         countdown?.cancel()
         secondsUntilNext = nil
+        guard let navigator else { return dismiss() }
         navigator.play(next)
     }
 
@@ -123,7 +127,7 @@ public struct PlayerView: View {
             guard ended else { return }
             beginCountdownToNextEpisode()
         }
-        .onDisappear { countdown?.cancel() }
+
         // A container the system player cannot open is routed across rather
         // than shown to anyone as an error.
         .onChange(of: system.failure) { _, failure in
@@ -135,8 +139,11 @@ public struct PlayerView: View {
             }
         }
         .onDisappear {
+            countdown?.cancel()
             recordProgress()
+            // Whichever engine is running, not just the built-in one.
             system.stop()
+            handle?.controller.stop()
         }
         #if os(iOS)
         .statusBarHidden()

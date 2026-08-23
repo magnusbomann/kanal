@@ -131,11 +131,19 @@ public struct MoviesView: View {
                 decades: model.library.availableDecades(among: model.library.movies)
             )
             if movies.isEmpty {
-                EmptyStateView(
-                    symbol: "line.3.horizontal.decrease.circle",
-                    title: String(UIStrings.filterNoResultsTitle),
-                    message: String(UIStrings.filterNoResultsBody)
-                )
+                if model.library.movies.isEmpty {
+                    EmptyStateView(
+                        symbol: "film",
+                        title: String(UIStrings.moviesEmptyTitle),
+                        message: String(UIStrings.moviesEmptyBody)
+                    )
+                } else {
+                    EmptyStateView(
+                        symbol: "line.3.horizontal.decrease.circle",
+                        title: String(UIStrings.filterNoResultsTitle),
+                        message: String(UIStrings.filterNoResultsBody)
+                    )
+                }
             } else {
             LibraryGrid(items: movies, minimumWidth: gridWidth) { movie in
                 PosterCard(
@@ -189,11 +197,19 @@ public struct SeriesView: View {
                 )
             )
             if series.isEmpty {
-                EmptyStateView(
-                    symbol: "line.3.horizontal.decrease.circle",
-                    title: String(UIStrings.filterNoResultsTitle),
-                    message: String(UIStrings.filterNoResultsBody)
-                )
+                if model.library.series.isEmpty {
+                    EmptyStateView(
+                        symbol: "rectangle.stack",
+                        title: String(UIStrings.seriesEmptyTitle),
+                        message: String(UIStrings.seriesEmptyBody)
+                    )
+                } else {
+                    EmptyStateView(
+                        symbol: "line.3.horizontal.decrease.circle",
+                        title: String(UIStrings.filterNoResultsTitle),
+                        message: String(UIStrings.filterNoResultsBody)
+                    )
+                }
             } else {
             LibraryGrid(items: series, minimumWidth: gridWidth) { group in
                 PosterCard(

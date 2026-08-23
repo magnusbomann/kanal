@@ -33,6 +33,13 @@ public protocol PlaybackControlling: AnyObject, Observable {
     var selectedSubtitleTrackID: PlaybackTrack.ID? { get }
 
     func togglePlayPause()
+    /// Stops playback and releases the stream.
+    ///
+    /// Part of the protocol because closing the player has to stop whichever
+    /// engine is running. Stopping only the built-in one left VLC playing
+    /// audio after the screen had gone, which reads as a close button that
+    /// does nothing.
+    func stop()
     func seek(to seconds: TimeInterval)
     /// Negative skips backwards.
     func skip(by seconds: TimeInterval)

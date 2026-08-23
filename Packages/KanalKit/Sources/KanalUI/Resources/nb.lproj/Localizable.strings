@@ -34,7 +34,7 @@
 "credit.wikidata.purpose" = "Lar deg søke etter en film med navnet du kjenner den som, uansett hvilket språk leverandøren brukte.";
 "detail.cast" = "Medvirkende";
 "detail.episodes" = "Episoder";
-"detail.noInfo" = "Vi vet ingenting om denne tittelen ut over det leverandøren din kalte den.";
+"detail.noInfo" = "Vi vet ingenting om denne tittelen utover navnet leverandøren din ga den.";
 "detail.overview" = "Om";
 "detail.play" = "Spill av";
 "detail.play.episode %@" = "Spill %@";
@@ -95,6 +95,8 @@
 "licenses.viewSource" = "Se kildekoden";
 "load.failed.title" = "Klarte ikke å laste spillelisten";
 "loading.detail" = "Sorterer kanaler, filmer og serier";
+"movies.empty.body" = "Denne spillelisten inneholder ingen filmer.";
+"movies.empty.title" = "Ingen filmer her";
 "pairing.body" = "Åpne Kanal på iPhone, trykk Innstillinger, så Send til Apple TV. Rett kameraet mot denne koden.";
 "pairing.code.accessibility" = "Paringskode";
 "pairing.headline" = "SETT DET OPP\nFRA TELEFONEN.";
@@ -169,6 +171,8 @@
 "search.title" = "Søk";
 "search.widening" = "Sjekker andre skrivemåter";
 "season.number %lld" = "Sesong %lld";
+"series.empty.body" = "Denne spillelisten inneholder ingen serier.";
+"series.empty.title" = "Ingen serier her";
 "series.episodesFailed" = "Klarte ikke å laste episoder";
 "series.loadingEpisodes" = "Laster episoder";
 "series.noEpisodes" = "Denne serien har ingen episoder oppført.";
