@@ -77,9 +77,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>Fikk %lld spilleliste</string>
+			<string>Fikk %lld TV-tjeneste</string>
 			<key>other</key>
-			<string>Fikk %lld spillelister</string>
+			<string>Fikk %lld TV-tjenester</string>
 		</dict>
 	</dict>
 	<key>count.seasons %lld</key>

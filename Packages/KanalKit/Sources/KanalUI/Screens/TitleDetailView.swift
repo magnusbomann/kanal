@@ -24,6 +24,9 @@ public struct TitleDetailView: View {
     @State private var isLoading = true
     @State private var person: CastMember?
     @State private var season: Int?
+    /// Something picked from an actor's other work, waiting for their sheet to
+    /// close before it takes this screen's place.
+    @State private var pendingTitle: MediaItem?
 
     public init(item: MediaItem, seriesGroup: SeriesGroup? = nil) {
         self.item = item
@@ -58,8 +61,13 @@ public struct TitleDetailView: View {
             guard let seriesGroup else { return }
             await model.loadEpisodesIfNeeded(for: seriesGroup)
         }
-        .sheet(item: $person) { member in
-            PersonSheet(member: member)
+        .sheet(item: $person, onDismiss: openPending) { member in
+            PersonSheet(member: member) { chosen in
+                // Opened after this sheet has gone, not during: swapping the
+                // screen underneath a modal that is still on top of it is how
+                // you end up with a detail screen nobody can reach.
+                pendingTitle = chosen
+            }
         }
         #if !os(tvOS)
         .presentationBackground(KanalColor.background)
@@ -296,6 +304,17 @@ public struct TitleDetailView: View {
             .font(KanalFont.body(13))
             .foregroundStyle(KanalColor.tertiaryText)
             .fixedSize(horizontal: false, vertical: true)
+    }
+
+    /// Replaces this screen with the title chosen from the person sheet.
+    ///
+    /// A show arrives as one entry; the detail screen wants the whole run, so
+    /// the group is looked up the same way every other screen looks it up.
+    private func openPending() {
+        guard let chosen = pendingTitle else { return }
+        pendingTitle = nil
+        let group = chosen.kind == .series ? model.seriesGroup(for: chosen) : nil
+        navigator.showDetails(for: chosen, seriesGroup: group)
     }
 
     // MARK: Values

@@ -13,9 +13,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld digit entered</string>
+			<string>%lld-siffran har lagts till</string>
 			<key>other</key>
-			<string>%lld digits entered</string>
+			<string>%lld inmatade siffror</string>
 		</dict>
 	</dict>
 	<key>count.channels %lld</key>
@@ -29,9 +29,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld channel</string>
+			<string>%lld-kanal</string>
 			<key>other</key>
-			<string>%lld channels</string>
+			<string>%lld-kanaler</string>
 		</dict>
 	</dict>
 	<key>count.episodes %lld</key>
@@ -45,9 +45,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld episode</string>
+			<string>%lld avsnitt</string>
 			<key>other</key>
-			<string>%lld episodes</string>
+			<string>%lld-avsnitt</string>
 		</dict>
 	</dict>
 	<key>count.films %lld</key>
@@ -61,9 +61,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld film</string>
+			<string>%lld-film</string>
 			<key>other</key>
-			<string>%lld films</string>
+			<string>%lld-filmer</string>
 		</dict>
 	</dict>
 	<key>count.playlists %lld</key>
@@ -77,9 +77,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>Got %lld TV service</string>
+			<string>Har TV-tjänsten %lld.</string>
 			<key>other</key>
-			<string>Got %lld TV services</string>
+			<string>Har TV-tjänster från %lld.</string>
 		</dict>
 	</dict>
 	<key>count.seasons %lld</key>
@@ -93,9 +93,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld season</string>
+			<string>%lld-säsong</string>
 			<key>other</key>
-			<string>%lld seasons</string>
+			<string>%lld-säsonger</string>
 		</dict>
 	</dict>
 	<key>count.series %lld</key>
@@ -109,9 +109,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld series</string>
+			<string>%lld-serien</string>
 			<key>other</key>
-			<string>%lld series</string>
+			<string>%lld-serien</string>
 		</dict>
 	</dict>
 	<key>player.next.countdown %lld</key>
@@ -125,9 +125,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>Playing in %lld second</string>
+			<string>Spelar i %lld andra</string>
 			<key>other</key>
-			<string>Playing in %lld seconds</string>
+			<string>Spelas i %lld sekunder</string>
 		</dict>
 	</dict>
 	<key>profiles.checkingRatings %lld</key>
@@ -141,9 +141,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>Checking the age rating of %lld title…</string>
+			<string>Kontrollerar åldersgränsen för titeln %lld…</string>
 			<key>other</key>
-			<string>Checking the age rating of %lld titles…</string>
+			<string>Kontrollerar åldersgränsen för %lld-titlar…</string>
 		</dict>
 	</dict>
 	<key>progress.minutesLeft %lld</key>
@@ -157,9 +157,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld min left</string>
+			<string>%lld min kvar</string>
 			<key>other</key>
-			<string>%lld min left</string>
+			<string>%lld min kvar</string>
 		</dict>
 	</dict>
 	<key>settings.dataQuality.programmes %lld</key>
@@ -173,9 +173,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld programme</string>
+			<string>%lld-program</string>
 			<key>other</key>
-			<string>%lld programmes</string>
+			<string>%lld-program</string>
 		</dict>
 	</dict>
 	<key>settings.dataQuality.skippedLines %lld</key>
@@ -189,9 +189,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld playlist entry couldn't be read</string>
+			<string>%lld-spellista-posten kunde inte läsas.</string>
 			<key>other</key>
-			<string>%lld playlist entries couldn't be read</string>
+			<string>%lld-spellistan kunde inte läsas.</string>
 		</dict>
 	</dict>
 	<key>sources.count %lld</key>
@@ -205,9 +205,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld source</string>
+			<string>%lld-källa</string>
 			<key>other</key>
-			<string>%lld sources</string>
+			<string>%lld-källor</string>
 		</dict>
 	</dict>
 </dict>

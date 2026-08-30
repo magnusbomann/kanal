@@ -104,16 +104,31 @@ public struct PersonProfile: Codable, Sendable, Hashable, Identifiable {
 public struct KnownRole: Codable, Sendable, Hashable, Identifiable {
     public let id: Int
     public var title: String
+    /// The name it was made under. Kept because a provider files a film under
+    /// whichever of the two it happens to use, so matching needs both.
+    public var originalTitle: String?
     public var isSeries: Bool
     public var posterPath: String?
     public var popularity: Double
+    /// Released or first aired. Only ever used to rule a match out.
+    public var year: Int?
 
-    public init(id: Int, title: String, isSeries: Bool, posterPath: String?, popularity: Double) {
+    public init(
+        id: Int,
+        title: String,
+        originalTitle: String? = nil,
+        isSeries: Bool,
+        posterPath: String?,
+        popularity: Double,
+        year: Int? = nil
+    ) {
         self.id = id
         self.title = title
+        self.originalTitle = originalTitle
         self.isSeries = isSeries
         self.posterPath = posterPath
         self.popularity = popularity
+        self.year = year
     }
 
     public var posterURL: URL? { TMDBImage.url(posterPath, width: 342) }

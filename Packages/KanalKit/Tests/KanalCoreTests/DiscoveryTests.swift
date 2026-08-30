@@ -105,3 +105,111 @@ struct LibraryMatchingTests {
         #expect(library.items(matching: twice).count == 1)
     }
 }
+
+@Suite("Choosing recognisable streaming services")
+struct DiscoveryServiceSelectionTests {
+
+    @Test("Netflix, Max and Apple TV+ survive a short regional list")
+    func keepsRecognisableServices() {
+        let ranked = [
+            DiscoveryService.Service(id: 1, name: "Local One"),
+            DiscoveryService.Service(id: 2, name: "Local Two"),
+            DiscoveryService.Service(id: 3, name: "Netflix"),
+            DiscoveryService.Service(id: 4, name: "Max"),
+            // TMDB currently localises the Apple TV+ provider (id 350) as
+            // plain "Apple TV" in some regions.
+            DiscoveryService.Service(id: 350, name: "Apple TV"),
+            DiscoveryService.Service(id: 6, name: "Local Three"),
+        ]
+
+        let chosen = DiscoveryService.curatedServices(ranked, limit: 4)
+        #expect(chosen.map(\.name) == ["Netflix", "Max", "Apple TV", "Local One"])
+    }
+
+    @Test("The Apple rental store is not mistaken for Apple TV+")
+    func leavesTheRentalStoreInRegionalOrder() {
+        let ranked = [
+            DiscoveryService.Service(id: 1, name: "Local One"),
+            DiscoveryService.Service(id: 2, name: "Apple TV"),
+            DiscoveryService.Service(id: 3, name: "Netflix"),
+        ]
+
+        let chosen = DiscoveryService.curatedServices(ranked, limit: 2)
+        #expect(chosen.map(\.name) == ["Netflix", "Local One"])
+    }
+}
+
+@Suite("An actor's other work")
+struct CreditMatchingTests {
+
+    let library = Library(items: [
+        LibraryMatchingTests.movie("Løvenes konge", year: 1994),
+        LibraryMatchingTests.movie("Interstellar", year: 2014),
+        LibraryMatchingTests.episode("Breaking Bad", season: 1, episode: 1),
+    ])
+
+    static func role(
+        _ id: Int, _ title: String, original: String? = nil,
+        isSeries: Bool = false, year: Int? = nil
+    ) -> KnownRole {
+        KnownRole(
+            id: id, title: title, originalTitle: original, isSeries: isSeries,
+            posterPath: nil, popularity: 1, year: year
+        )
+    }
+
+    @Test("A credit the provider carries resolves to something playable")
+    func resolvesCarried() throws {
+        let match = try #require(library.item(matching: Self.role(1, "Interstellar", year: 2014)))
+        #expect(match.title == "Interstellar")
+    }
+
+    @Test("Matches on the original name when the provider used that one")
+    func matchesOriginalName() throws {
+        // TMDB answers in the viewer's language; a provider may not.
+        let role = Self.role(2, "The Lion King", original: "Løvenes konge", year: 1994)
+        #expect(library.item(matching: role)?.title == "Løvenes konge")
+    }
+
+    @Test("A show resolves to one of its episodes, not to nothing")
+    func resolvesSeries() throws {
+        let role = Self.role(3, "Breaking Bad", isSeries: true, year: 2008)
+        #expect(library.item(matching: role)?.seriesName == "Breaking Bad")
+    }
+
+    @Test("A credit the provider lacks stays unmatched rather than guessing")
+    func leavesUncarriedAlone() {
+        #expect(library.item(matching: Self.role(4, "Dune", year: 2021)) == nil)
+    }
+
+    @Test("A wrong year rules a match out")
+    func yearMustAgree() {
+        #expect(library.item(matching: Self.role(5, "Interstellar", year: 1979)) == nil)
+    }
+
+    @Test("Resolving a whole credit list keys results by their TMDB id")
+    func resolvesInBulk() {
+        let roles = [
+            Self.role(10, "Interstellar", year: 2014),
+            Self.role(11, "Dune", year: 2021),
+            Self.role(12, "Breaking Bad", isSeries: true),
+        ]
+        let found = library.items(matching: roles)
+        #expect(found.count == 2)
+        #expect(found[10]?.title == "Interstellar")
+        #expect(found[11] == nil)
+        #expect(found[12]?.seriesName == "Breaking Bad")
+    }
+
+    @Test("A credit cached before years were recorded still matches")
+    func decodesOlderCache() throws {
+        // Shipped caches predate `originalTitle` and `year`; a missing field
+        // must not throw away the whole person.
+        let legacy = """
+        {"id":7,"title":"Interstellar","isSeries":false,"popularity":9.5}
+        """
+        let role = try JSONDecoder().decode(KnownRole.self, from: Data(legacy.utf8))
+        #expect(role.year == nil)
+        #expect(library.item(matching: role)?.title == "Interstellar")
+    }
+}

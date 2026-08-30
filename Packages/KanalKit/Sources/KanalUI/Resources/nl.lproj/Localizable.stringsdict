@@ -13,9 +13,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld digit entered</string>
+			<string>%lld getal ingevoerd</string>
 			<key>other</key>
-			<string>%lld digits entered</string>
+			<string>%lld ingevoerde cijfers</string>
 		</dict>
 	</dict>
 	<key>count.channels %lld</key>
@@ -29,9 +29,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld channel</string>
+			<string>%lld kanaal</string>
 			<key>other</key>
-			<string>%lld channels</string>
+			<string>%lld kanalen</string>
 		</dict>
 	</dict>
 	<key>count.episodes %lld</key>
@@ -45,9 +45,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld episode</string>
+			<string>%lld aflevering</string>
 			<key>other</key>
-			<string>%lld episodes</string>
+			<string>%lld afleveringen</string>
 		</dict>
 	</dict>
 	<key>count.films %lld</key>
@@ -77,9 +77,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>Got %lld TV service</string>
+			<string>Heb %lld tv-service</string>
 			<key>other</key>
-			<string>Got %lld TV services</string>
+			<string>Heb %lld tv-diensten</string>
 		</dict>
 	</dict>
 	<key>count.seasons %lld</key>
@@ -93,9 +93,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld season</string>
+			<string>%lld seizoen</string>
 			<key>other</key>
-			<string>%lld seasons</string>
+			<string>%lld seizoenen</string>
 		</dict>
 	</dict>
 	<key>count.series %lld</key>
@@ -109,9 +109,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld series</string>
+			<string>%lld-serie</string>
 			<key>other</key>
-			<string>%lld series</string>
+			<string>%lld-serie</string>
 		</dict>
 	</dict>
 	<key>player.next.countdown %lld</key>
@@ -125,9 +125,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>Playing in %lld second</string>
+			<string>Spelen in %lld seconde</string>
 			<key>other</key>
-			<string>Playing in %lld seconds</string>
+			<string>Spelen in %lld seconden</string>
 		</dict>
 	</dict>
 	<key>profiles.checkingRatings %lld</key>
@@ -141,9 +141,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>Checking the age rating of %lld title…</string>
+			<string>Het controleren van de leeftijdsbeoordeling van de titel %lld...</string>
 			<key>other</key>
-			<string>Checking the age rating of %lld titles…</string>
+			<string>Het controleren van de leeftijdsbeoordeling van %lld-titels...</string>
 		</dict>
 	</dict>
 	<key>progress.minutesLeft %lld</key>
@@ -157,9 +157,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld min left</string>
+			<string>%lld min over</string>
 			<key>other</key>
-			<string>%lld min left</string>
+			<string>%lld min over</string>
 		</dict>
 	</dict>
 	<key>settings.dataQuality.programmes %lld</key>
@@ -173,9 +173,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld programme</string>
+			<string>%lld-programma</string>
 			<key>other</key>
-			<string>%lld programmes</string>
+			<string>%lld programma's</string>
 		</dict>
 	</dict>
 	<key>settings.dataQuality.skippedLines %lld</key>
@@ -189,9 +189,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld playlist entry couldn't be read</string>
+			<string>%lld afspeellijstitem kon niet worden gelezen</string>
 			<key>other</key>
-			<string>%lld playlist entries couldn't be read</string>
+			<string>%lld afspeellijstitems konden niet worden gelezen</string>
 		</dict>
 	</dict>
 	<key>sources.count %lld</key>
@@ -205,9 +205,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld source</string>
+			<string>%lld bron</string>
 			<key>other</key>
-			<string>%lld sources</string>
+			<string>%lld bronnen</string>
 		</dict>
 	</dict>
 </dict>

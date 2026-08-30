@@ -74,6 +74,15 @@ public enum UIStrings {
     public static let welcomeHandoffHint = text(
         "welcome.handoff.hint", "Explains that handoff beats typing with a remote"
     )
+    public static let welcomePromiseOneLink = text(
+        "welcome.promise.oneLink", "Setup reassurance that one link is enough"
+    )
+    public static let welcomePromiseAutomatic = text(
+        "welcome.promise.automatic", "Setup reassurance that Kanal organises everything automatically"
+    )
+    public static let welcomePromisePrivate = text(
+        "welcome.promise.private", "Setup reassurance that the provider details stay private"
+    )
     public static let clear = text("action.clear", "Clears the text field")
 
     // Format chips under the setup field.
@@ -98,6 +107,12 @@ public enum UIStrings {
     public static let detectedFile = text("detect.file", "Confirms a playlist file was recognised")
     public static let detectedPastedText = text(
         "detect.pastedText", "Confirms pasted playlist text was recognised"
+    )
+    public static let detectedReady = text(
+        "detect.ready", "Confirms that the pasted setup link is ready without naming its protocol"
+    )
+    public static let detectedSignInNeeded = text(
+        "detect.signInNeeded", "Says the service was found and the supplied sign-in details are needed"
     )
     public static func detectedNeedsCredentials(host: String) -> LocalizedStringResource {
         LocalizedStringResource(
@@ -128,12 +143,54 @@ public enum UIStrings {
     public static let greetingMorning = text("greeting.morning", "Shown between 6am and noon")
     public static let greetingAfternoon = text("greeting.afternoon", "Shown between noon and 6pm")
     public static let greetingEvening = text("greeting.evening", "Shown after 6pm")
+    public static let homeQuestion = text(
+        "home.question", "Main Home heading asking what the viewer wants to watch"
+    )
 
     public static let shelfContinueWatching = text(
         "shelf.continueWatching", "Row of partly watched films and episodes"
     )
     public static let shelfFavouriteChannels = text("shelf.favouriteChannels", "Row of favourited channels")
     public static let shelfFavouriteSeries = text("shelf.favouriteSeries", "Row of favourited shows")
+    public static let shelfNextEpisode = text(
+        "shelf.nextEpisode", "Row of episodes that follow recently finished episodes"
+    )
+    public static let shelfOnNow = text(
+        "shelf.onNow", "Row of favourite channels showing what is on and next"
+    )
+    public static let shelfRecentChannels = text(
+        "shelf.recentChannels", "Row of channels watched recently"
+    )
+    public static let shelfRecentlyAdded = text(
+        "shelf.recentlyAdded", "Row of films and shows added by the TV service recently"
+    )
+    public static let shelfTopMovies = text(
+        "shelf.topMovies", "Row of the highest-ranked films available in the viewer's library"
+    )
+    public static let shelfTopSeries = text(
+        "shelf.topSeries", "Row of the highest-ranked shows available in the viewer's library"
+    )
+    public static let shelfFeaturedMovies = text(
+        "shelf.featuredMovies", "Fallback film row when no external popularity ranking is available"
+    )
+    public static let shelfFeaturedSeries = text(
+        "shelf.featuredSeries", "Fallback show row when no external popularity ranking is available"
+    )
+    public static let shelfNewMovies = text(
+        "shelf.newMovies", "Row of recently released films"
+    )
+    public static let shelfNewSeries = text(
+        "shelf.newSeries", "Row of recently released shows"
+    )
+    public static let shelfFavouriteMovies = text(
+        "shelf.favouriteMovies", "Row of favourited films"
+    )
+    public static func nextProgramme(_ title: String) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "programme.next \(title)", bundle: bundle,
+            comment: "Names the programme airing after the current one. The placeholder is its title."
+        )
+    }
     public static let seeAll = text("action.seeAll", "Opens the full list for a row")
     public static let libraryEmpty = text("library.empty", "Shown when no library is loaded")
 
@@ -217,6 +274,18 @@ public enum UIStrings {
     public static let seriesEmptyBody = text("series.empty.body", "Explains the playlist simply has no series, no filter to remove")
     public static let moviesEmptyTitle = text("movies.empty.title", "Title when the source carries no films at all")
     public static let moviesEmptyBody = text("movies.empty.body", "Explains the playlist simply has no films, no filter to remove")
+    public static let browseMovieCategories = text(
+        "browse.movieCategories", "Heading above film rows grouped by genre"
+    )
+    public static let browseSeriesCategories = text(
+        "browse.seriesCategories", "Heading above show rows grouped by genre"
+    )
+    public static let browseAllMovies = text(
+        "browse.allMovies", "Button that opens the complete film library"
+    )
+    public static let browseAllSeries = text(
+        "browse.allSeries", "Button that opens the complete show library"
+    )
 
     // MARK: - Alternative streams
 
@@ -234,6 +303,19 @@ public enum UIStrings {
         LocalizedStringResource(
             "sources.count \(count)", bundle: bundle,
             comment: "How many streams carry this channel"
+        )
+    }
+    public static let tryAnotherSource = text(
+        "player.switchSource",
+        "Button over the picture that gives up on this stream and tries the next one"
+    )
+    public static let switchingSource = text(
+        "player.switchingSource", "Shown while the next stream is being opened"
+    )
+    public static func sourcePosition(_ number: Int, _ total: Int) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "player.sourcePosition \(number) \(total)", bundle: bundle,
+            comment: "Which stream of how many is playing. Spoken, not shown."
         )
     }
 
@@ -260,6 +342,9 @@ public enum UIStrings {
         )
     }
     public static let personKnownFor = text("person.knownFor", "Heading above a person's best-known work")
+    public static let personNotInLibrary = text(
+        "person.notInLibrary", "Marks a film or show the viewer's provider does not carry"
+    )
 
     // MARK: - Browsing
 
@@ -406,6 +491,14 @@ public enum UIStrings {
 
     public static let loadingDetail = text("loading.detail", "Sub-line describing what happens during loading")
     public static let loadFailedTitle = text("load.failed.title", "Title when a playlist could not load")
+    public static let connectionContacting = text("connection.contacting", "Setup progress while contacting a TV service")
+    public static let connectionSigningIn = text("connection.signingIn", "Setup progress while verifying sign-in details")
+    public static let connectionLoadingContent = text("connection.loadingContent", "Setup progress while downloading the library")
+    public static let connectionOrganising = text("connection.organising", "Setup progress while organising channels and titles")
+    public static let connectionReady = text("connection.ready", "Setup progress when the service is ready")
+    public static let connectionProgressDetail = text(
+        "connection.detail", "Reassures that setup may take a little while on a large service"
+    )
 
     // MARK: - Settings
 
@@ -423,10 +516,37 @@ public enum UIStrings {
     public static let guideLoaded = text("settings.guide.loaded", "The TV guide has been downloaded")
     public static let guideNotLoaded = text("settings.guide.notLoaded", "The TV guide has not been downloaded")
     public static let settingsDisclaimer = text("settings.disclaimer", "Legal note that Kanal provides no channels")
+    public static let changeTVService = text("source.change", "Repairs a saved TV service with new connection details")
+    public static let repairTitle = text("source.repair.title", "Heading when repairing a saved TV service")
+    public static let repairBody = text("source.repair.body", "Explains that repair keeps the person's history and favourites")
+
+    public static let sectionSupport = text("settings.section.support", "Settings section for support tools")
+    public static let supportTitle = text("support.title", "Title of the support report screen")
+    public static let supportIntro = text("support.intro", "Explains what the support report is for")
+    public static let supportPrivacy = text("support.privacy", "Explains what private data is excluded from the report")
+    public static let supportShare = text("support.share", "Shares the redacted support report")
+    public static let supportReportLabel = text("support.report.label", "Heading above the support report text")
+
+    public static let sectionSync = text("settings.section.sync", "Settings section for Apple device sync")
+    public static let syncTitle = text("sync.title", "Title for Apple device sync")
+    public static let syncBody = text("sync.body", "Explains the private Apple-account sync model")
+    public static let syncNow = text("sync.now", "Runs Apple device sync immediately")
+    public static let syncWaiting = text("sync.waiting", "Sync has not completed yet")
+    public static let syncWorking = text("sync.working", "Sync is currently running")
+    public static let syncCurrent = text("sync.current", "Sync completed successfully")
+    public static let syncUnavailable = text("sync.unavailable", "iCloud sync is unavailable on this device")
+    public static let syncFailed = text("sync.failed", "The most recent sync failed")
+    public static func syncLastUpdated(_ relative: String) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "sync.lastUpdated \(relative)", bundle: bundle,
+            comment: "Says when Apple device sync last completed"
+        )
+    }
 
     public static let sourceKindXtream = text("source.kind.xtream", "Source type label. A proper noun.")
     public static let sourceKindM3U = text("source.kind.m3u", "Source type label. A proper noun.")
     public static let sourceKindPasted = text("source.kind.pasted", "Source that was pasted as text")
+    public static let sourceReady = text("source.ready", "Status for a connected TV service")
     public static func sourceUpdated(_ relative: String) -> LocalizedStringResource {
         LocalizedStringResource("source.updated \(relative)", bundle: bundle, comment: "How long ago a playlist was refreshed")
     }
@@ -635,6 +755,106 @@ public enum UIStrings {
     )
     public static let blockedMessage = text(
         "blocked.message", "Tells the viewer to ask a grown-up"
+    )
+
+    // MARK: - Kanal Pluss
+
+    public static let proHeadlineTop = text(
+        "pro.headline.top", "First line of the paywall headline. The brand name, in capitals."
+    )
+    public static let proHeadlineBottom = text(
+        "pro.headline.bottom", "Second line of the paywall headline: the name of the paid tier."
+    )
+    public static let proBody = text(
+        "pro.body", "One sentence saying what the paid tier is"
+    )
+    public static let proFeatureNoWatermark = text(
+        "pro.feature.noWatermark", "Paywall feature: the watermark and the reminders go away"
+    )
+    public static let proFeatureProfiles = text(
+        "pro.feature.profiles", "Paywall feature: profiles and parental controls"
+    )
+    public static let proFeatureMetadata = text(
+        "pro.feature.metadata", "Paywall feature: posters, descriptions and age limits"
+    )
+    public static let proFeatureHandoff = text(
+        "pro.feature.handoff", "Paywall feature: setting up the Apple TV from an iPhone"
+    )
+    public static let proPlanMonthly = text("pro.plan.monthly", "Name of the monthly price")
+    public static let proPlanYearly = text("pro.plan.yearly", "Name of the yearly price")
+    public static let proPlanLifetime = text("pro.plan.lifetime", "Name of the one-off price")
+    public static let proPlanBest = text(
+        "pro.plan.best", "Badge on the recommended price"
+    )
+    public static func proPlanSave(_ percent: Int) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "pro.plan.save \(percent)", bundle: bundle,
+            comment: "Badge on the annual plan. The placeholder is the percentage saved."
+        )
+    }
+    public static func proTrial(_ period: String) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "pro.trial \(period)", bundle: bundle,
+            comment: "Free trial length, e.g. \"7 days free\""
+        )
+    }
+    public static let proActionBuy = text("pro.action.buy", "Primary paywall button")
+    public static let proActionTryFree = text(
+        "pro.action.tryFree", "Primary paywall button when a free trial is available"
+    )
+    public static let proActionRestore = text(
+        "pro.action.restore", "Restores a purchase made earlier or on another device"
+    )
+    public static let proActionRetry = text(
+        "pro.action.retry", "Tries loading App Store prices again"
+    )
+    public static let proActionNotNow = text(
+        "pro.action.notNow", "Closes the paywall without buying"
+    )
+    public static let proSmallPrintSubscription = text(
+        "pro.smallPrint.subscription", "Small print under a subscription price"
+    )
+    public static let proSmallPrintLifetime = text(
+        "pro.smallPrint.lifetime", "Small print under the one-off price"
+    )
+    public static let proReassurance = text(
+        "pro.reassurance", "Says that the free app keeps working. The most important line on the screen."
+    )
+    public static let proUnavailable = text(
+        "pro.unavailable", "Shown in place of prices when the App Store cannot be reached"
+    )
+    public static let proLoading = text(
+        "pro.loading", "Shown while App Store prices load"
+    )
+    public static let proPeriodMonth = text(
+        "pro.period.month", "Price suffix for a monthly subscription"
+    )
+    public static let proPeriodYear = text(
+        "pro.period.year", "Price suffix for an annual subscription"
+    )
+    public static let proPeriodOnce = text(
+        "pro.period.once", "Price suffix for a one-time purchase"
+    )
+    public static let proTerms = text(
+        "pro.terms", "Link to the terms of use from the purchase screen"
+    )
+    public static let proPrivacy = text(
+        "pro.privacy", "Link to the privacy policy from the purchase screen"
+    )
+    public static let proWatermark = text(
+        "pro.watermark", "The mark drawn over video in the free tier. Tapping it opens the paywall."
+    )
+    public static let proSettingsSection = text(
+        "pro.settings.section", "Settings section for the paid tier"
+    )
+    public static let proSettingsActive = text(
+        "pro.settings.active", "Settings row shown when the paid tier is active"
+    )
+    public static let proSettingsUpgrade = text(
+        "pro.settings.upgrade", "Settings row that opens the paywall"
+    )
+    public static let proSettingsManage = text(
+        "pro.settings.manage", "Settings row that opens the system's subscription management"
     )
 }
 

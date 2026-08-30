@@ -13,9 +13,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld digit entered</string>
+			<string>%lld cyfra wprowadzona</string>
 			<key>other</key>
-			<string>%lld digits entered</string>
+			<string>Wprowadzone %lld cyfr</string>
 		</dict>
 	</dict>
 	<key>count.channels %lld</key>
@@ -29,9 +29,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld channel</string>
+			<string>%lld kanał</string>
 			<key>other</key>
-			<string>%lld channels</string>
+			<string>%lld kanałów</string>
 		</dict>
 	</dict>
 	<key>count.episodes %lld</key>
@@ -45,9 +45,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld episode</string>
+			<string>%lld epizod</string>
 			<key>other</key>
-			<string>%lld episodes</string>
+			<string>%lld epizodów</string>
 		</dict>
 	</dict>
 	<key>count.films %lld</key>
@@ -63,7 +63,7 @@
 			<key>one</key>
 			<string>%lld film</string>
 			<key>other</key>
-			<string>%lld films</string>
+			<string>%lld filmów</string>
 		</dict>
 	</dict>
 	<key>count.playlists %lld</key>
@@ -77,9 +77,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>Got %lld TV service</string>
+			<string>Mam %lld TV</string>
 			<key>other</key>
-			<string>Got %lld TV services</string>
+			<string>Mam %lld TV</string>
 		</dict>
 	</dict>
 	<key>count.seasons %lld</key>
@@ -93,9 +93,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld season</string>
+			<string>Sezon %lld</string>
 			<key>other</key>
-			<string>%lld seasons</string>
+			<string>%lld sezonów</string>
 		</dict>
 	</dict>
 	<key>count.series %lld</key>
@@ -109,9 +109,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld series</string>
+			<string>Seria %lld</string>
 			<key>other</key>
-			<string>%lld series</string>
+			<string>Seria %lld</string>
 		</dict>
 	</dict>
 	<key>player.next.countdown %lld</key>
@@ -125,9 +125,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>Playing in %lld second</string>
+			<string>Gra w %lld sekund</string>
 			<key>other</key>
-			<string>Playing in %lld seconds</string>
+			<string>Gra w %lld sekund</string>
 		</dict>
 	</dict>
 	<key>profiles.checkingRatings %lld</key>
@@ -141,9 +141,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>Checking the age rating of %lld title…</string>
+			<string>Sprawdzanie wieku na %lld...</string>
 			<key>other</key>
-			<string>Checking the age rating of %lld titles…</string>
+			<string>Sprawdzanie wieku %lld tytułów...</string>
 		</dict>
 	</dict>
 	<key>progress.minutesLeft %lld</key>
@@ -157,9 +157,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld min left</string>
+			<string>Pozostała %lld min</string>
 			<key>other</key>
-			<string>%lld min left</string>
+			<string>Pozostała %lld min</string>
 		</dict>
 	</dict>
 	<key>settings.dataQuality.programmes %lld</key>
@@ -173,9 +173,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld programme</string>
+			<string>%lld program</string>
 			<key>other</key>
-			<string>%lld programmes</string>
+			<string>%lld programów</string>
 		</dict>
 	</dict>
 	<key>settings.dataQuality.skippedLines %lld</key>
@@ -189,9 +189,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld playlist entry couldn't be read</string>
+			<string>Nie można odczytać wpisu z listy odtwarzania %lld</string>
 			<key>other</key>
-			<string>%lld playlist entries couldn't be read</string>
+			<string>Nie można odczytać wpisów z listy odtwarzania %lld</string>
 		</dict>
 	</dict>
 	<key>sources.count %lld</key>
@@ -205,9 +205,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld source</string>
+			<string>%lld źródło</string>
 			<key>other</key>
-			<string>%lld sources</string>
+			<string>%lld źródeł</string>
 		</dict>
 	</dict>
 </dict>

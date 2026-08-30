@@ -57,10 +57,15 @@ public extension TMDBClient {
                 let isSeries = (row["media_type"] as? String) == "tv"
                 let title = (row[isSeries ? "name" : "title"] as? String) ?? ""
                 guard !title.isEmpty else { return nil }
+                let original = (row[isSeries ? "original_name" : "original_title"] as? String)
+                let dateKey = isSeries ? "first_air_date" : "release_date"
                 return KnownRole(
-                    id: id, title: title, isSeries: isSeries,
+                    id: id, title: title,
+                    originalTitle: original.flatMap { $0.isEmpty || $0 == title ? nil : $0 },
+                    isSeries: isSeries,
                     posterPath: row["poster_path"] as? String,
-                    popularity: (row["popularity"] as? Double) ?? 0
+                    popularity: (row["popularity"] as? Double) ?? 0,
+                    year: (row[dateKey] as? String).flatMap { Int($0.prefix(4)) }
                 )
             }
             .sorted { $0.popularity > $1.popularity }
@@ -74,7 +79,10 @@ public extension TMDBClient {
             name: (root["name"] as? String) ?? "",
             biography: biography,
             profilePath: root["profile_path"] as? String,
-            knownFor: Array(unique.prefix(12))
+            // More than the sheet shows: the ones the viewer's provider
+            // actually carries are what get displayed, and those are not
+            // always the twelve most popular.
+            knownFor: Array(unique.prefix(24))
         )
     }
 

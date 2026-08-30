@@ -13,9 +13,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld digit entered</string>
+			<string>Dígito %lld inserido</string>
 			<key>other</key>
-			<string>%lld digits entered</string>
+			<string>%lld dígitos inseridos</string>
 		</dict>
 	</dict>
 	<key>count.channels %lld</key>
@@ -29,9 +29,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld channel</string>
+			<string>Canal %lld</string>
 			<key>other</key>
-			<string>%lld channels</string>
+			<string>Canais %lld</string>
 		</dict>
 	</dict>
 	<key>count.episodes %lld</key>
@@ -45,9 +45,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld episode</string>
+			<string>Episódio %lld</string>
 			<key>other</key>
-			<string>%lld episodes</string>
+			<string>Episódios %lld</string>
 		</dict>
 	</dict>
 	<key>count.films %lld</key>
@@ -61,9 +61,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld film</string>
+			<string>Filme %lld</string>
 			<key>other</key>
-			<string>%lld films</string>
+			<string>Filmes %lld</string>
 		</dict>
 	</dict>
 	<key>count.playlists %lld</key>
@@ -77,9 +77,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>Got %lld TV service</string>
+			<string>Tenho serviço de TV %lld</string>
 			<key>other</key>
-			<string>Got %lld TV services</string>
+			<string>Tenho serviços de TV %lld</string>
 		</dict>
 	</dict>
 	<key>count.seasons %lld</key>
@@ -93,9 +93,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld season</string>
+			<string>Temporada %lld</string>
 			<key>other</key>
-			<string>%lld seasons</string>
+			<string>Temporadas %lld</string>
 		</dict>
 	</dict>
 	<key>count.series %lld</key>
@@ -109,9 +109,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld series</string>
+			<string>Série %lld</string>
 			<key>other</key>
-			<string>%lld series</string>
+			<string>Série %lld</string>
 		</dict>
 	</dict>
 	<key>player.next.countdown %lld</key>
@@ -125,9 +125,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>Playing in %lld second</string>
+			<string>Jogando em %lld segundo</string>
 			<key>other</key>
-			<string>Playing in %lld seconds</string>
+			<string>Jogando em %lld segundos</string>
 		</dict>
 	</dict>
 	<key>profiles.checkingRatings %lld</key>
@@ -141,9 +141,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>Checking the age rating of %lld title…</string>
+			<string>Verificando a classificação etária do título %lld…</string>
 			<key>other</key>
-			<string>Checking the age rating of %lld titles…</string>
+			<string>Verificando a classificação etária dos títulos %lld…</string>
 		</dict>
 	</dict>
 	<key>progress.minutesLeft %lld</key>
@@ -157,9 +157,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld min left</string>
+			<string>%lld minutos restantes</string>
 			<key>other</key>
-			<string>%lld min left</string>
+			<string>%lld minutos restantes</string>
 		</dict>
 	</dict>
 	<key>settings.dataQuality.programmes %lld</key>
@@ -173,9 +173,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld programme</string>
+			<string>Programa %lld</string>
 			<key>other</key>
-			<string>%lld programmes</string>
+			<string>Programas %lld</string>
 		</dict>
 	</dict>
 	<key>settings.dataQuality.skippedLines %lld</key>
@@ -189,9 +189,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld playlist entry couldn't be read</string>
+			<string>Não foi possível ler a entrada da lista de reprodução %lld</string>
 			<key>other</key>
-			<string>%lld playlist entries couldn't be read</string>
+			<string>Não foi possível ler as entradas da lista de reprodução %lld</string>
 		</dict>
 	</dict>
 	<key>sources.count %lld</key>
@@ -205,9 +205,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>lld</string>
 			<key>one</key>
-			<string>%lld source</string>
+			<string>Fonte %lld</string>
 			<key>other</key>
-			<string>%lld sources</string>
+			<string>Fontes %lld</string>
 		</dict>
 	</dict>
 </dict>

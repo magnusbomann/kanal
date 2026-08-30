@@ -7,8 +7,15 @@ import SwiftUI
 /// else, so a card in any tab can start playback without threading closures
 /// back up the view tree.
 public struct RootView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @State private var model = AppModel()
     @State private var navigator = Navigator()
+    @State private var purchases = PurchaseStore()
+    /// The offer, presented here and nowhere else. Both routes to it — the
+    /// interstitial after a stream closes, and a tap on the watermark — end in
+    /// this one flag, so two of them can never be up at once.
+    @State private var isShowingPro = false
+    @State private var isRepairingSource = false
 
     public init() {}
 
@@ -24,11 +31,43 @@ public struct RootView: View {
         }
             .environment(model)
             .environment(navigator)
+            .environment(purchases)
             .tint(KanalColor.accentSolid)
+            .onChange(of: model.activeProfileID) { previous, current in
+                guard previous != nil, previous != current else { return }
+                navigator.resetContentNavigation()
+            }
+            .onChange(of: model.activeSourceID) { previous, current in
+                guard previous != nil, previous != current else { return }
+                navigator.resetContentNavigation()
+            }
+            .task {
+                await purchases.start()
+                #if DEBUG
+                if LaunchOptions.resetsNudge {
+                    await purchases.resetNudge()
+                }
+                if LaunchOptions.opensPaywall {
+                    purchases.seedSampleOffers()
+                    isShowingPro = true
+                }
+                #endif
+            }
+            .onChange(of: navigator.wantsPro) { _, wants in
+                guard wants else { return }
+                navigator.wantsPro = false
+                isShowingPro = true
+            }
+            .onChange(of: scenePhase) { _, phase in
+                guard phase == .active, model.phase != .starting else { return }
+                Task { await model.syncNow() }
+            }
             .task {
                 #if DEBUG
                 if let seeded = LaunchOptions.seededSource {
-                    await model.add(PlaylistSource(kind: .m3u, name: "Test", playlistURL: seeded))
+                    try? await model.add(PlaylistSource(
+                        kind: .m3u, name: "Test", playlistURL: seeded
+                    ))
                 } else {
                     await model.start()
                 }
@@ -39,6 +78,10 @@ public struct RootView: View {
                 if let index = LaunchOptions.autoplayMovieIndex,
                    model.library.movies.indices.contains(index) {
                     navigator.play(model.library.movies[index])
+                }
+                if let index = LaunchOptions.autoplayChannelIndex,
+                   model.library.channelGroups.indices.contains(index) {
+                    navigator.play(model.library.channelGroups[index])
                 }
                 if let index = LaunchOptions.openSeriesIndex,
                    model.library.series.indices.contains(index) {
@@ -57,10 +100,35 @@ public struct RootView: View {
                 }
                 #endif
             }
+            .sheet(isPresented: $isShowingPro) {
+                ProView()
+                    .environment(purchases)
+            }
+            .sheet(isPresented: $isRepairingSource) {
+                if let source = model.activeSource {
+                    NavigationStack {
+                        WelcomeView(
+                            replacing: source,
+                            onSuccess: { isRepairingSource = false }
+                        )
+                    }
+                }
+            }
             .fullScreenCoverCompat(item: Binding(
                 get: { navigator.playing },
                 set: { navigator.playing = $0 }
-            )) { request in
+            ), onDismiss: {
+                // Closing a stream is where the free tier asks. Everything
+                // about *whether* to ask lives in `ProNudge`; this only
+                // supplies the two facts it cannot see from Core.
+                if purchases.playbackClosed(
+                    didPlay: navigator.lastPlaybackPlayed,
+                    isRestricted: model.isRestricted
+                ) {
+                    isShowingPro = true
+                }
+                navigator.lastPlaybackPlayed = false
+            }) { request in
                 // The last gate. The library a profile browses is already
                 // filtered, but a handoff from an iPhone, a stale navigation
                 // path or a resumed shelf can all hand the player something
@@ -69,6 +137,7 @@ public struct RootView: View {
                 if model.canPlay(request.item) {
                     PlayerView(plan: request.plan)
                         .environment(model)
+                        .environment(purchases)
                 } else {
                     BlockedContentView { navigator.playing = nil }
                 }
@@ -106,12 +175,10 @@ public struct RootView: View {
         case .loading(let message):
             LoadingView(message: message)
         case .failed(let message):
-            EmptyStateView(
-                symbol: "antenna.radiowaves.left.and.right.slash",
-                title: String(UIStrings.loadFailedTitle),
+            SourceFailureView(
                 message: message,
-                actionTitle: String(UIStrings.tryAgain),
-                action: { Task { await model.refreshActiveSource() } }
+                retry: { Task { await model.refreshActiveSource() } },
+                repair: { isRepairingSource = true }
             )
         case .ready:
             MainTabView()
@@ -123,44 +190,27 @@ public struct RootView: View {
 /// customising is letting it shrink out of the way while you scroll.
 public struct MainTabView: View {
     @Environment(Navigator.self) private var navigator
-    @State private var selection: TabIdentifier = LaunchOptions.startTab
-        .flatMap(TabIdentifier.init(argument:)) ?? .home
-
-    public enum TabIdentifier: Hashable {
-        case home, live, series, movies, search
-
-        init?(argument: String) {
-            switch argument {
-            case "home": self = .home
-            case "live": self = .live
-            case "series": self = .series
-            case "movies", "films": self = .movies
-            case "search": self = .search
-            default: return nil
-            }
-        }
-    }
 
     public init() {}
 
     public var body: some View {
         @Bindable var navigator = navigator
 
-        TabView(selection: $selection) {
-            Tab(String(UIStrings.tabHome), systemImage: "house.fill", value: TabIdentifier.home) {
-                stack { HomeView() }
+        TabView(selection: $navigator.selectedTab) {
+            Tab(String(UIStrings.tabHome), systemImage: "house.fill", value: AppTab.home) {
+                stack(path: $navigator.homePath) { HomeView() }
             }
-            Tab(String(CoreStrings.liveTV), systemImage: MediaKind.liveTV.symbolName, value: TabIdentifier.live) {
-                stack { ChannelsView() }
+            Tab(String(CoreStrings.liveTV), systemImage: MediaKind.liveTV.symbolName, value: AppTab.live) {
+                stack(path: $navigator.livePath) { ChannelsView() }
             }
-            Tab(String(CoreStrings.series), systemImage: MediaKind.series.symbolName, value: TabIdentifier.series) {
-                stack { SeriesView() }
+            Tab(String(CoreStrings.movies), systemImage: MediaKind.movie.symbolName, value: AppTab.movies) {
+                stack(path: $navigator.moviesPath) { MoviesView() }
             }
-            Tab(String(CoreStrings.movies), systemImage: MediaKind.movie.symbolName, value: TabIdentifier.movies) {
-                stack { MoviesView() }
+            Tab(String(CoreStrings.series), systemImage: MediaKind.series.symbolName, value: AppTab.series) {
+                stack(path: $navigator.seriesPath) { SeriesView() }
             }
-            Tab(value: TabIdentifier.search, role: .search) {
-                stack { SearchView() }
+            Tab(value: AppTab.search, role: .search) {
+                stack(path: $navigator.searchPath) { SearchView() }
             }
         }
         #if os(iOS)
@@ -170,13 +220,19 @@ public struct MainTabView: View {
         // two modals on one view is not something SwiftUI presents reliably.
         .sheet(item: $navigator.showingDetails) { request in
             TitleDetailView(item: request.item, seriesGroup: request.seriesGroup)
+                // One detail screen can replace another without the sheet
+                // closing — following an actor to their other films. Tying the
+                // identity to the request keeps the new title from inheriting
+                // the old one's loaded description and chosen season.
+                .id(request.id)
         }
     }
 
     @ViewBuilder
-    private func stack<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        @Bindable var navigator = navigator
-        NavigationStack(path: $navigator.path) {
+    private func stack<Content: View>(
+        path: Binding<NavigationPath>, @ViewBuilder content: () -> Content
+    ) -> some View {
+        NavigationStack(path: path) {
             content()
                 .navigationDestination(for: Route.self) { route in
                     RouteView(route: route)
@@ -194,12 +250,20 @@ struct RouteView: View {
         switch route {
         case .series(let id):
             SeriesDetailView(seriesID: id)
-        case .allChannels, .category(kind: .liveTV, name: _):
+        case .allChannels:
             ChannelsView()
-        case .allMovies, .category(kind: .movie, name: _):
-            MoviesView()
-        case .allSeries, .category(kind: .series, name: _):
-            SeriesView()
+        case .favoriteChannels:
+            ChannelsView(showsFavoritesOnly: true)
+        case .allMovies:
+            MovieLibraryView()
+        case .allSeries:
+            SeriesLibraryView()
+        case .category(kind: .liveTV, name: let name):
+            ChannelsView(initialCategory: name)
+        case .category(kind: .movie, name: let name):
+            MovieLibraryView(initialCategory: name)
+        case .category(kind: .series, name: let name):
+            SeriesLibraryView(initialCategory: name)
         }
     }
 }
@@ -209,12 +273,13 @@ extension View {
     @ViewBuilder
     func fullScreenCoverCompat<Item: Identifiable, Content: View>(
         item: Binding<Item?>,
+        onDismiss: (() -> Void)? = nil,
         @ViewBuilder content: @escaping (Item) -> Content
     ) -> some View {
         #if os(macOS)
-        sheet(item: item, content: content)
+        sheet(item: item, onDismiss: onDismiss, content: content)
         #else
-        fullScreenCover(item: item, content: content)
+        fullScreenCover(item: item, onDismiss: onDismiss, content: content)
         #endif
     }
 }
