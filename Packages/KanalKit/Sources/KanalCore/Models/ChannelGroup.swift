@@ -47,6 +47,31 @@ public struct ChannelGroup: Identifiable, Sendable, Hashable {
         else { return variants }
         return Array(variants[index...]) + Array(variants[..<index])
     }
+
+    /// Looks through every feed because the best stream and the one carrying
+    /// a usable XMLTV id are not necessarily the same provider entry.
+    public func programme(in guide: XMLTVParser.Guide, at date: Date = .now) -> Programme? {
+        for variant in variants {
+            guard let channelID = variant.channelID,
+                  let programme = guide.schedules[channelID]?.programme(at: date)
+            else { continue }
+            return programme
+        }
+        return nil
+    }
+
+    public func upcoming(
+        in guide: XMLTVParser.Guide,
+        after date: Date = .now,
+        limit: Int = 3
+    ) -> [Programme] {
+        for variant in variants {
+            guard let channelID = variant.channelID else { continue }
+            let programmes = guide.schedules[channelID]?.upcoming(after: date, limit: limit) ?? []
+            if !programmes.isEmpty { return programmes }
+        }
+        return []
+    }
 }
 
 /// How promising a stream looks from its name alone.
@@ -64,6 +89,12 @@ enum StreamQuality {
         else if text.contains("fhd") || text.contains("1080") { score += 30 }
         else if text.contains("hd") || text.contains("720") { score += 20 }
         else if text.contains("sd") || text.contains("480") { score -= 10 }
+
+        // Frame rate, once resolution has had its say. A 50fps feed of the
+        // same match is the one worth leading with — it is the difference
+        // between football that pans and football that stutters — but never
+        // enough to put a 50fps SD feed ahead of an ordinary HD one.
+        if text.contains("50fps") || text.contains("60fps") { score += 5 }
 
         // A "raw" feed is an unpackaged source: often higher quality, often
         // less reliable, so it sits behind the ordinary stream rather than
@@ -117,18 +148,14 @@ public extension Library {
 
 /// The name two listings of the same channel agree on.
 enum ChannelNaming {
-    private static let qualityWords: Set<String> = [
-        "fhd", "hd", "sd", "uhd", "4k", "8k", "1080p", "1080i", "720p", "576p", "480p",
-        "2160p", "hevc", "h264", "h265", "x264", "x265", "raw", "vip", "multi",
-        "backup", "alt", "b", "source", "src",
-    ]
-
+    /// Shared with films, which are filed under the same delivery noise —
+    /// frame rate included. Without it "V sport Premier League HD | 50FPS"
+    /// keys apart from "V sport Premier League HD", and the channel becomes
+    /// two cards, each holding a fraction of the streams that carry it: a
+    /// failover that should have three feeds to fall through only has two.
+    /// Measured on a real catalogue: six channels split this way, every one
+    /// of them sport.
     static func groupKey(for item: MediaItem) -> String {
-        let words = SearchNormalizer.normalize(item.title)
-            .split(separator: " ")
-            .map(String.init)
-            .filter { !qualityWords.contains($0) }
-        let key = words.joined(separator: " ")
-        return key.isEmpty ? SearchNormalizer.normalize(item.title) : key
+        TitleKey.groupKey(for: item)
     }
 }

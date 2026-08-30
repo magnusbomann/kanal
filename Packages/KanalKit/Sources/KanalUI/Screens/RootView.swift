@@ -33,6 +33,9 @@ public struct RootView: View {
             .environment(navigator)
             .environment(purchases)
             .tint(KanalColor.accentSolid)
+            // Wired once, so every screen that plays a film gets its other
+            // listings as fallbacks without knowing they exist.
+            .onAppear { navigator.alternatives = { [weak model] in model?.playbackPlan(for: $0) } }
             .onChange(of: model.activeProfileID) { previous, current in
                 guard previous != nil, previous != current else { return }
                 navigator.resetContentNavigation()

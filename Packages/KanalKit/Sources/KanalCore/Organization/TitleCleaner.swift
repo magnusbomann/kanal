@@ -170,13 +170,32 @@ public enum TitleCleaner {
 
     struct YearInfo { var year: Int; var remainder: String }
 
+    /// The newest year a film could plausibly carry.
+    ///
+    /// Computed once. Two years ahead of today because providers list a title
+    /// under its announced release year before it arrives.
+    private static let latestPlausibleYear: Int =
+        Calendar(identifier: .gregorian).component(.year, from: .now) + 2
+
+    /// Whether a four-digit tail is a release year or part of the name.
+    ///
+    /// "Blade Runner 2049" is the case that matters: read as a year it becomes
+    /// "Blade Runner" made in 2049, which is not a film any database has heard
+    /// of — so the title loses its poster, its plot and its cast, and three
+    /// listings of it no longer look like the same film. A year in the future
+    /// is not a year.
+    static func isPlausibleYear(_ year: Int) -> Bool {
+        (1900...latestPlausibleYear).contains(year)
+    }
+
     static func extractYear(from input: String) -> YearInfo? {
         guard let match = yearPattern.firstMatch(
                 in: input, range: NSRange(input.startIndex..., in: input)
               ),
               let yearRange = Range(match.range(at: 1), in: input),
               let fullRange = Range(match.range, in: input),
-              let year = Int(input[yearRange])
+              let year = Int(input[yearRange]),
+              isPlausibleYear(year)
         else { return nil }
 
         let remainder = String(input[input.startIndex..<fullRange.lowerBound])

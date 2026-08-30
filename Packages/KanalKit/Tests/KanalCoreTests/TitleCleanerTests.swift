@@ -124,3 +124,40 @@ struct EpisodeNamingTests {
         #expect(library.series.first?.seasonNumbers == [1, 2])
     }
 }
+
+@Suite("Numbers in titles that are not years")
+struct TitleYearPlausibilityTests {
+
+    @Test("A number in the future is part of the name, not a release year")
+    func futureNumberStaysInTitle() {
+        // Read as a year, "Blade Runner 2049" becomes a 2049 film nobody has
+        // heard of: no poster, no plot, no cast — and three listings of it
+        // stop looking like the same film.
+        let result = TitleCleaner.clean("Blade Runner 2049")
+        #expect(result.title == "Blade Runner 2049")
+        #expect(result.year == nil)
+    }
+
+    @Test("Brackets do not make a future number a year either")
+    func bracketedFutureNumberStaysInTitle() {
+        #expect(TitleCleaner.clean("Blade Runner (2049)").year == nil)
+    }
+
+    @Test("A real release year is still read")
+    func plausibleYearIsRead() {
+        let result = TitleCleaner.clean("Interstellar (2014)")
+        #expect(result.title == "Interstellar")
+        #expect(result.year == 2014)
+    }
+
+    @Test("Next year is a year: providers list titles before they arrive")
+    func nextYearIsAllowed() {
+        let next = Calendar(identifier: .gregorian).component(.year, from: .now) + 1
+        #expect(TitleCleaner.clean("Some Film \(next)").year == next)
+    }
+
+    @Test("A title that is only a number keeps it")
+    func bareNumberTitle() {
+        #expect(TitleCleaner.clean("1917").title == "1917")
+    }
+}

@@ -551,8 +551,17 @@ public final class AppModel {
             let shelves = await discovery.refreshIfStale()
             await MainActor.run {
                 guard self.discoveryAudience == audience else { return }
+                let hadNothing = self.discoveryShelves.isEmpty
                 self.discoveryShelves = shelves
                 self.scheduleDiscoveryMatching()
+                // A restricted profile's rows are gated on ratings, and the
+                // queue that produces them is ordered by these shelves. When
+                // they arrive after the queue was built — which is exactly
+                // what a profile switch does — it is worth rebuilding so the
+                // first lookups go to the titles the rows are waiting for.
+                if hadNothing, !shelves.isEmpty, self.isRestricted {
+                    self.scheduleVerification()
+                }
             }
         }
     }
@@ -1194,6 +1203,18 @@ public extension AppModel {
     func localSearch(_ query: String, limit: Int = 200) async -> [MediaItem] {
         let library = library
         return await LibrarySearchQueue.shared.search(query, limit: limit, in: library)
+    }
+
+    /// Everything worth trying for one entry the viewer chose.
+    ///
+    /// A film the provider listed several times gets those other listings as
+    /// fallbacks, led by whichever one last worked. Anything else — an
+    /// episode, a one-off stream — is just itself.
+    func playbackPlan(for item: MediaItem) -> PlaybackPlan? {
+        guard item.kind == .movie, let group = library.movieGroup(containing: item),
+              group.hasAlternatives
+        else { return nil }
+        return PlaybackPlan(movie: group, remembered: watchState.workingVariants[group.id])
     }
 
     /// Which of a person's credits this household can actually watch.
