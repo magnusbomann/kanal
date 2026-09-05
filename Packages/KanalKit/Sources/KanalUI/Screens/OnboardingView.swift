@@ -42,30 +42,40 @@ public struct OnboardingView: View {
     }
 
     public var body: some View {
+        #if os(tvOS)
+        // Apple TV has no good reason to make someone page through an intro
+        // before showing the one setup action that matters: scan the TV from
+        // the phone. WelcomeView owns that complete setup surface.
+        WelcomeView()
+            .task { await model.completeIntro() }
+        #else
         if page >= pages.count {
             WelcomeView()
         } else {
-            VStack(alignment: .leading, spacing: KanalMetrics.xl) {
-                Spacer(minLength: 0)
-                IntroPageView(page: pages[page])
-                Spacer(minLength: 0)
+            ScrollView(.vertical) {
+                VStack(alignment: .leading, spacing: KanalMetrics.xl) {
+                    IntroPageView(page: pages[page])
 
-                VStack(spacing: KanalMetrics.md) {
-                    Button(String(UIStrings.introContinue)) {
-                        advance(to: page + 1)
-                    }
-                    .buttonStyle(KanalPrimaryButtonStyle(fullWidth: true))
+                    VStack(spacing: KanalMetrics.md) {
+                        Button(String(UIStrings.introContinue)) {
+                            advance(to: page + 1)
+                        }
+                        .accessibilityIdentifier("onboarding.continue")
+                        .buttonStyle(KanalPrimaryButtonStyle(fullWidth: true))
 
-                    Button(String(UIStrings.introSkip)) {
-                        advance(to: pages.count)
+                        Button(String(UIStrings.introSkip)) {
+                            advance(to: pages.count)
+                        }
+                        .accessibilityIdentifier("onboarding.skip")
+                        .kanalLabel(12)
+                        .foregroundStyle(KanalColor.secondaryText)
+                        .buttonStyle(.plain)
                     }
-                    .kanalLabel(12)
-                    .foregroundStyle(KanalColor.secondaryText)
-                    .buttonStyle(.plain)
+
+                    PageDots(count: pages.count + 1, current: page)
+                        .frame(maxWidth: .infinity)
                 }
-
-                PageDots(count: pages.count + 1, current: page)
-                    .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, minHeight: 420, alignment: .center)
             }
             .padding(.horizontal, KanalMetrics.lg)
             .padding(.vertical, KanalMetrics.xxl)
@@ -74,6 +84,7 @@ public struct OnboardingView: View {
             .background(KanalColor.background)
             .transition(.opacity)
         }
+        #endif
     }
 }
 
@@ -93,7 +104,7 @@ struct IntroPageView: View {
                 .font(.system(size: symbolSize, weight: .semibold))
                 .foregroundStyle(KanalColor.accent)
 
-            VStack(alignment: .leading, spacing: -6) {
+            VStack(alignment: .leading, spacing: 0) {
                 Text(page.headlineTop)
                     .kanalDisplay(headlineSize)
                     .foregroundStyle(KanalColor.primaryText)

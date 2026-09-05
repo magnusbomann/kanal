@@ -12,6 +12,15 @@ Three things happen here, and the third one is the reason it is not simply
     warn "Upload Symbols Failed", and a warning that appears every single time
     is a warning nobody reads — which is how a real one gets missed. Keeping
     them also means a crash inside VLC arrives symbolicated.
+
+Each framework is then re-signed, and that step is not optional. VideoLAN
+ships these ad-hoc signed; `lipo` and `strip` rewrite the very bytes the
+signature seals, so a trimmed-but-unsigned framework carries a signature that
+no longer matches its own pages. Xcode re-signs the copy it embeds in the app,
+which hides the damage — until XCTest launches the app with the build products
+directory on DYLD_FRAMEWORK_PATH. dyld then loads the *staged* framework
+instead of the embedded one, the kernel finds a bad page, and the app is
+SIGKILLed before main with "Code Signature Invalid".
 """
 import pathlib
 import plistlib
@@ -44,6 +53,15 @@ def thin(binary: pathlib.Path, keep: set[str]) -> list[str] | None:
     return wanted
 
 
+def sign(bundle: pathlib.Path) -> None:
+    """Replaces the ad-hoc signature lipo and strip just invalidated."""
+    subprocess.run(
+        ["codesign", "--force", "--sign", "-", "--timestamp=none", str(bundle)],
+        capture_output=True,
+        check=True,
+    )
+
+
 def main() -> int:
     for name in sys.argv[1:]:
         root = pathlib.Path("Vendor") / f"{name}.xcframework"
@@ -55,12 +73,14 @@ def main() -> int:
             is_simulator = "simulator" in identifier
             keep = KEEP_SIM if is_simulator else KEEP_DEVICE
 
-            binary = root / identifier / library["LibraryPath"] / name
+            bundle = root / identifier / library["LibraryPath"]
+            binary = bundle / name
             if binary.is_file():
                 if kept := thin(binary, keep):
                     library["SupportedArchitectures"] = kept
                     print(f"  {identifier}: {', '.join(kept)}")
                 subprocess.run(["strip", "-S", "-x", str(binary)], capture_output=True)
+                sign(bundle)
 
             symbols_path = library.get("DebugSymbolsPath")
             if not symbols_path:

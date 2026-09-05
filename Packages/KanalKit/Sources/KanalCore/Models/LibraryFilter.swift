@@ -5,9 +5,9 @@ import Foundation
 /// A provider's catalogue arrives unordered, so alphabetical browsing drops
 /// someone into a random action film from 1998. The default here is the order
 /// the outside world ranked things in, with the rest as deliberate choices.
-public struct LibraryFilter: Sendable, Equatable {
+public struct LibraryFilter: Sendable, Equatable, Hashable {
 
-    public enum Sort: String, Sendable, CaseIterable, Identifiable {
+    public enum Sort: String, Sendable, CaseIterable, Identifiable, Hashable {
         /// What the recommendation rows ranked highest, then everything else.
         case recommended
         case newest
@@ -59,8 +59,13 @@ public extension Library {
     }
 
     func series(_ filter: LibraryFilter, ranking: [String: Int] = [:]) -> [SeriesGroup] {
-        let narrowed = series.filter { group in
-            matches(filter, category: group.category, country: nil, year: group.year)
+        var narrowed: [SeriesGroup] = []
+        narrowed.reserveCapacity(series.count)
+        for (index, group) in series.enumerated() {
+            if index.isMultiple(of: 1_024), Task.isCancelled { return [] }
+            if matches(filter, category: group.category, country: nil, year: group.year) {
+                narrowed.append(group)
+            }
         }
         return sort(narrowed, by: filter.sort, ranking: ranking,
                     key: { $0.id }, year: { $0.year }, name: { $0.name })
@@ -71,6 +76,10 @@ public extension Library {
     /// Returns nothing when the library barely carries the field — an empty
     /// control is worse than no control.
     func availableCountries(minimum: Int = 3) -> [String] {
+        availableCountries(among: movies, minimum: minimum)
+    }
+
+    func availableCountries(among items: [MediaItem], minimum: Int = 3) -> [String] {
         var counts: [String: Int] = [:]
         for item in items {
             guard let code = item.countryCode?.uppercased(), code.count == 2 else { continue }
@@ -94,8 +103,15 @@ public extension Library {
     private func apply(
         _ filter: LibraryFilter, to items: [MediaItem], ranking: [String: Int]
     ) -> [MediaItem] {
-        let narrowed = items.filter {
-            matches(filter, category: $0.category, country: $0.countryCode, year: $0.year)
+        var narrowed: [MediaItem] = []
+        narrowed.reserveCapacity(items.count)
+        for (index, item) in items.enumerated() {
+            if index.isMultiple(of: 1_024), Task.isCancelled { return [] }
+            if matches(
+                filter, category: item.category, country: item.countryCode, year: item.year
+            ) {
+                narrowed.append(item)
+            }
         }
         return sort(narrowed, by: filter.sort, ranking: ranking,
                     key: { $0.id }, year: { $0.year }, name: { $0.title })
@@ -104,7 +120,16 @@ public extension Library {
     private func matches(
         _ filter: LibraryFilter, category: String?, country: String?, year: Int?
     ) -> Bool {
-        if let wanted = filter.category, category != wanted { return false }
+        if let wanted = filter.category {
+            let other = String(localized: CoreStrings.otherCategory)
+            if wanted == other {
+                // Nil categories are presented as a real "Other" bucket.
+                // A provider may also literally call its bucket "Other".
+                if category != nil, category != wanted { return false }
+            } else if category != wanted {
+                return false
+            }
+        }
         if let wanted = filter.country, country?.uppercased() != wanted.uppercased() { return false }
         if let decade = filter.decade {
             guard let year, (year / 10) * 10 == decade else { return false }
@@ -120,32 +145,99 @@ public extension Library {
         year: (Element) -> Int?,
         name: (Element) -> String
     ) -> [Element] {
-        switch sort {
-        case .alphabetical:
-            return elements
-                .map { (sortKey: name($0).lowercased(), element: $0) }
-                .sorted { $0.sortKey < $1.sortKey }
-                .map(\.element)
+        var entries: [LibrarySortEntry<Element>] = []
+        entries.reserveCapacity(elements.count)
+        for (index, element) in elements.enumerated() {
+            if index.isMultiple(of: 1_024), Task.isCancelled { return [] }
+            entries.append(LibrarySortEntry(
+                element: element,
+                ranking: ranking[key(element)],
+                year: year(element),
+                name: sort == .alphabetical ? name(element).lowercased() : ""
+            ))
+        }
 
-        case .newest:
-            // Entries with no year sink rather than claiming to be oldest.
-            return elements.sorted { (year($0) ?? -1) > (year($1) ?? -1) }
-
-        case .oldest:
-            return elements.sorted { (year($0) ?? .max) < (year($1) ?? .max) }
-
-        case .recommended:
-            // Ranked entries first in their given order, then the newest of
-            // whatever is left — an unranked catalogue still opens on
-            // something current rather than something arbitrary.
-            return elements.sorted { lhs, rhs in
-                switch (ranking[key(lhs)], ranking[key(rhs)]) {
-                case let (left?, right?): return left < right
+        let ordered = cancellableMergeSort(entries) { lhs, rhs in
+            switch sort {
+            case .alphabetical:
+                return lhs.name < rhs.name
+            case .newest:
+                // Entries with no year sink rather than claiming to be oldest.
+                return (lhs.year ?? -1) > (rhs.year ?? -1)
+            case .oldest:
+                return (lhs.year ?? .max) < (rhs.year ?? .max)
+            case .recommended:
+                // Ranked entries first in their given order, then the newest
+                // of whatever is left.
+                switch (lhs.ranking, rhs.ranking) {
+                case let (left?, right?) where left != right: return left < right
                 case (_?, nil): return true
                 case (nil, _?): return false
-                default: return (year(lhs) ?? -1) > (year(rhs) ?? -1)
+                default: return (lhs.year ?? -1) > (rhs.year ?? -1)
                 }
             }
         }
+        return ordered.map(\.element)
     }
+}
+
+private struct LibrarySortEntry<Element> {
+    var element: Element
+    var ranking: Int?
+    var year: Int?
+    var name: String
+}
+
+/// Swift's standard sort cannot stop once its caller is cancelled. A full
+/// provider catalogue can take long enough that three stale filter requests
+/// would otherwise keep running together. This stable merge sort checks at
+/// every chunk and hands the shared sort queue back promptly.
+private func cancellableMergeSort<Element>(
+    _ input: [Element],
+    precedes: (Element, Element) -> Bool
+) -> [Element] {
+    guard input.count > 1 else { return Task.isCancelled ? [] : input }
+    var source = input
+    var destination = input
+    var width = 1
+
+    while width < source.count {
+        guard !Task.isCancelled else { return [] }
+        var start = 0
+        while start < source.count {
+            guard !Task.isCancelled else { return [] }
+            let middle = min(start + width, source.count)
+            let end = min(start + width * 2, source.count)
+            var left = start
+            var right = middle
+            var output = start
+
+            while left < middle, right < end {
+                // Prefer the left entry when neither strictly precedes the
+                // other, preserving the input order for equal keys.
+                if precedes(source[right], source[left]) {
+                    destination[output] = source[right]
+                    right += 1
+                } else {
+                    destination[output] = source[left]
+                    left += 1
+                }
+                output += 1
+            }
+            while left < middle {
+                destination[output] = source[left]
+                left += 1
+                output += 1
+            }
+            while right < end {
+                destination[output] = source[right]
+                right += 1
+                output += 1
+            }
+            start = end
+        }
+        swap(&source, &destination)
+        width *= 2
+    }
+    return source
 }

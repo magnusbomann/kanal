@@ -16,6 +16,10 @@ public struct RootView: View {
     /// this one flag, so two of them can never be up at once.
     @State private var isShowingPro = false
     @State private var isRepairingSource = false
+    #if os(iOS)
+    @State private var pairingInvitation: Pairing.Invitation?
+    @State private var presentsPairing = false
+    #endif
 
     public init() {}
 
@@ -62,6 +66,13 @@ public struct RootView: View {
                 isShowingPro = true
             }
             .onChange(of: scenePhase) { _, phase in
+                if phase != .active {
+                    // Flush any debounced watch-state write before iOS/tvOS
+                    // suspends the process. The player also checkpoints its
+                    // current position; this covers changes made elsewhere.
+                    Task { await model.flushPendingWatchState() }
+                    return
+                }
                 guard phase == .active, model.phase != .starting else { return }
                 Task { await model.syncNow() }
             }
@@ -103,6 +114,16 @@ public struct RootView: View {
                 }
                 #endif
             }
+            #if os(iOS)
+            .onOpenURL { url in
+                guard let invitation = Pairing.Invitation(url: url) else { return }
+                pairingInvitation = invitation
+                presentsPairing = true
+            }
+            .sheet(isPresented: $presentsPairing) {
+                NavigationStack { HandoffView(invitation: pairingInvitation) }
+            }
+            #endif
             .sheet(isPresented: $isShowingPro) {
                 ProView()
                     .environment(purchases)
@@ -221,14 +242,24 @@ public struct MainTabView: View {
         #endif
         // Presented here rather than beside the player's full-screen cover:
         // two modals on one view is not something SwiftUI presents reliably.
-        .sheet(item: $navigator.showingDetails) { request in
-            TitleDetailView(item: request.item, seriesGroup: request.seriesGroup)
-                // One detail screen can replace another without the sheet
-                // closing — following an actor to their other films. Tying the
-                // identity to the request keeps the new title from inheriting
-                // the old one's loaded description and chosen season.
-                .id(request.id)
+        #if os(tvOS)
+        .fullScreenCover(item: $navigator.showingDetails) { request in
+            detail(request)
         }
+        #else
+        .sheet(item: $navigator.showingDetails) { request in
+            detail(request)
+        }
+        #endif
+    }
+
+    private func detail(_ request: DetailRequest) -> some View {
+        TitleDetailView(item: request.item, seriesGroup: request.seriesGroup)
+            // One detail screen can replace another without the presentation
+            // closing — following an actor to their other films. Tying the
+            // identity to the request keeps the new title from inheriting the
+            // old one's loaded description and chosen season.
+            .id(request.id)
     }
 
     @ViewBuilder

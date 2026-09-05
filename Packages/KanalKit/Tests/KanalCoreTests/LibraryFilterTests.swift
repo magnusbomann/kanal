@@ -61,6 +61,14 @@ struct LibraryFilterTests {
         #expect(Set(titles) == ["Aged Classic", "Middle Aged", "No Year"])
     }
 
+    @Test("The presented Other category opens entries with no provider category")
+    func otherCategory() {
+        let uncategorized = Self.movie("Unfiled", year: 2024, category: nil)
+        let library = Library(items: self.library.items + [uncategorized])
+        let other = String(localized: CoreStrings.otherCategory)
+        #expect(library.movies(LibraryFilter(category: other)).map(\.title) == ["Unfiled"])
+    }
+
     @Test("Narrows by country")
     func byCountry() {
         #expect(library.movies(LibraryFilter(country: "NO")).count == 3)
@@ -83,6 +91,16 @@ struct LibraryFilterTests {
     func countriesNeedEvidence() {
         #expect(library.availableCountries(minimum: 3) == ["NO"])
         #expect(library.availableCountries(minimum: 10).isEmpty)
+    }
+
+    @Test("Channel and episode countries never create a dead movie filter")
+    func countriesComeFromMoviesOnly() {
+        let channel = MediaItem(
+            id: "channel", kind: .liveTV, title: "Channel", rawTitle: "Channel",
+            streamURL: URL(string: "http://p.tv/live/channel")!, countryCode: "SE"
+        )
+        let withChannel = Library(items: library.items + [channel, channel, channel])
+        #expect(withChannel.availableCountries(minimum: 3) == ["NO"])
     }
 
     @Test("Decades come from what is actually there")

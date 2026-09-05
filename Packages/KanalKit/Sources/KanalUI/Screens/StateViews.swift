@@ -52,6 +52,7 @@ public struct EmptyStateView: View {
 /// Shown while a playlist loads. Big playlists take a while, so the copy says
 /// what is happening rather than spinning silently.
 public struct LoadingView: View {
+    @Environment(AppModel.self) private var model
     public let message: String
 
     public init(message: String) {
@@ -70,6 +71,12 @@ public struct LoadingView: View {
                 Text(UIStrings.loadingDetail)
                     .font(KanalFont.body(13))
                     .foregroundStyle(KanalColor.secondaryText)
+            }
+            if let progress = model.connectionProgress {
+                ConnectionProgressView(progress: progress)
+                    .padding(KanalMetrics.md)
+                    .frame(maxWidth: 420, alignment: .leading)
+                    .background(KanalColor.surface, in: .rect(cornerRadius: 18, style: .continuous))
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -97,5 +104,38 @@ public struct BlockedContentView: View {
             actionTitle: String(UIStrings.goBack),
             action: onDismiss
         )
+    }
+}
+
+/// A failed saved connection is repairable in place. Retry covers a temporary
+/// outage; changing the details covers expired links and passwords without
+/// deleting the service — and therefore without losing its history.
+struct SourceFailureView: View {
+    let message: String
+    let retry: () -> Void
+    let repair: () -> Void
+
+    var body: some View {
+        VStack(spacing: KanalMetrics.lg) {
+            Image(systemName: "antenna.radiowaves.left.and.right.slash")
+                .font(.system(size: 34))
+                .foregroundStyle(KanalColor.tertiaryText)
+            Text(UIStrings.loadFailedTitle)
+                .font(KanalFont.section(18))
+            Text(message)
+                .font(KanalFont.body(14))
+                .foregroundStyle(KanalColor.secondaryText)
+                .multilineTextAlignment(.center)
+            VStack(spacing: KanalMetrics.sm) {
+                Button(String(UIStrings.tryAgain), action: retry)
+                    .buttonStyle(KanalPrimaryButtonStyle(fullWidth: true))
+                Button(String(UIStrings.changeTVService), action: repair)
+                    .buttonStyle(KanalSecondaryButtonStyle(size: 14))
+            }
+        }
+        .padding(KanalMetrics.xl)
+        .frame(maxWidth: 440)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(KanalColor.background)
     }
 }

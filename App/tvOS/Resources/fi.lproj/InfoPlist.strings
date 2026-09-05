@@ -1,0 +1,4 @@
+// Localized system-facing app information.
+
+"CFBundleDisplayName" = "Kanal";
+"NSLocalNetworkUsageDescription" = "Kanal käyttää paikallista verkkoa saada soittolistan iPhone. Internetissä ei ole mitään.";

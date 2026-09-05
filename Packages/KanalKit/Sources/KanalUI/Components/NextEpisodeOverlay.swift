@@ -61,7 +61,7 @@ public struct NextEpisodeOverlay: View {
                 .foregroundStyle(.white.opacity(0.6))
         }
         .padding(KanalMetrics.lg)
-        .frame(maxWidth: 420, alignment: .leading)
+        .frame(maxWidth: KanalMetrics.playbackPanelWidth, alignment: .leading)
         .kanalGlassPanel()
         .accessibilityElement(children: .contain)
     }

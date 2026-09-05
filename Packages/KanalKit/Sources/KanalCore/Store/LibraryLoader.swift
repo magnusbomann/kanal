@@ -1,11 +1,42 @@
 import Foundation
 
+/// The loading boundary AppModel depends on.
+///
+/// Keeping it as a protocol makes ordering and cancellation behaviour
+/// testable with controlled continuations rather than timing or real servers.
+public protocol LibraryLoading: Sendable {
+    func loadLibrary(for source: PlaylistSource) async throws -> LibraryLoader.LibraryResult
+    /// The smallest useful first screen. `nil` means this source cannot be
+    /// split and should use `loadLibrary` as one atomic operation.
+    func loadPlayableChannels(for source: PlaylistSource) async throws -> LibraryLoader.LibraryResult?
+    /// Finishes a split load without downloading the first stage again.
+    func loadDeferredLibrary(
+        for source: PlaylistSource,
+        including initial: LibraryLoader.LibraryResult
+    ) async throws -> LibraryLoader.LibraryResult?
+    func loadCache(for sourceID: UUID, storage: KanalStorage) async -> Library?
+    func saveCache(_ library: Library, for sourceID: UUID, storage: KanalStorage) async
+    func loadEpisodes(for source: PlaylistSource, seriesID: Int) async throws -> [MediaItem]
+    func loadGuide(from url: URL) async throws -> XMLTVParser.ParseResult
+}
+
+public extension LibraryLoading {
+    func loadPlayableChannels(
+        for source: PlaylistSource
+    ) async throws -> LibraryLoader.LibraryResult? { nil }
+
+    func loadDeferredLibrary(
+        for source: PlaylistSource,
+        including initial: LibraryLoader.LibraryResult
+    ) async throws -> LibraryLoader.LibraryResult? { nil }
+}
+
 /// Fetches and parses a source, off the main actor.
 ///
 /// Both halves of a refresh — the library and the guide — are reported
 /// separately so channels appear immediately and the guide fills in behind
 /// them. A slow EPG should never hold up the first screen.
-public actor LibraryLoader {
+public actor LibraryLoader: LibraryLoading {
 
     public enum LoadError: LocalizedError {
         case noPlaylistURL
@@ -84,6 +115,48 @@ public actor LibraryLoader {
                 skippedLines: playlist.skippedLineCount
             )
         }
+    }
+
+    /// Xtream exposes live TV independently from its much larger VOD
+    /// catalogues. Prove the account and fetch only that endpoint so the app
+    /// can offer a playable channel while films and series continue behind it.
+    public func loadPlayableChannels(for source: PlaylistSource) async throws -> LibraryResult? {
+        guard source.kind == .xtream else { return nil }
+        guard let client = XtreamClient(source: source, session: session) else {
+            throw LoadError.noPlaylistURL
+        }
+        async let account = client.authenticate()
+        async let channels = client.liveItems()
+        _ = try await account
+        let items = try await channels
+        // Some valid Xtream accounts contain only movies or series. Keep the
+        // staged import alive so the deferred catalogue can still be loaded.
+        guard !items.isEmpty else { return nil }
+        return LibraryResult(
+            library: Library(items: items),
+            epgURL: source.epgURL ?? client.epgURL,
+            skippedLines: 0
+        )
+    }
+
+    /// Completes the Xtream catalogue using the already-loaded live stage.
+    /// Movies and series are independent panel endpoints and remain parallel.
+    public func loadDeferredLibrary(
+        for source: PlaylistSource,
+        including initial: LibraryResult
+    ) async throws -> LibraryResult? {
+        guard source.kind == .xtream else { return nil }
+        guard let client = XtreamClient(source: source, session: session) else {
+            throw LoadError.noPlaylistURL
+        }
+        async let movies = client.movieItems()
+        async let series = client.seriesItems()
+        let items = try await initial.library.items + movies + series
+        return LibraryResult(
+            library: Library(items: items),
+            epgURL: initial.epgURL ?? source.epgURL ?? client.epgURL,
+            skippedLines: initial.skippedLines
+        )
     }
 
     /// Reads a cached catalogue, off the main actor.

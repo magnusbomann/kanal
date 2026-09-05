@@ -22,12 +22,21 @@ struct ProfileEditorView: View {
     @State private var maturity: MaturityRating = .six
     @State private var allowedCategories: Set<String> = []
     @State private var allowedTitleKeys: Set<String> = []
+    @State private var audioLanguage: String?
     @State private var hasLoaded = false
+    /// Provider catalogues can contain hundreds of thousands of entries. These
+    /// values used to be rebuilt from that catalogue every time focus or one
+    /// field changed, which made Settings visibly hitch on both platforms.
+    @State private var suggestions: [ProfileCategoryOption] = []
+    @State private var otherCategories: [ProfileCategoryOption] = []
+    @State private var withheld: [WithheldTitleOption] = []
+    @State private var isPreparingAccess = false
 
     var body: some View {
         List {
             identitySection
             kindSection
+            audioSection
             if isChild {
                 limitSection
                 accessSection
@@ -49,7 +58,17 @@ struct ProfileEditorView: View {
                 Button(String(UIStrings.cancel)) { dismiss() }
             }
         }
-        .onAppear(perform: load)
+        .task(id: draft.id) {
+            load()
+            await prepareCategoryOptions()
+        }
+        .task(id: accessPolicyKey) {
+            guard hasLoaded else { return }
+            // Coalesce quick remote-control or segmented-picker changes.
+            try? await Task.sleep(for: .milliseconds(120))
+            guard !Task.isCancelled else { return }
+            await prepareWithheldTitles()
+        }
     }
 
     private var existing: Profile? { draft.profile }
@@ -124,6 +143,15 @@ struct ProfileEditorView: View {
         }
     }
 
+    /// Sound before access, because it applies to both kinds of profile and
+    /// the access list below is only ever a child's.
+    private var audioSection: some View {
+        AudioLanguagePicker(
+            selection: $audioLanguage,
+            footer: isChild ? UIStrings.audioLanguageChildFooter : UIStrings.audioLanguageFooter
+        )
+    }
+
     private var limitSection: some View {
         Section(String(UIStrings.sectionAgeLimit)) {
             Picker(String(UIStrings.ageLimit), selection: $maturity) {
@@ -144,12 +172,14 @@ struct ProfileEditorView: View {
     /// be the app quietly making a decision it has no evidence for.
     private var accessSection: some View {
         Section {
-            if suggestions.isEmpty && otherCategories.isEmpty {
+            if isPreparingAccess {
+                ProgressView().controlSize(.small)
+            } else if suggestions.isEmpty && otherCategories.isEmpty {
                 Text(UIStrings.noCategoriesYet)
                     .font(KanalFont.body(13))
                     .foregroundStyle(KanalColor.secondaryText)
             }
-            ForEach(suggestions, id: \.name) { suggestion in
+            ForEach(suggestions) { suggestion in
                 categoryRow(suggestion.name, count: suggestion.count, isSuggested: true)
             }
             if !otherCategories.isEmpty {
@@ -173,7 +203,7 @@ struct ProfileEditorView: View {
                 .buttonStyle(.plain)
 
                 if showsAllCategories {
-                    ForEach(otherCategories, id: \.name) { category in
+                    ForEach(otherCategories) { category in
                         categoryRow(category.name, count: category.count, isSuggested: false)
                     }
                 }
@@ -213,7 +243,7 @@ struct ProfileEditorView: View {
     /// a parent knows is fine, with no way to say so.
     private var withheldSection: some View {
         Section {
-            ForEach(withheld, id: \.item.id) { entry in
+            ForEach(withheld) { entry in
                 Button {
                     if allowedTitleKeys.contains(RatingKey.of(entry.item)) {
                         allowedTitleKeys.remove(RatingKey.of(entry.item))
@@ -307,38 +337,38 @@ struct ProfileEditorView: View {
         )
     }
 
-    /// What an age rating is currently holding back inside an approved section.
-    private var withheld: [(item: MediaItem, rating: MaturityRating)] {
-        var draft = existing ?? Profile(name: name)
-        draft.maturity = isChild ? maturity : .adult
-        draft.allowedCategories = allowedCategories
-        draft.allowedTitleKeys = []
-        return ContentPolicy(profile: draft, ratings: model.ratings)
-            .withheldByRating(in: model.catalogue, limit: 60)
+    private var accessPolicyKey: String {
+        "\(isChild)-\(maturity)-\(allowedCategories.sorted().joined(separator: "|"))"
     }
 
-    /// Sections that look like children's television, biggest first.
-    private var suggestions: [(name: String, count: Int)] {
-        ContentPolicy.suggestedChildCategories(in: model.catalogue)
+    private func prepareCategoryOptions() async {
+        isPreparingAccess = true
+        let result = await ProfileEditorDataQueue.shared.categories(in: model.catalogue)
+        guard !Task.isCancelled else { return }
+        suggestions = result.suggestions
+        otherCategories = result.others
+        isPreparingAccess = false
+        await prepareWithheldTitles()
     }
 
-    /// Everything else the provider ships, minus the adult sections — those are
-    /// never offered, because no ticking of a box makes them appropriate for a
-    /// profile with an age limit on it.
-    private var otherCategories: [(name: String, count: Int)] {
-        let suggested = Set(suggestions.map(\.name))
-        let buckets = model.catalogue.channelCategories.map { (name: $0.name, count: $0.items.count) }
-            + model.catalogue.movieCategories.map { (name: $0.name, count: $0.items.count) }
-            + model.catalogue.seriesCategories.map { (name: $0.name, count: $0.items.count) }
-
-        var seen = Set<String>()
-        return buckets
-            .filter { bucket in
-                !suggested.contains(bucket.name)
-                    && !AdultContentDetector.isAdult(category: bucket.name)
-                    && seen.insert(bucket.name).inserted
-            }
-            .sorted { $0.count > $1.count }
+    private func prepareWithheldTitles() async {
+        guard isChild else {
+            withheld = []
+            return
+        }
+        var profile = existing ?? Profile(name: name)
+        profile.maturity = maturity
+        profile.allowedCategories = allowedCategories
+        // Existing overrides are precisely what this list lets a parent edit,
+        // so the calculation must show every held title before those overrides.
+        profile.allowedTitleKeys = []
+        let entries = await ProfileEditorDataQueue.shared.withheld(
+            in: model.catalogue,
+            ratings: model.ratings,
+            profile: profile
+        )
+        guard !Task.isCancelled else { return }
+        withheld = entries
     }
 
     private func load() {
@@ -352,6 +382,9 @@ struct ProfileEditorView: View {
             isChild = true
             symbolName = Profile.avatarSymbols.randomElement() ?? "person.fill"
             colorIndex = Int.random(in: 0..<Profile.avatarColors.count)
+            // A child starts on the household's own language. See
+            // `AudioLanguagePreference` for why a grown-up does not.
+            audioLanguage = AudioLanguagePreference.deviceDefault
             return
         }
         name = existing.name
@@ -361,6 +394,7 @@ struct ProfileEditorView: View {
         maturity = existing.isRestricted ? existing.maturity : .six
         allowedCategories = existing.allowedCategories
         allowedTitleKeys = existing.allowedTitleKeys
+        audioLanguage = existing.preferredAudioLanguage
     }
 
     private func save() {
@@ -371,6 +405,7 @@ struct ProfileEditorView: View {
         profile.maturity = isChild ? maturity : .adult
         profile.allowedCategories = isChild ? allowedCategories : []
         profile.allowedTitleKeys = isChild ? allowedTitleKeys : []
+        profile.preferredAudioLanguage = audioLanguage
 
         Task {
             if existing == nil {
@@ -380,5 +415,55 @@ struct ProfileEditorView: View {
             }
             dismiss()
         }
+    }
+}
+
+private struct ProfileCategoryOption: Identifiable, Sendable {
+    var id: String { name }
+    let name: String
+    let count: Int
+}
+
+private struct WithheldTitleOption: Identifiable, Sendable {
+    var id: String { item.id }
+    let item: MediaItem
+    let rating: MaturityRating
+}
+
+/// Serial background worker for the only provider-sized calculations in the
+/// editor. SwiftUI receives small immutable arrays and never walks the library.
+private actor ProfileEditorDataQueue {
+    static let shared = ProfileEditorDataQueue()
+
+    func categories(in library: Library) -> (
+        suggestions: [ProfileCategoryOption], others: [ProfileCategoryOption]
+    ) {
+        let suggestions = ContentPolicy.suggestedChildCategories(in: library)
+            .map { ProfileCategoryOption(name: $0.name, count: $0.count) }
+        let suggestedNames = Set(suggestions.map(\.name))
+        let buckets = library.channelCategories.map { (name: $0.name, count: $0.items.count) }
+            + library.movieCategories.map { (name: $0.name, count: $0.items.count) }
+            + library.seriesCategories.map { (name: $0.name, count: $0.items.count) }
+
+        var seen = Set<String>()
+        let others = buckets
+            .filter { bucket in
+                !suggestedNames.contains(bucket.name)
+                    && !AdultContentDetector.isAdult(category: bucket.name)
+                    && seen.insert(bucket.name).inserted
+            }
+            .sorted { $0.count > $1.count }
+            .map { ProfileCategoryOption(name: $0.name, count: $0.count) }
+        return (suggestions, others)
+    }
+
+    func withheld(
+        in library: Library,
+        ratings: RatingIndex,
+        profile: Profile
+    ) -> [WithheldTitleOption] {
+        ContentPolicy(profile: profile, ratings: ratings)
+            .withheldByRating(in: library, limit: 60)
+            .map { WithheldTitleOption(item: $0.item, rating: $0.rating) }
     }
 }

@@ -8,6 +8,11 @@ import Foundation
 /// This is what lets the app say "loaded, and here is what was off" instead.
 public struct SourceDiagnostics: Sendable, Equatable, Codable {
 
+    /// Seconds from beginning a source load until channels reached AppModel.
+    /// Kept separate from total import time because this is the wait a viewer
+    /// actually experiences before something can play.
+    public var timeToFirstPlayableChannel: TimeInterval?
+
     /// Playlist lines that could not be turned into anything playable.
     public var skippedPlaylistLines: Int = 0
 

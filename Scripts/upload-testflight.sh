@@ -41,6 +41,7 @@ BUILD="$(date +%Y%m%d%H%M)"
 echo "Build number: $BUILD"
 
 options="$(mktemp -t kanal-upload).plist"
+trap 'rm -f "$options"' EXIT
 cat > "$options" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -62,22 +63,54 @@ ship() {
 	echo
 	echo "── $scheme ──────────────────────────────"
 
-	# Archived unsigned: tvOS cannot be signed for development without a
-	# registered Apple TV, which an App Store build has no reason to involve.
-	# The export step signs for distribution instead.
-	xcodebuild -project "$ROOT/Kanal.xcodeproj" -scheme "$scheme" \
-		-destination "generic/platform=$platform" -configuration Release \
-		-archivePath "$archive" \
-		CURRENT_PROJECT_VERSION="$BUILD" \
-		CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
-		archive | grep -E "error:|ARCHIVE (SUCCEEDED|FAILED)" || true
+	local app="$archive/Products/Applications/Kanal.app"
+	if [ "$platform" = "tvOS" ]; then
+		# A development-signed generic tvOS archive requires a registered Apple
+		# TV. Preserve the requested entitlement in an ad-hoc archive instead;
+		# exportArchive then obtains the App Store profile and distribution-signs
+		# it. A wholly unsigned archive loses the target entitlements at export.
+		xcodebuild -project "$ROOT/Kanal.xcodeproj" -scheme "$scheme" \
+			-destination "generic/platform=$platform" -configuration Release \
+			-archivePath "$archive" CURRENT_PROJECT_VERSION="$BUILD" \
+			CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+			archive | awk '/error:|ARCHIVE (SUCCEEDED|FAILED)/'
+
+		local concrete_entitlements bundle_id
+		concrete_entitlements="$(mktemp -t kanal-entitlements).plist"
+		bundle_id="$(/usr/bin/plutil -extract CFBundleIdentifier raw -o - "$app/Info.plist")"
+		cp "$ROOT/App/tvOS/Kanal.entitlements" "$concrete_entitlements"
+		/usr/libexec/PlistBuddy -c \
+			"Set :com.apple.developer.ubiquity-kvstore-identifier $TEAM.$bundle_id" \
+			"$concrete_entitlements"
+		/usr/bin/codesign --force --sign - --entitlements "$concrete_entitlements" "$app"
+		rm -f "$concrete_entitlements"
+	else
+		# Archive with App Store Connect credentials. A wholly unsigned archive
+		# loses the target's requested entitlements during export.
+		xcodebuild -project "$ROOT/Kanal.xcodeproj" -scheme "$scheme" \
+			-destination "generic/platform=$platform" -configuration Release \
+			-archivePath "$archive" CURRENT_PROJECT_VERSION="$BUILD" \
+			-allowProvisioningUpdates \
+			-authenticationKeyPath "$KEY_PATH" \
+			-authenticationKeyID "$KEY_ID" \
+			-authenticationKeyIssuerID "$ISSUER" \
+			archive | awk '/error:|ARCHIVE (SUCCEEDED|FAILED)/'
+	fi
+
+	if ! /usr/bin/codesign -d --entitlements :- "$app" 2>&1 \
+		| sed -n '/<?xml/,$p' \
+		| /usr/bin/plutil -extract 'com\.apple\.developer\.ubiquity-kvstore-identifier' \
+			raw -o - - >/dev/null 2>&1; then
+		fail "$scheme archive is missing its iCloud key-value-store entitlement; refusing to upload."
+	fi
+	echo "Verified iCloud entitlement in $scheme archive."
 
 	xcodebuild -exportArchive -archivePath "$archive" \
 		-exportOptionsPlist "$options" -allowProvisioningUpdates \
 		-authenticationKeyPath "$KEY_PATH" \
 		-authenticationKeyID "$KEY_ID" \
 		-authenticationKeyIssuerID "$ISSUER" \
-		| grep -E "error:|EXPORT (SUCCEEDED|FAILED)|Upload" || true
+		| awk '/error:|EXPORT (SUCCEEDED|FAILED)|Upload/'
 }
 
 case "$WANTED" in

@@ -14,6 +14,27 @@ struct PairingTests {
         #expect(parsed == invitation)
     }
 
+    @Test("QR invitations preserve their direct LAN fallback")
+    func directInvitationRoundTrip() throws {
+        var invitation = Pairing.Invitation.generate().invitation
+        invitation.host = "192.168.1.42"
+        invitation.port = 49152
+        #expect(Pairing.Invitation(url: try #require(invitation.url)) == invitation)
+        #expect(PairingLANAddress.isPrivateIPv4("192.168.1.42"))
+        #expect(PairingLANAddress.isPrivateIPv4("10.0.0.2"))
+        #expect(!PairingLANAddress.isPrivateIPv4("8.8.8.8"))
+        #expect(!PairingLANAddress.isPrivateIPv4("192.168.1.999"))
+        #expect(!PairingLANAddress.isPrivateIPv4("example.com"))
+    }
+
+    @Test("Old payloads without a household remain readable")
+    func legacyPayload() throws {
+        let data = Data(#"{"sources":[],"sentAt":0}"#.utf8)
+        let payload = try JSONDecoder().decode(Pairing.Payload.self, from: data)
+        #expect(payload.household == nil)
+        #expect(payload.localPlaylists == nil)
+    }
+
     @Test("Every invitation gets a fresh key and code")
     func freshEachTime() {
         let first = Pairing.Invitation.generate().invitation
@@ -55,6 +76,25 @@ struct PairingTests {
         let sealed = try Pairing.seal(Pairing.Payload(sources: []), with: key)
         #expect(throws: (any Error).self) {
             try Pairing.open(sealed, with: otherKey)
+        }
+    }
+
+    @Test("Import receipts authenticate both acceptance and rejection")
+    func importReceipts() throws {
+        let (_, key) = Pairing.Invitation.generate()
+        let (_, wrongKey) = Pairing.Invitation.generate()
+        for accepted in [true, false] {
+            let receipt = Pairing.Receipt(imported: accepted, sourceCount: 2)
+            let sealed = try Pairing.seal(receipt, with: key)
+            #expect(try Pairing.openReceipt(sealed, with: key) == receipt)
+            #expect(throws: (any Error).self) {
+                try Pairing.openReceipt(sealed, with: wrongKey)
+            }
+            var tampered = sealed
+            tampered[tampered.startIndex] ^= 1
+            #expect(throws: (any Error).self) {
+                try Pairing.openReceipt(tampered, with: key)
+            }
         }
     }
 

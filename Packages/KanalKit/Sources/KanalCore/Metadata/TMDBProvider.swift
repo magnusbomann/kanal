@@ -12,8 +12,14 @@ public struct TMDBProvider: MetadataProvider {
 
     private let client: TMDBClient
 
-    public init?(apiKey: String, session: URLSession = .shared) {
-        guard let client = TMDBClient(apiKey: apiKey, session: session) else { return nil }
+    public init?(
+        apiKey: String,
+        language: String = PreferredLanguages.primaryTag(),
+        session: URLSession = .shared
+    ) {
+        guard let client = TMDBClient(apiKey: apiKey, language: language, session: session) else {
+            return nil
+        }
         self.client = client
     }
 

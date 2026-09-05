@@ -135,8 +135,9 @@ public struct XtreamClient: Sendable {
     }
 
     func liveItems() async throws -> [MediaItem] {
-        let categories = try await categoryNames(action: "get_live_categories")
-        let entries = try await jsonArray(actionURL("get_live_streams"))
+        async let categoryRequest = categoryNames(action: "get_live_categories")
+        async let entryRequest = jsonArray(actionURL("get_live_streams"))
+        let (categories, entries) = try await (categoryRequest, entryRequest)
         return entries.compactMap { entry in
             guard let streamID = intValue(entry["stream_id"]) else { return nil }
             let rawTitle = (entry["name"] as? String) ?? "Channel \(streamID)"
@@ -160,8 +161,9 @@ public struct XtreamClient: Sendable {
     }
 
     func movieItems() async throws -> [MediaItem] {
-        let categories = try await categoryNames(action: "get_vod_categories")
-        let entries = try await jsonArray(actionURL("get_vod_streams"))
+        async let categoryRequest = categoryNames(action: "get_vod_categories")
+        async let entryRequest = jsonArray(actionURL("get_vod_streams"))
+        let (categories, entries) = try await (categoryRequest, entryRequest)
         return entries.compactMap { entry in
             guard let streamID = intValue(entry["stream_id"]) else { return nil }
             let rawTitle = (entry["name"] as? String) ?? "Movie \(streamID)"
@@ -186,8 +188,9 @@ public struct XtreamClient: Sendable {
     /// Series listings, one item per show. Episodes load on demand — a large
     /// panel has tens of thousands of them and nobody needs them up front.
     func seriesItems() async throws -> [MediaItem] {
-        let categories = try await categoryNames(action: "get_series_categories")
-        let entries = try await jsonArray(actionURL("get_series"))
+        async let categoryRequest = categoryNames(action: "get_series_categories")
+        async let entryRequest = jsonArray(actionURL("get_series"))
+        let (categories, entries) = try await (categoryRequest, entryRequest)
         return entries.compactMap { entry in
             guard let seriesID = intValue(entry["series_id"]) else { return nil }
             let rawTitle = (entry["name"] as? String) ?? "Series \(seriesID)"

@@ -15,6 +15,9 @@ public struct SearchView: View {
     @State private var outcome = SearchOutcome(items: [])
     @State private var isSearchingWider = false
     @State private var searchTask: Task<Void, Never>?
+    #if os(iOS)
+    @FocusState private var isSearchFocused: Bool
+    #endif
 
     public init() {}
 
@@ -26,7 +29,7 @@ public struct SearchView: View {
                     title: String(UIStrings.searchEmptyTitle),
                     message: String(UIStrings.searchEmptyBody)
                 )
-            } else if outcome.items.isEmpty {
+            } else if groupedResults.isEmpty {
                 if isSearchingWider {
                     LoadingView(message: String(UIStrings.searchLookingWider))
                 } else {
@@ -42,7 +45,17 @@ public struct SearchView: View {
         }
         .background(KanalColor.background)
         .searchable(text: $query, prompt: Text(UIStrings.searchPrompt))
+        #if os(iOS)
+        .searchFocused($isSearchFocused)
+        #endif
         .navigationTitle(Text(UIStrings.search))
+        #if os(iOS)
+        .task(id: navigator.searchFocusRequest) {
+            guard navigator.searchFocusRequest > 0 else { return }
+            await Task.yield()
+            isSearchFocused = true
+        }
+        #endif
         .onChange(of: query) { _, newValue in scheduleSearch(newValue) }
         .onDisappear { searchTask?.cancel() }
     }
@@ -54,18 +67,56 @@ public struct SearchView: View {
                     .kanalListRowBackground(KanalColor.background)
                     .kanalHiddenRowSeparator()
             }
-            ForEach(outcome.items) { item in
-                Button {
-                    if item.kind == .liveTV {
-                        navigator.play(item)
-                    } else {
-                        navigator.showDetails(for: item)
+            if !groupedResults.channels.isEmpty {
+                Section {
+                    ForEach(groupedResults.channels) { group in
+                        Button {
+                            navigator.play(
+                                group,
+                                remembered: model.watchState.workingVariants[group.id]
+                            )
+                        } label: {
+                            SearchRow(channel: group)
+                        }
+                        .buttonStyle(.plain)
+                        .kanalListRowBackground(KanalColor.background)
                     }
-                } label: {
-                    SearchRow(item: item)
+                } header: {
+                    Text(CoreStrings.liveTV)
                 }
-                .buttonStyle(.plain)
-                .kanalListRowBackground(KanalColor.background)
+            }
+
+            if !groupedResults.movies.isEmpty {
+                Section {
+                    ForEach(groupedResults.movies) { movie in
+                        Button {
+                            navigator.showDetails(for: movie)
+                        } label: {
+                            SearchRow(item: movie)
+                        }
+                        .buttonStyle(.plain)
+                        .kanalListRowBackground(KanalColor.background)
+                    }
+                } header: {
+                    Text(CoreStrings.movies)
+                }
+            }
+
+            if !groupedResults.series.isEmpty {
+                Section {
+                    ForEach(groupedResults.series) { group in
+                        Button {
+                            guard let first = group.episodes.first else { return }
+                            navigator.showDetails(for: first, seriesGroup: group)
+                        } label: {
+                            SearchRow(series: group)
+                        }
+                        .buttonStyle(.plain)
+                        .kanalListRowBackground(KanalColor.background)
+                    }
+                } header: {
+                    Text(CoreStrings.series)
+                }
             }
         }
         .listStyle(.plain)
@@ -81,6 +132,10 @@ public struct SearchView: View {
         query.trimmingCharacters(in: .whitespaces)
     }
 
+    private var groupedResults: LibrarySearchResults {
+        model.library.groupedSearchResults(from: outcome.items)
+    }
+
     /// Debounced: the local pass is cheap, but the widening pass is a network
     /// call and should not fire on every keystroke.
     private func scheduleSearch(_ newValue: String) {
@@ -92,15 +147,23 @@ public struct SearchView: View {
             return
         }
 
-        // Show local hits immediately, then widen behind them.
-        outcome = SearchOutcome(items: model.library.search(needle))
-
         searchTask = Task {
-            try? await Task.sleep(for: .milliseconds(350))
+            // A tiny debounce avoids starting the lazy provider-sized index
+            // for letters the person is still in the middle of typing.
+            try? await Task.sleep(for: .milliseconds(80))
             guard !Task.isCancelled else { return }
-            let hadLocalHits = outcome.items.count >= 3
-            if !hadLocalHits { isSearchingWider = true }
-            let result = await model.search(needle)
+            let local = await model.localSearch(needle)
+            guard !Task.isCancelled else { return }
+            outcome = SearchOutcome(items: local)
+            guard local.count < 3 else {
+                isSearchingWider = false
+                return
+            }
+
+            try? await Task.sleep(for: .milliseconds(270))
+            guard !Task.isCancelled else { return }
+            isSearchingWider = true
+            let result = await model.search(needle, localResults: local)
             guard !Task.isCancelled else { return }
             outcome = result
             isSearchingWider = false
@@ -146,26 +209,60 @@ struct WideningIndicator: View {
 }
 
 struct SearchRow: View {
-    let item: MediaItem
+    let title: String
+    let artworkURL: URL?
+    let symbolName: String
+    let subtitle: String
+
+    init(item: MediaItem) {
+        self.title = item.title
+        self.artworkURL = item.logoURL
+        self.symbolName = item.kind.symbolName
+        self.subtitle = [item.year.map(String.init), item.category.map(CategoryLocalizer.display)]
+            .compactMap { $0 }
+            .joined(separator: " · ")
+    }
+
+    init(channel: ChannelGroup) {
+        self.title = channel.name
+        self.artworkURL = channel.logoURL
+        self.symbolName = MediaKind.liveTV.symbolName
+        var details = channel.categories.prefix(1).map(CategoryLocalizer.display)
+        if channel.hasAlternatives {
+            details.append(String(UIStrings.sourceCount(channel.variants.count)))
+        }
+        self.subtitle = details.joined(separator: " · ")
+    }
+
+    init(series: SeriesGroup) {
+        self.title = series.name
+        self.artworkURL = series.artworkURL
+        self.symbolName = MediaKind.series.symbolName
+        if series.needsEpisodeLoad {
+            self.subtitle = series.category.map(CategoryLocalizer.display) ?? ""
+        } else {
+            self.subtitle = String(UIStrings.episodeCount(series.episodes.count))
+        }
+    }
 
     var body: some View {
         HStack(spacing: KanalMetrics.md) {
-            Artwork(url: item.logoURL, title: item.title, symbol: item.kind.symbolName, contentMode: .fit)
+            Artwork(url: artworkURL, title: title, symbol: symbolName, contentMode: .fit)
                 .frame(width: 52, height: 52)
                 .background(KanalColor.surface)
                 .clipShape(.rect(cornerRadius: 10, style: .continuous))
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(item.title)
+                Text(title)
                     .font(KanalFont.body(15))
                     .foregroundStyle(KanalColor.primaryText)
                     .lineLimit(1)
-                Text([item.kind.displayName, item.category.map(CategoryLocalizer.display)]
-                    .compactMap { $0 }
-                    .joined(separator: " · "))
-                    .font(KanalFont.body(12))
-                    .foregroundStyle(KanalColor.secondaryText)
-                    .lineLimit(1)
+                if !subtitle.isEmpty {
+                    Text(subtitle)
+                        .font(KanalFont.body(12))
+                        .foregroundStyle(KanalColor.secondaryText)
+                        .lineLimit(1)
+                }
             }
             Spacer(minLength: 0)
         }

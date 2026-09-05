@@ -1,0 +1,4 @@
+// Localized system-facing app information.
+
+"CFBundleDisplayName" = "Kanal";
+"NSLocalNetworkUsageDescription" = "Kanal, iPhone'unuzdan bir çalma listesi almak için yerel ağınızı kullanır. İnternet üzerinden hiçbir şey gönderilmez.";

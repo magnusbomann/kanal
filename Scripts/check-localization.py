@@ -15,11 +15,13 @@ from __future__ import annotations
 
 import json
 import pathlib
+import plistlib
 import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SOURCES = ROOT / "Packages/KanalKit/Sources"
+LANGUAGE_CONFIG = ROOT / "Localizations/languages.json"
 
 MODULES = [
     ("KanalCore", SOURCES / "KanalCore/Strings.swift",
@@ -37,6 +39,14 @@ LITERAL_PATTERN = re.compile(
 
 # Interpolations become printf specifiers in the extracted key.
 INTERPOLATION = re.compile(r"\\\((.*?)\)")
+# A negative look-behind matters: `%%lld` is a literal percent followed by
+# text, not a valid `%lld` argument. It used to fool the simpler check.
+PRINTF_ARGUMENT = re.compile(r"(?<!%)%(?:lld|@|%)")
+
+
+def supported_languages() -> list[str]:
+    data = json.loads(LANGUAGE_CONFIG.read_text())
+    return [language["code"] for language in data["languages"]]
 
 
 def declared_keys(strings_file: pathlib.Path) -> set[str]:
@@ -100,17 +110,13 @@ def app_declares_languages() -> list[str]:
     bundle. A package can carry perfect translations and still never be asked
     for them.
     """
-    languages: set[str] = set()
-    for _, _, catalog_file, _ in MODULES:
-        _, per_key = catalog_keys(catalog_file)
-        for entry in per_key.values():
-            languages.update(entry)
+    languages = supported_languages()
 
     problems = []
     for plist in [ROOT / "App/iOS/Info.plist", ROOT / "App/tvOS/Info.plist"]:
         text = plist.read_text()
         missing = [
-            language for language in sorted(languages)
+            language for language in languages
             if f"<string>{language}</string>" not in text
         ]
         if "CFBundleLocalizations" not in text:
@@ -123,8 +129,56 @@ def app_declares_languages() -> list[str]:
     return problems
 
 
+def info_plist_translations() -> list[str]:
+    """Privacy permission prompts are user-facing too.
+
+    They live in the application bundle rather than KanalUI, so the string
+    catalogs cannot cover them. Each platform keeps an InfoPlist.strings in
+    every supported language instead.
+    """
+    problems = []
+    for platform in ("iOS", "tvOS"):
+        plist_path = ROOT / f"App/{platform}/Info.plist"
+        with plist_path.open("rb") as file:
+            plist = plistlib.load(file)
+        # Any future microphone, Bluetooth or photo permission prompt becomes
+        # part of the contract automatically; no hard-coded list can forget it.
+        keys = {"CFBundleDisplayName"}
+        keys.update(key for key in plist if key.endswith("UsageDescription"))
+        for language in supported_languages():
+            path = ROOT / f"App/{platform}/Resources/{language}.lproj/InfoPlist.strings"
+            if not path.exists():
+                problems.append(
+                    f"App/{platform}: {language}.lproj/InfoPlist.strings is missing"
+                )
+                continue
+            text = path.read_text(encoding="utf-8")
+            for key in sorted(keys):
+                if f'"{key}"' not in text:
+                    problems.append(f"{path.relative_to(ROOT)}: '{key}' is missing")
+    return problems
+
+
+def package_declares_languages() -> list[str]:
+    """A generated `.lproj` is useless unless SwiftPM copies it twice.
+
+    KanalCore and KanalUI are separate resource bundles, so each supported
+    language must appear in both target resource declarations.
+    """
+    package = (ROOT / "Packages/KanalKit/Package.swift").read_text()
+    problems = []
+    for language in supported_languages():
+        declaration = f'.copy("Resources/{language}.lproj")'
+        if package.count(declaration) != 2:
+            problems.append(
+                f"Package.swift: {language}.lproj must be copied by KanalCore and KanalUI"
+            )
+    return problems
+
+
 def main() -> int:
     failures: list[str] = []
+    expected = set(supported_languages())
 
     for name, strings_file, catalog_file, resources in MODULES:
         if not catalog_file.exists():
@@ -140,14 +194,53 @@ def main() -> int:
             failures.append(f"{name}: '{key}' is in the catalog but nothing declares it")
 
         all_languages = set().union(*languages.values()) if languages else set()
+        if all_languages != expected:
+            missing = expected - all_languages
+            unexpected = all_languages - expected
+            if missing:
+                failures.append(f"{name}: catalog is missing language(s) {', '.join(sorted(missing))}")
+            if unexpected:
+                failures.append(f"{name}: catalog has unsupported language(s) {', '.join(sorted(unexpected))}")
         for key in sorted(present):
-            missing = all_languages - languages[key]
+            missing = expected - languages[key]
             if missing:
                 failures.append(f"{name}: '{key}' is not translated into {', '.join(sorted(missing))}")
 
+        data = json.loads(catalog_file.read_text())
+        for key, entry in data.get("strings", {}).items():
+            source = entry.get("localizations", {}).get("en", {})
+            source_values = localization_values(source)
+            for language in sorted(expected):
+                localized = entry.get("localizations", {}).get(language, {})
+                localized_values = localization_values(localized)
+                if not localized_values or not source_values:
+                    continue
+                # Plural languages may carry more grammatical forms, so compare
+                # per form only when their form counts match. Every generated
+                # form still has to preserve the key's format arguments.
+                required_arguments = sorted(
+                    token for token in PRINTF_ARGUMENT.findall(key) if token != "%%"
+                )
+                source_literal_percents = max(
+                    (PRINTF_ARGUMENT.findall(value).count("%%") for value in source_values),
+                    default=0,
+                )
+                if any(
+                    sorted(token for token in PRINTF_ARGUMENT.findall(value) if token != "%%")
+                    != required_arguments
+                    or (
+                        PRINTF_ARGUMENT.findall(value).count("%%")
+                        + value.count("٪")
+                    ) != source_literal_percents
+                    for value in localized_values
+                ):
+                    failures.append(
+                        f"{name}: '{key}' has a damaged format placeholder in {language}"
+                    )
+
         # The catalog is the source; the .lproj files are what actually ship.
         # Drift between them would translate in Xcode and not under SwiftPM.
-        for language in sorted(all_languages):
+        for language in supported_languages():
             compiled = resources / f"{language}.lproj/Localizable.strings"
             if not compiled.exists():
                 failures.append(
@@ -165,6 +258,8 @@ def main() -> int:
 
     failures.extend(stray_literals())
     failures.extend(app_declares_languages())
+    failures.extend(info_plist_translations())
+    failures.extend(package_declares_languages())
 
     if failures:
         print(f"Localization check failed — {len(failures)} problem(s):\n")
@@ -175,6 +270,13 @@ def main() -> int:
     total = sum(len(catalog_keys(catalog)[0]) for _, _, catalog, _ in MODULES)
     print(f"Localization check passed — {total} keys, every one declared and translated.")
     return 0
+
+
+def localization_values(localization: dict) -> list[str]:
+    if "stringUnit" in localization:
+        return [localization["stringUnit"].get("value", "")]
+    plural = localization.get("variations", {}).get("plural", {})
+    return [unit.get("stringUnit", {}).get("value", "") for unit in plural.values()]
 
 
 if __name__ == "__main__":

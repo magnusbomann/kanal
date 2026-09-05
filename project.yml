@@ -35,6 +35,10 @@ targets:
       - path: App/iOS
       - path: App/iOS/Assets.xcassets
       - path: App/iOS/PrivacyInfo.xcprivacy
+      # Local StoreKit testing. Never copied into the bundle — the scheme
+      # points at it, and a shipped build talks to the real App Store.
+      - path: Config/Kanal.storekit
+        buildPhase: none
     dependencies:
       - package: KanalKit
         product: KanalCore
@@ -49,6 +53,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.bomann.kanal
         PRODUCT_NAME: Kanal
         INFOPLIST_FILE: App/iOS/Info.plist
+        CODE_SIGN_ENTITLEMENTS: App/iOS/Kanal.entitlements
         TARGETED_DEVICE_FAMILY: "1,2"
         SUPPORTS_MACCATALYST: NO
         SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: YES
@@ -63,6 +68,8 @@ targets:
       - path: App/tvOS
       - path: App/tvOS/Assets.xcassets
       - path: App/tvOS/PrivacyInfo.xcprivacy
+      - path: Config/Kanal.storekit
+        buildPhase: none
     dependencies:
       - package: KanalKit
         product: KanalCore
@@ -76,6 +83,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.bomann.kanal
         PRODUCT_NAME: Kanal
         INFOPLIST_FILE: App/tvOS/Info.plist
+        CODE_SIGN_ENTITLEMENTS: App/tvOS/Kanal.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: "App Icon & Top Shelf Image"
         ENABLE_PREVIEWS: YES
 
@@ -100,6 +108,9 @@ schemes:
         KanalUITests: [test]
     run:
       config: Debug
+      # Buying works in the simulator with this, with no sandbox Apple ID and
+      # no App Store Connect round trip.
+      storeKitConfiguration: Config/Kanal.storekit
     test:
       config: Debug
       targets:
@@ -110,3 +121,4 @@ schemes:
         KanalTV: all
     run:
       config: Debug
+      storeKitConfiguration: Config/Kanal.storekit

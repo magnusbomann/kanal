@@ -1,0 +1,5 @@
+// Localized system-facing app information.
+
+"CFBundleDisplayName" = "Kanal";
+"NSLocalNetworkUsageDescription" = "Kanal, bir çalma listesini Apple TV'nize göndermek için yerel ağınızı kullanır. İnternet üzerinden hiçbir şey gönderilmez.";
+"NSCameraUsageDescription" = "Kanal, Apple TV'nizde gösterilen eşleştirme kodunu okur.";

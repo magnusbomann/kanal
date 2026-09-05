@@ -5,6 +5,7 @@ import SwiftUI
 public struct ChannelCard: View {
     public let channel: MediaItem
     public var nowPlaying: Programme?
+    public var upNext: Programme?
     public var isFavorite: Bool
     /// How many streams carry this channel. One is drawn plainly.
     public var sourceCount: Int
@@ -13,12 +14,14 @@ public struct ChannelCard: View {
     public init(
         channel: MediaItem,
         nowPlaying: Programme? = nil,
+        upNext: Programme? = nil,
         isFavorite: Bool = false,
         sourceCount: Int = 1,
         action: @escaping () -> Void
     ) {
         self.channel = channel
         self.nowPlaying = nowPlaying
+        self.upNext = upNext
         self.isFavorite = isFavorite
         self.sourceCount = sourceCount
         self.action = action
@@ -37,6 +40,12 @@ public struct ChannelCard: View {
                         .font(KanalFont.body(13))
                         .foregroundStyle(KanalColor.secondaryText)
                         .lineLimit(1)
+                    if let upNext {
+                        Text(UIStrings.nextProgramme(upNext.title))
+                            .font(KanalFont.body(12))
+                            .foregroundStyle(KanalColor.tertiaryText)
+                            .lineLimit(1)
+                    }
                 }
             }
         }
@@ -83,7 +92,11 @@ public struct ChannelCard: View {
     /// Channel and programme names come from the provider, so this reads as
     /// a list rather than a sentence — there is no grammar to get wrong.
     private var accessibilityText: String {
-        [channel.title, nowPlaying?.title].compactMap { $0 }.joined(separator: ", ")
+        [
+            channel.title,
+            nowPlaying?.title,
+            upNext.map { String(UIStrings.nextProgramme($0.title)) },
+        ].compactMap { $0 }.joined(separator: ", ")
     }
 }
 
@@ -234,6 +247,13 @@ public struct KanalCardButtonStyle: ButtonStyle {
         var body: some View {
             configuration.label
                 .contentShape(.rect)
+                #if os(tvOS)
+                .overlay {
+                    RoundedRectangle(cornerRadius: KanalMetrics.cardRadius)
+                        .strokeBorder(isFocused ? KanalColor.primaryText : .clear, lineWidth: 4)
+                        .padding(-5)
+                }
+                #endif
                 .scaleEffect(scale)
                 .shadow(
                     color: .black.opacity(isFocused ? 0.35 : 0),

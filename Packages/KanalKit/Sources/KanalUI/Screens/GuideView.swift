@@ -19,7 +19,13 @@ public struct GuideView: View {
     @State private var horizontalOffset: CGFloat = 0
     @State private var verticalOffset: CGFloat = 0
     @State private var selected: Programme?
+    @State private var selectedChannel: ChannelGroup?
     @State private var now = Date.now
+    @State private var returnToNowRequest = 0
+    #if os(tvOS)
+    @State private var focusedProgramme: Programme?
+    @State private var focusedChannel: ChannelGroup?
+    #endif
 
     public init() {}
 
@@ -43,7 +49,7 @@ public struct GuideView: View {
         }
         .background(KanalColor.background)
         .sheet(item: $selected) { programme in
-            ProgrammeSheet(programme: programme, channel: channel(for: programme))
+            ProgrammeSheet(programme: programme, channel: selectedChannel ?? channel(for: programme))
         }
         // The now-line has to keep up without redrawing the whole grid.
         .task {
@@ -57,40 +63,121 @@ public struct GuideView: View {
     // MARK: Grid
 
     private var grid: some View {
-        ScrollView([.horizontal, .vertical]) {
-            ZStack(alignment: .topLeading) {
-                rows
-                    .padding(.leading, channelColumnWidth)
-                    .padding(.top, headerHeight)
-
-                nowLine
-                    .padding(.leading, channelColumnWidth)
-                    .padding(.top, headerHeight)
-
-                // Pushed back by the scroll offset so they read as pinned.
-                hourHeader
-                    .padding(.leading, channelColumnWidth)
-                    .offset(y: verticalOffset)
-
-                channelColumn
-                    .padding(.top, headerHeight)
-                    .offset(x: horizontalOffset)
-
-                // The corner sits above both, or the two would cross it.
-                Color.clear
-                    .frame(width: channelColumnWidth, height: headerHeight)
-                    .background(KanalColor.background)
-                    .offset(x: horizontalOffset, y: verticalOffset)
-            }
+        #if os(tvOS)
+        VStack(alignment: .leading, spacing: KanalMetrics.md) {
+            selectedProgrammePanel
+            guideScrollView
         }
-        .scrollIndicators(.hidden)
-        .onScrollGeometryChange(for: CGPoint.self) { geometry in
-            CGPoint(x: geometry.contentOffset.x, y: geometry.contentOffset.y)
-        } action: { _, offset in
-            horizontalOffset = max(offset.x, 0)
-            verticalOffset = max(offset.y, 0)
+        .padding(.horizontal, KanalMetrics.lg)
+        .padding(.top, KanalMetrics.md)
+        #else
+        guideScrollView
+        #endif
+    }
+
+    private var guideScrollView: some View {
+        ScrollViewReader { proxy in
+            ScrollView([.horizontal, .vertical]) {
+                ZStack(alignment: .topLeading) {
+                    rows
+                        .padding(.leading, channelColumnWidth)
+                        .padding(.top, headerHeight)
+
+                    nowLine
+                        .padding(.leading, channelColumnWidth)
+                        .padding(.top, headerHeight)
+
+                    Color.clear
+                        .frame(width: 1, height: 1)
+                        .offset(x: channelColumnWidth + xPosition(for: now), y: headerHeight)
+                        .id("guide-now")
+
+                    // Pushed back by the scroll offset so they read as pinned.
+                    hourHeader
+                        .padding(.leading, channelColumnWidth)
+                        .offset(y: verticalOffset)
+
+                    channelColumn
+                        .padding(.top, headerHeight)
+                        .offset(x: horizontalOffset)
+
+                    // The corner sits above both, or the two would cross it.
+                    Color.clear
+                        .frame(width: channelColumnWidth, height: headerHeight)
+                        .background(KanalColor.background)
+                        .offset(x: horizontalOffset, y: verticalOffset)
+                }
+            }
+            .scrollIndicators(.hidden)
+            .onScrollGeometryChange(for: CGPoint.self) { geometry in
+                CGPoint(x: geometry.contentOffset.x, y: geometry.contentOffset.y)
+            } action: { _, offset in
+                horizontalOffset = max(offset.x, 0)
+                verticalOffset = max(offset.y, 0)
+            }
+            #if os(tvOS)
+            .onAppear {
+                // The timeline is generated around now; make that useful
+                // immediately even when tvOS restores an old scroll position.
+                proxy.scrollTo("guide-now", anchor: .center)
+            }
+            .onChange(of: returnToNowRequest) { _, _ in
+                proxy.scrollTo("guide-now", anchor: .center)
+            }
+            #endif
         }
     }
+
+    #if os(tvOS)
+    private var selectedProgrammePanel: some View {
+        HStack(alignment: .top, spacing: KanalMetrics.lg) {
+            VStack(alignment: .leading, spacing: KanalMetrics.xs) {
+                if let focusedProgramme {
+                    Text(focusedProgramme.title)
+                        .kanalDisplay(32)
+                        .foregroundStyle(KanalColor.primaryText)
+                        .lineLimit(2)
+                    Text(focusedChannel?.name ?? channel(for: focusedProgramme)?.name ?? "")
+                        .kanalLabel(26)
+                        .foregroundStyle(KanalColor.accentSolid)
+                    Text(timeRange(for: focusedProgramme))
+                        .font(KanalFont.caption(22))
+                        .foregroundStyle(KanalColor.secondaryText)
+                    if let description = focusedProgramme.description, !description.isEmpty {
+                        Text(description)
+                            .font(KanalFont.body(22))
+                            .foregroundStyle(KanalColor.secondaryText)
+                            .lineLimit(2)
+                    }
+                } else {
+                    Text(String(UIStrings.guide))
+                        .kanalDisplay(32)
+                        .foregroundStyle(KanalColor.primaryText)
+                }
+            }
+            Spacer(minLength: KanalMetrics.md)
+            Button {
+                // Resetting the anchor is enough to bring the now line back
+                // into view; the next geometry callback updates pinned axes.
+                returnToNowRequest += 1
+                selected = nil
+                focusedProgramme = nil
+                focusedChannel = nil
+            } label: {
+                Label(String(UIStrings.guideReturnToNow), systemImage: "clock.arrow.circlepath")
+            }
+            .buttonStyle(KanalCardButtonStyle())
+            .accessibilityLabel(Text(UIStrings.guideReturnToNow))
+        }
+        .frame(height: 220, alignment: .topLeading)
+    }
+
+    private func timeRange(for programme: Programme) -> String {
+        let start = programme.start.formatted(date: .omitted, time: .shortened)
+        let stop = programme.stop.formatted(date: .omitted, time: .shortened)
+        return "\(start) – \(stop)"
+    }
+    #endif
 
     private var rows: some View {
         LazyVStack(alignment: .leading, spacing: rowSpacing) {
@@ -101,7 +188,13 @@ public struct GuideView: View {
                     hourWidth: hourWidth,
                     rowHeight: rowHeight,
                     now: now,
-                    onSelect: { selected = $0 },
+                    onSelect: { selected = $0; selectedChannel = channel },
+                    onFocus: { programme in
+                        #if os(tvOS)
+                        focusedProgramme = programme
+                        focusedChannel = channel
+                        #endif
+                    },
                     onPlay: { navigator.play(channel) }
                 )
                 .frame(width: timelineWidth, height: rowHeight, alignment: .leading)
@@ -117,15 +210,15 @@ public struct GuideView: View {
                 } label: {
                     HStack(spacing: KanalMetrics.sm) {
                         Artwork(
-                            url: channel.logoURL, title: channel.title,
+                            url: channel.logoURL, title: channel.name,
                             symbol: "tv", contentMode: .fit
                         )
                         .frame(width: rowHeight * 0.7, height: rowHeight * 0.7)
                         .background(KanalColor.surface)
                         .clipShape(.rect(cornerRadius: 8, style: .continuous))
 
-                        Text(channel.title)
-                            .font(KanalFont.body(13))
+                        Text(channel.name)
+                            .font(KanalFont.body(26))
                             .foregroundStyle(KanalColor.primaryText)
                             .lineLimit(2)
                             .minimumScaleFactor(0.85)
@@ -144,7 +237,7 @@ public struct GuideView: View {
         HStack(spacing: 0) {
             ForEach(hourMarks, id: \.self) { date in
                 Text(date.formatted(date: .omitted, time: .shortened))
-                    .font(KanalFont.caption(11))
+                    .font(KanalFont.caption(22))
                     .foregroundStyle(KanalColor.secondaryText)
                     .frame(width: hourWidth, alignment: .leading)
                     .padding(.leading, KanalMetrics.xs)
@@ -187,36 +280,49 @@ public struct GuideView: View {
     }
 
     /// Only channels the guide actually covers — a row of blanks helps nobody.
-    private var channels: [MediaItem] {
+    private var channels: [ChannelGroup] {
         guard let guide = model.guide else { return [] }
-        return model.library.channels.filter { channel in
-            guard let id = channel.channelID else { return false }
-            return guide.schedules[id]?.programmes.isEmpty == false
+        return model.library.channelGroups.filter { group in
+            group.variants.contains { variant in
+                guard let id = variant.channelID else { return false }
+                return guide.schedules[id]?.programmes.isEmpty == false
+            }
         }
     }
 
-    private func programmes(for channel: MediaItem) -> [Programme] {
-        guard let id = channel.channelID, let schedule = model.guide?.schedules[id] else {
-            return []
-        }
+    private func programmes(for channel: ChannelGroup) -> [Programme] {
+        guard let guide = model.guide else { return [] }
         let end = timelineStart.addingTimeInterval((hoursBefore + hoursAfter) * 3600)
-        return schedule.programmes.filter { $0.stop > timelineStart && $0.start < end }
+        var merged: [Programme] = []
+        var seen = Set<String>()
+        for variant in channel.variants {
+            guard let id = variant.channelID, let schedule = guide.schedules[id] else { continue }
+            for programme in schedule.programmes where programme.stop > timelineStart && programme.start < end {
+                // XMLTV variants may use different channel IDs for the same
+                // feed. Start time is the stable identity for a guide slot.
+                let key = "\(programme.start.timeIntervalSince1970)|\(programme.title)"
+                if seen.insert(key).inserted { merged.append(programme) }
+            }
+        }
+        return merged.sorted { $0.start < $1.start }
     }
 
-    private func channel(for programme: Programme) -> MediaItem? {
-        model.library.channels.first { $0.channelID == programme.channelID }
+    private func channel(for programme: Programme) -> ChannelGroup? {
+        model.library.channelGroups.first { group in
+            group.variants.contains { $0.channelID == programme.channelID }
+        }
     }
 
     #if os(tvOS)
-    private var hourWidth: CGFloat { 420 }
-    private var rowHeight: CGFloat { 84 }
-    private var channelColumnWidth: CGFloat { 260 }
-    private var headerHeight: CGFloat { 44 }
+    private var hourWidth: CGFloat { 480 }
+    private var rowHeight: CGFloat { 112 }
+    private var channelColumnWidth: CGFloat { 340 }
+    private var headerHeight: CGFloat { 56 }
     #else
-    private var hourWidth: CGFloat { 240 }
-    private var rowHeight: CGFloat { 62 }
-    private var channelColumnWidth: CGFloat { 132 }
-    private var headerHeight: CGFloat { 28 }
+    @ScaledMetric(relativeTo: .body) private var hourWidth: CGFloat = 240
+    @ScaledMetric(relativeTo: .body) private var rowHeight: CGFloat = 62
+    @ScaledMetric(relativeTo: .body) private var channelColumnWidth: CGFloat = 132
+    @ScaledMetric(relativeTo: .caption) private var headerHeight: CGFloat = 28
     #endif
     private var rowSpacing: CGFloat { 2 }
 }
@@ -229,6 +335,10 @@ struct GuideRow: View {
     let rowHeight: CGFloat
     let now: Date
     let onSelect: (Programme) -> Void
+    var onFocus: (Programme) -> Void = { _ in }
+    #if os(tvOS)
+    @FocusState private var focusedProgrammeID: String?
+    #endif
     let onPlay: () -> Void
 
     var body: some View {
@@ -243,9 +353,18 @@ struct GuideRow: View {
                         .frame(width: width(of: programme), height: rowHeight)
                 }
                 .buttonStyle(KanalCardButtonStyle())
+                #if os(tvOS)
+                .focused($focusedProgrammeID, equals: programme.id)
+                #endif
                 .offset(x: x(of: programme))
             }
         }
+        #if os(tvOS)
+        .onChange(of: focusedProgrammeID) { _, id in
+            guard let id, let programme = programmes.first(where: { $0.id == id }) else { return }
+            onFocus(programme)
+        }
+        #endif
     }
 
     private func x(of programme: Programme) -> CGFloat {
@@ -253,10 +372,19 @@ struct GuideRow: View {
     }
 
     private func width(of programme: Programme) -> CGFloat {
-        // Clipped to the visible timeline, and never so narrow it cannot be hit.
+        // Clip at the next slot as well as the programme stop. Provider data
+        // occasionally overlaps; letting blocks share a row makes short slots
+        // unreadable and causes focus to jump between overlapping hit targets.
         let start = max(programme.start, timelineStart)
-        let hours = programme.stop.timeIntervalSince(start) / 3600
-        return max(CGFloat(hours) * hourWidth - 2, 24)
+        let index = programmes.firstIndex(where: { $0.id == programme.id }) ?? 0
+        let nextStart = programmes.dropFirst(index + 1).first?.start
+        let visibleStop = min(programme.stop, nextStart ?? programme.stop)
+        let hours = visibleStop.timeIntervalSince(start) / 3600
+        let naturalWidth = max(CGFloat(hours) * hourWidth - 2, 28)
+        guard let nextStart else { return naturalWidth }
+        // Never let the accessibility hit target cross into the next slot.
+        let gapWidth = max(CGFloat(nextStart.timeIntervalSince(start) / 3600) * hourWidth - 2, 2)
+        return min(naturalWidth, gapWidth)
     }
 }
 
@@ -267,11 +395,11 @@ struct GuideBlock: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 1) {
             Text(programme.title)
-                .font(KanalFont.body(12))
+                .font(KanalFont.body(22))
                 .foregroundStyle(KanalColor.primaryText)
                 .lineLimit(1)
             Text(programme.start.formatted(date: .omitted, time: .shortened))
-                .font(KanalFont.caption(10))
+                .font(KanalFont.caption(22))
                 .foregroundStyle(KanalColor.secondaryText)
             Spacer(minLength: 0)
         }
@@ -297,12 +425,12 @@ struct GuideBlock: View {
 struct ProgrammeSheet: View {
     @Environment(\.dismiss) private var dismiss
     let programme: Programme
-    let channel: MediaItem?
+    let channel: ChannelGroup?
 
     var body: some View {
         VStack(alignment: .leading, spacing: KanalMetrics.md) {
             if let channel {
-                Text(channel.title)
+                Text(channel.name)
                     .kanalLabel(12)
                     .foregroundStyle(KanalColor.accentSolid)
             }

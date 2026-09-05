@@ -19,7 +19,11 @@ struct LibraryGrid<Item: Identifiable, Card: View>: View {
                 }
             }
             .padding(.horizontal, KanalMetrics.lg)
+            .padding(.top, KanalMetrics.md)
             .padding(.bottom, KanalMetrics.xxl * 2)
+            #if os(tvOS)
+            .focusSection()
+            #endif
         }
         .background(KanalColor.background)
     }
@@ -30,18 +34,27 @@ public struct ChannelsView: View {
     @Environment(AppModel.self) private var model
     @Environment(Navigator.self) private var navigator
     @State private var selectedCategory: String?
-    @State private var mode: Mode = LaunchOptions.liveMode == "guide" ? .guide : .channels
+    @State private var mode: Mode
     @State private var sources: ChannelGroup?
+    private let showsFavoritesOnly: Bool
 
     enum Mode: Hashable { case channels, guide }
 
-    public init() {}
+    public init(initialCategory: String? = nil, showsFavoritesOnly: Bool = false) {
+        self.showsFavoritesOnly = showsFavoritesOnly
+        self._selectedCategory = State(initialValue: initialCategory)
+        self._mode = State(
+            initialValue: showsFavoritesOnly
+                ? .channels
+                : (LaunchOptions.liveMode == "guide" ? .guide : .channels)
+        )
+    }
 
     public var body: some View {
         VStack(spacing: 0) {
             // A sixth tab would push search under "More", and the guide is a
             // second way to look at the same channels rather than a new place.
-            if model.guide != nil {
+            if model.guide != nil, !showsFavoritesOnly {
                 Picker("", selection: $mode) {
                     Text(UIStrings.viewList).tag(Mode.channels)
                     Text(UIStrings.viewGuide).tag(Mode.guide)
@@ -59,7 +72,7 @@ public struct ChannelsView: View {
             }
         }
         .background(KanalColor.background)
-        .navigationTitle(Text(CoreStrings.liveTV))
+        .navigationTitle(navigationTitle)
         .sheet(item: $sources) { group in
             ChannelSourcesSheet(group: group)
         }
@@ -67,21 +80,23 @@ public struct ChannelsView: View {
 
     private var channelList: some View {
         VStack(spacing: 0) {
-            CategoryStrip(
-                names: model.library.channelCategories.map(\.name),
-                selection: $selectedCategory
-            )
+            if !showsFavoritesOnly {
+                CategoryStrip(
+                    names: model.library.channelCategories.map(\.name),
+                    selection: $selectedCategory
+                )
+            }
             LibraryGrid(items: groups, minimumWidth: gridWidth) { group in
                 ChannelCard(
                     channel: group.primary,
                     nowPlaying: model.nowPlaying(on: group.primary),
-                    isFavorite: model.watchState.isFavorite(group.primary.id),
+                    isFavorite: isFavorite(group),
                     sourceCount: group.variants.count
                 ) {
                     navigator.play(group, remembered: model.watchState.workingVariants[group.id])
                 }
                 .contextMenu {
-                    FavoriteButton(id: group.primary.id)
+                    FavoriteButton(id: favoriteID(for: group))
                     if group.hasAlternatives {
                         Button {
                             sources = group
@@ -97,8 +112,32 @@ public struct ChannelsView: View {
     /// Folded so the same channel is not listed four times over — a real
     /// provider had 2,047 entries covering 657 actual channels.
     private var groups: [ChannelGroup] {
-        guard let selectedCategory else { return model.library.channelGroups }
-        return model.library.channelGroups.filter { $0.categories.contains(selectedCategory) }
+        let available = showsFavoritesOnly
+            ? model.favoriteChannelGroups
+            : model.library.channelGroups
+        guard let selectedCategory else { return available }
+        return available.filter { $0.categories.contains(selectedCategory) }
+    }
+
+    private var navigationTitle: Text {
+        if showsFavoritesOnly {
+            Text(UIStrings.shelfFavouriteChannels)
+        } else if let selectedCategory {
+            Text(CategoryLocalizer.display(selectedCategory))
+        } else {
+            Text(CoreStrings.liveTV)
+        }
+    }
+
+    private func isFavorite(_ group: ChannelGroup) -> Bool {
+        group.variants.contains { model.watchState.isFavorite($0.id) }
+    }
+
+    /// Favourites predate channel grouping and are stored against a concrete
+    /// stream. Toggle the stream that made this group a favourite, rather than
+    /// adding a second favourite to its primary variant.
+    private func favoriteID(for group: ChannelGroup) -> String {
+        group.variants.first { model.watchState.isFavorite($0.id) }?.id ?? group.primary.id
     }
 
     /// Two columns on a phone.
@@ -114,38 +153,149 @@ public struct ChannelsView: View {
     }
 }
 
-/// Films.
+/// Films presented like a streaming-service landing page. The provider's full
+/// catalogue is intentionally kept behind "See all" so opening the tab never
+/// creates thousands of poster views or sorts the complete list on the UI
+/// thread.
 public struct MoviesView: View {
     @Environment(AppModel.self) private var model
     @Environment(Navigator.self) private var navigator
-    @State private var filter = LibraryFilter()
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    #endif
 
     public init() {}
 
     public var body: some View {
-        VStack(spacing: 0) {
-            FilterBar(
-                filter: $filter,
-                categories: model.library.movieCategories.map(\.name),
-                countries: model.library.availableCountries(),
-                decades: model.library.availableDecades(among: model.library.movies)
-            )
-            if movies.isEmpty {
-                if model.library.movies.isEmpty {
+        Group {
+            if model.library.movies.isEmpty {
+                if model.isRefreshingLibrary {
+                    deferredLibraryProgress
+                } else {
                     EmptyStateView(
                         symbol: "film",
                         title: String(UIStrings.moviesEmptyTitle),
                         message: String(UIStrings.moviesEmptyBody)
                     )
-                } else {
-                    EmptyStateView(
-                        symbol: "line.3.horizontal.decrease.circle",
-                        title: String(UIStrings.filterNoResultsTitle),
-                        message: String(UIStrings.filterNoResultsBody)
-                    )
                 }
             } else {
-            LibraryGrid(items: movies, minimumWidth: gridWidth) { movie in
+                landingPage
+            }
+        }
+        .background(KanalColor.background)
+        .navigationTitle(Text(CoreStrings.movies))
+        .task { await model.prepareHome() }
+    }
+
+    private var deferredLibraryProgress: some View {
+        VStack(spacing: KanalMetrics.md) {
+            ProgressView()
+            Text(UIStrings.updatingLibrary)
+                .font(KanalFont.body(15))
+                .foregroundStyle(KanalColor.secondaryText)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var landingPage: some View {
+        let browse = model.discoveryPresentation.browse
+        return ScrollView {
+            LazyVStack(alignment: .leading, spacing: KanalMetrics.xl) {
+                if !continueWatching.isEmpty {
+                    Shelf(
+                        title: String(UIStrings.shelfContinueWatching),
+                        itemWidth: backdropWidth
+                    ) {
+                        ForEach(continueWatching) { movie in
+                            if let progress = model.progress(for: movie) {
+                                ResumeCard(item: movie, progress: progress) {
+                                    navigator.play(movie)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if !favoriteMovies.isEmpty {
+                    movieShelf(
+                        title: String(UIStrings.shelfFavouriteMovies),
+                        movies: favoriteMovies
+                    )
+                }
+
+                if !model.newlyAddedMovies.isEmpty {
+                    movieShelf(
+                        title: String(UIStrings.shelfRecentlyAdded),
+                        movies: Array(model.newlyAddedMovies.prefix(24))
+                    )
+                }
+
+                movieShelf(
+                    title: String(
+                        browse.topMoviesAreTrending
+                            ? UIStrings.shelfTopMovies
+                            : UIStrings.shelfFeaturedMovies
+                    ),
+                    movies: browse.topMovies,
+                    onSeeAll: { navigator.push(.allMovies) }
+                )
+
+                if browse.newMoviesAreDiscoveryBased, !browse.newMovies.isEmpty {
+                    movieShelf(
+                        title: String(UIStrings.shelfNewMovies),
+                        movies: browse.newMovies
+                    )
+                }
+
+                ForEach(browse.movieServiceShelves) { entry in
+                    movieShelf(
+                        title: serviceTitle(entry.shelf),
+                        movies: entry.items
+                    )
+                }
+
+                if !browse.movieCategories.isEmpty {
+                    browseHeading(String(UIStrings.browseMovieCategories))
+                    ForEach(browse.movieCategories) { category in
+                        movieShelf(
+                            title: CategoryLocalizer.display(category.name),
+                            movies: category.movies,
+                            onSeeAll: {
+                                navigator.push(.category(kind: .movie, name: category.name))
+                            }
+                        )
+                    }
+                }
+
+                BrowseAllButton(
+                    title: String(UIStrings.browseAllMovies),
+                    count: String(UIStrings.filmCount(model.library.movies.count)),
+                    symbol: MediaKind.movie.symbolName
+                ) {
+                    navigator.push(.allMovies)
+                }
+                .padding(.horizontal, KanalMetrics.lg)
+            }
+            .padding(.top, KanalMetrics.sm)
+            .padding(.bottom, KanalMetrics.xxl * 2)
+        }
+    }
+
+    private var continueWatching: [MediaItem] {
+        Array(model.continueWatching.lazy.filter { $0.kind == .movie }.prefix(24))
+    }
+
+    private var favoriteMovies: [MediaItem] {
+        Array(model.favoriteMovies.prefix(24))
+    }
+
+    private func movieShelf(
+        title: String,
+        movies: [MediaItem],
+        onSeeAll: (() -> Void)? = nil
+    ) -> some View {
+        Shelf(title: title, itemWidth: posterWidth, onSeeAll: onSeeAll) {
+            ForEach(movies) { movie in
                 PosterCard(
                     title: movie.title,
                     artworkURL: movie.logoURL,
@@ -159,14 +309,347 @@ public struct MoviesView: View {
                     FavoriteButton(id: movie.id)
                 }
             }
+        }
+    }
+
+    private func browseHeading(_ title: String) -> some View {
+        Text(title)
+            .font(KanalFont.section(KanalMetrics.scale * 23))
+            .foregroundStyle(KanalColor.primaryText)
+            .padding(.horizontal, KanalMetrics.lg)
+            .padding(.bottom, -KanalMetrics.md)
+    }
+
+    private func serviceTitle(_ shelf: DiscoveryShelf) -> String {
+        guard case .service(_, let name) = shelf.source else {
+            return String(UIStrings.shelfFeaturedMovies)
+        }
+        return String(UIStrings.shelfOnService(name))
+    }
+
+    private var posterWidth: CGFloat {
+        #if os(tvOS)
+        260
+        #elseif os(iOS)
+        sizeClass == .compact ? 116 : 150
+        #else
+        150
+        #endif
+    }
+
+    private var backdropWidth: CGFloat {
+        #if os(tvOS)
+        420
+        #elseif os(iOS)
+        sizeClass == .compact ? 168 : 250
+        #else
+        250
+        #endif
+    }
+}
+
+/// Series presented as a curated landing page rather than every episode the
+/// provider happened to return.
+public struct SeriesView: View {
+    @Environment(AppModel.self) private var model
+    @Environment(Navigator.self) private var navigator
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    #endif
+
+    public init() {}
+
+    public var body: some View {
+        Group {
+            if model.library.series.isEmpty {
+                if model.isRefreshingLibrary {
+                    deferredLibraryProgress
+                } else {
+                    EmptyStateView(
+                        symbol: "rectangle.stack",
+                        title: String(UIStrings.seriesEmptyTitle),
+                        message: String(UIStrings.seriesEmptyBody)
+                    )
+                }
+            } else {
+                landingPage
             }
         }
         .background(KanalColor.background)
-        .navigationTitle(Text(CoreStrings.movies))
+        .navigationTitle(Text(CoreStrings.series))
+        .task { await model.prepareHome() }
     }
 
-    private var movies: [MediaItem] {
-        model.library.movies(filter, ranking: model.discoveryRanking)
+    private var deferredLibraryProgress: some View {
+        VStack(spacing: KanalMetrics.md) {
+            ProgressView()
+            Text(UIStrings.updatingLibrary)
+                .font(KanalFont.body(15))
+                .foregroundStyle(KanalColor.secondaryText)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var landingPage: some View {
+        let browse = model.discoveryPresentation.browse
+        return ScrollView {
+            LazyVStack(alignment: .leading, spacing: KanalMetrics.xl) {
+                if !continueWatching.isEmpty {
+                    Shelf(
+                        title: String(UIStrings.shelfContinueWatching),
+                        itemWidth: backdropWidth
+                    ) {
+                        ForEach(continueWatching) { episode in
+                            if let progress = model.progress(for: episode) {
+                                ResumeCard(item: episode, progress: progress) {
+                                    navigator.play(episode)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if !model.nextEpisodes.isEmpty {
+                    Shelf(
+                        title: String(UIStrings.shelfNextEpisode),
+                        itemWidth: posterWidth
+                    ) {
+                        ForEach(model.nextEpisodes) { episode in
+                            PosterCard(
+                                title: episode.seriesName ?? episode.title,
+                                artworkURL: episode.logoURL,
+                                subtitle: episode.episodeCode,
+                                enrich: episode
+                            ) {
+                                navigator.play(episode)
+                            }
+                        }
+                    }
+                }
+
+                if !favoriteSeries.isEmpty {
+                    seriesShelf(
+                        title: String(UIStrings.shelfFavouriteSeries),
+                        groups: favoriteSeries
+                    )
+                }
+
+                if !model.newlyAddedSeries.isEmpty {
+                    seriesShelf(
+                        title: String(UIStrings.shelfRecentlyAdded),
+                        groups: Array(model.newlyAddedSeries.prefix(24))
+                    )
+                }
+
+                seriesShelf(
+                    title: String(
+                        browse.topSeriesAreTrending
+                            ? UIStrings.shelfTopSeries
+                            : UIStrings.shelfFeaturedSeries
+                    ),
+                    groups: browse.topSeries,
+                    onSeeAll: { navigator.push(.allSeries) }
+                )
+
+                if browse.newSeriesAreDiscoveryBased, !browse.newSeries.isEmpty {
+                    seriesShelf(
+                        title: String(UIStrings.shelfNewSeries),
+                        groups: browse.newSeries
+                    )
+                }
+
+                ForEach(browse.seriesServiceShelves) { entry in
+                    let groups = entry.items.compactMap(model.seriesGroup(for:))
+                    if !groups.isEmpty {
+                        seriesShelf(title: serviceTitle(entry.shelf), groups: groups)
+                    }
+                }
+
+                if !browse.seriesCategories.isEmpty {
+                    browseHeading(String(UIStrings.browseSeriesCategories))
+                    ForEach(browse.seriesCategories) { category in
+                        seriesShelf(
+                            title: CategoryLocalizer.display(category.name),
+                            groups: category.series,
+                            onSeeAll: {
+                                navigator.push(.category(kind: .series, name: category.name))
+                            }
+                        )
+                    }
+                }
+
+                BrowseAllButton(
+                    title: String(UIStrings.browseAllSeries),
+                    count: String(UIStrings.seriesCount(model.library.series.count)),
+                    symbol: MediaKind.series.symbolName
+                ) {
+                    navigator.push(.allSeries)
+                }
+                .padding(.horizontal, KanalMetrics.lg)
+            }
+            .padding(.top, KanalMetrics.sm)
+            .padding(.bottom, KanalMetrics.xxl * 2)
+        }
+    }
+
+    private var continueWatching: [MediaItem] {
+        Array(model.continueWatching.lazy.filter { $0.kind == .series }.prefix(24))
+    }
+
+    private var favoriteSeries: [SeriesGroup] {
+        Array(model.favoriteSeries.prefix(24))
+    }
+
+    private func seriesShelf(
+        title: String,
+        groups: [SeriesGroup],
+        onSeeAll: (() -> Void)? = nil
+    ) -> some View {
+        Shelf(title: title, itemWidth: posterWidth, onSeeAll: onSeeAll) {
+            ForEach(groups) { group in
+                seriesCard(group)
+            }
+        }
+    }
+
+    private func seriesCard(_ group: SeriesGroup) -> some View {
+        PosterCard(
+            title: group.name,
+            artworkURL: group.artworkURL,
+            subtitle: seriesSubtitle(group),
+            enrich: group.episodes.first
+        ) {
+            guard let first = group.episodes.first else { return }
+            navigator.showDetails(for: first, seriesGroup: group)
+        }
+        .contextMenu {
+            FavoriteButton(id: group.id)
+        }
+    }
+
+    private func seriesSubtitle(_ group: SeriesGroup) -> String? {
+        if group.needsEpisodeLoad { return group.year.map(String.init) }
+        return String(UIStrings.episodeCount(group.episodes.count))
+    }
+
+    private func browseHeading(_ title: String) -> some View {
+        Text(title)
+            .font(KanalFont.section(KanalMetrics.scale * 23))
+            .foregroundStyle(KanalColor.primaryText)
+            .padding(.horizontal, KanalMetrics.lg)
+            .padding(.bottom, -KanalMetrics.md)
+    }
+
+    private func serviceTitle(_ shelf: DiscoveryShelf) -> String {
+        guard case .service(_, let name) = shelf.source else {
+            return String(UIStrings.shelfFeaturedSeries)
+        }
+        return String(UIStrings.shelfOnService(name))
+    }
+
+    private var posterWidth: CGFloat {
+        #if os(tvOS)
+        260
+        #elseif os(iOS)
+        sizeClass == .compact ? 116 : 150
+        #else
+        150
+        #endif
+    }
+
+    private var backdropWidth: CGFloat {
+        #if os(tvOS)
+        420
+        #elseif os(iOS)
+        sizeClass == .compact ? 168 : 250
+        #else
+        250
+        #endif
+    }
+}
+
+/// The explicit full film library. Sorting happens away from the main actor;
+/// cards are then introduced in batches as the viewer approaches the end.
+struct MovieLibraryView: View {
+    @Environment(AppModel.self) private var model
+    @Environment(Navigator.self) private var navigator
+    @State private var filter: LibraryFilter
+    @State private var movies: [MediaItem] = []
+    @State private var isLoading = true
+
+    init(initialCategory: String? = nil) {
+        self._filter = State(initialValue: LibraryFilter(category: initialCategory))
+    }
+
+    var body: some View {
+        let browse = model.discoveryPresentation.browse
+        VStack(spacing: 0) {
+            FilterBar(
+                filter: $filter,
+                categories: browse.movieFilterCategories,
+                countries: browse.movieFilterCountries,
+                decades: browse.movieFilterDecades
+            )
+            libraryContent
+        }
+        .background(KanalColor.background)
+        .navigationTitle(navigationTitle)
+        .task(id: request) { await loadMovies() }
+    }
+
+    @ViewBuilder
+    private var libraryContent: some View {
+        if isLoading {
+            ProgressView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if movies.isEmpty {
+            EmptyStateView(
+                symbol: "line.3.horizontal.decrease.circle",
+                title: String(UIStrings.filterNoResultsTitle),
+                message: String(UIStrings.filterNoResultsBody)
+            )
+        } else {
+            IncrementalLibraryGrid(items: movies, minimumWidth: gridWidth) { movie in
+                PosterCard(
+                    title: movie.title,
+                    artworkURL: movie.logoURL,
+                    subtitle: movie.year.map(String.init),
+                    progressFraction: model.progress(for: movie)?.fraction,
+                    enrich: movie
+                ) {
+                    navigator.showDetails(for: movie)
+                }
+                .contextMenu {
+                    FavoriteButton(id: movie.id)
+                }
+            }
+            .id(request)
+        }
+    }
+
+    private var request: BrowseLoadRequest {
+        BrowseLoadRequest(kind: .movie, revision: model.browseRevision, filter: filter)
+    }
+
+    private func loadMovies() async {
+        isLoading = true
+        movies = []
+        try? await Task.sleep(for: .milliseconds(140))
+        guard !Task.isCancelled else { return }
+        let library = model.library
+        let ranking = model.discoveryPresentation.itemRanking
+        let requestedFilter = filter
+        let result = await BrowseLibrarySortQueue.shared.movies(
+            in: library, filter: requestedFilter, ranking: ranking
+        )
+        guard !Task.isCancelled else { return }
+        movies = result
+        isLoading = false
+    }
+
+    private var navigationTitle: Text {
+        filter.category.map { Text(CategoryLocalizer.display($0)) }
+            ?? Text(CoreStrings.movies)
     }
 
     private var gridWidth: CGFloat {
@@ -178,44 +661,52 @@ public struct MoviesView: View {
     }
 }
 
-/// Series, one poster per show.
-public struct SeriesView: View {
+/// The explicit full series library, ranked against SeriesGroup ids rather
+/// than episode ids so discovery ordering finally applies to shows.
+struct SeriesLibraryView: View {
     @Environment(AppModel.self) private var model
     @Environment(Navigator.self) private var navigator
-    @State private var filter = LibraryFilter()
+    @State private var filter: LibraryFilter
+    @State private var series: [SeriesGroup] = []
+    @State private var isLoading = true
 
-    public init() {}
+    init(initialCategory: String? = nil) {
+        self._filter = State(initialValue: LibraryFilter(category: initialCategory))
+    }
 
-    public var body: some View {
+    var body: some View {
+        let browse = model.discoveryPresentation.browse
         VStack(spacing: 0) {
             FilterBar(
                 filter: $filter,
-                categories: model.library.seriesCategories.map(\.name),
-                countries: [],
-                decades: model.library.availableDecades(
-                    among: model.library.series.compactMap(\.episodes.first)
-                )
+                categories: browse.seriesFilterCategories,
+                countries: browse.seriesFilterCountries,
+                decades: browse.seriesFilterDecades
             )
-            if series.isEmpty {
-                if model.library.series.isEmpty {
-                    EmptyStateView(
-                        symbol: "rectangle.stack",
-                        title: String(UIStrings.seriesEmptyTitle),
-                        message: String(UIStrings.seriesEmptyBody)
-                    )
-                } else {
-                    EmptyStateView(
-                        symbol: "line.3.horizontal.decrease.circle",
-                        title: String(UIStrings.filterNoResultsTitle),
-                        message: String(UIStrings.filterNoResultsBody)
-                    )
-                }
-            } else {
-            LibraryGrid(items: series, minimumWidth: gridWidth) { group in
+            libraryContent
+        }
+        .background(KanalColor.background)
+        .navigationTitle(navigationTitle)
+        .task(id: request) { await loadSeries() }
+    }
+
+    @ViewBuilder
+    private var libraryContent: some View {
+        if isLoading {
+            ProgressView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if series.isEmpty {
+            EmptyStateView(
+                symbol: "line.3.horizontal.decrease.circle",
+                title: String(UIStrings.filterNoResultsTitle),
+                message: String(UIStrings.filterNoResultsBody)
+            )
+        } else {
+            IncrementalLibraryGrid(items: series, minimumWidth: gridWidth) { group in
                 PosterCard(
                     title: group.name,
                     artworkURL: group.artworkURL,
-                    subtitle: String(UIStrings.episodeCount(group.episodes.count)),
+                    subtitle: seriesSubtitle(group),
                     enrich: group.episodes.first
                 ) {
                     guard let first = group.episodes.first else { return }
@@ -225,14 +716,38 @@ public struct SeriesView: View {
                     FavoriteButton(id: group.id)
                 }
             }
-            }
+            .id(request)
         }
-        .background(KanalColor.background)
-        .navigationTitle(Text(CoreStrings.series))
     }
 
-    private var series: [SeriesGroup] {
-        model.library.series(filter, ranking: model.discoveryRanking)
+    private var request: BrowseLoadRequest {
+        BrowseLoadRequest(kind: .series, revision: model.browseRevision, filter: filter)
+    }
+
+    private func loadSeries() async {
+        isLoading = true
+        series = []
+        try? await Task.sleep(for: .milliseconds(140))
+        guard !Task.isCancelled else { return }
+        let library = model.library
+        let ranking = model.discoveryPresentation.seriesRanking
+        let requestedFilter = filter
+        let result = await BrowseLibrarySortQueue.shared.series(
+            in: library, filter: requestedFilter, ranking: ranking
+        )
+        guard !Task.isCancelled else { return }
+        series = result
+        isLoading = false
+    }
+
+    private func seriesSubtitle(_ group: SeriesGroup) -> String? {
+        if group.needsEpisodeLoad { return group.year.map(String.init) }
+        return String(UIStrings.episodeCount(group.episodes.count))
+    }
+
+    private var navigationTitle: Text {
+        filter.category.map { Text(CategoryLocalizer.display($0)) }
+            ?? Text(CoreStrings.series)
     }
 
     private var gridWidth: CGFloat {
@@ -241,6 +756,101 @@ public struct SeriesView: View {
         #else
         120
         #endif
+    }
+}
+
+private struct BrowseLoadRequest: Hashable {
+    var kind: MediaKind
+    var revision: UInt64
+    var filter: LibraryFilter
+}
+
+/// Full-library sorts share one background executor. Together with the
+/// cancellation checkpoints in LibraryFilter, changing chips quickly cannot
+/// leave several 400k-entry sorts competing for CPU and memory.
+private actor BrowseLibrarySortQueue {
+    static let shared = BrowseLibrarySortQueue()
+
+    func movies(
+        in library: Library, filter: LibraryFilter, ranking: [String: Int]
+    ) -> [MediaItem] {
+        guard !Task.isCancelled else { return [] }
+        return library.movies(filter, ranking: ranking)
+    }
+
+    func series(
+        in library: Library, filter: LibraryFilter, ranking: [String: Int]
+    ) -> [SeriesGroup] {
+        guard !Task.isCancelled else { return [] }
+        return library.series(filter, ranking: ranking)
+    }
+}
+
+/// A full catalogue still exists when someone asks for it, but only enough
+/// cards to fill the next screens are mounted at a time.
+private struct IncrementalLibraryGrid<Item: Identifiable, Card: View>: View {
+    let items: [Item]
+    let minimumWidth: CGFloat
+    @ViewBuilder let card: (Item) -> Card
+    @State private var visibleCount = 60
+
+    var body: some View {
+        ScrollView {
+            LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: minimumWidth), spacing: KanalMetrics.md)],
+                alignment: .leading,
+                spacing: KanalMetrics.lg
+            ) {
+                ForEach(items.prefix(visibleCount)) { item in
+                    card(item)
+                }
+                if visibleCount < items.count {
+                    ProgressView()
+                        .frame(minHeight: KanalMetrics.minTarget)
+                        .onAppear {
+                            visibleCount = min(visibleCount + 60, items.count)
+                        }
+                }
+            }
+            .padding(.horizontal, KanalMetrics.lg)
+            .padding(.bottom, KanalMetrics.xxl * 2)
+        }
+        .background(KanalColor.background)
+    }
+}
+
+private struct BrowseAllButton: View {
+    let title: String
+    let count: String
+    let symbol: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: KanalMetrics.md) {
+                Image(systemName: symbol)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(KanalColor.accentSolid)
+                    .frame(width: 42, height: 42)
+                    .background(KanalColor.accentSolid.opacity(0.12), in: .circle)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(KanalFont.section(16))
+                        .foregroundStyle(KanalColor.primaryText)
+                    Text(count)
+                        .font(KanalFont.body(13))
+                        .foregroundStyle(KanalColor.secondaryText)
+                }
+                Spacer(minLength: KanalMetrics.md)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(KanalColor.tertiaryText)
+            }
+            .padding(KanalMetrics.md)
+            .frame(maxWidth: .infinity, minHeight: 70)
+            .background(KanalColor.surface, in: .rect(cornerRadius: 16, style: .continuous))
+        }
+        .buttonStyle(KanalCardButtonStyle())
     }
 }
 

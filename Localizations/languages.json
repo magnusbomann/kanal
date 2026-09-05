@@ -1,0 +1,19 @@
+{
+  "sourceLanguage": "en",
+  "languages": [
+    { "code": "en", "name": "English" },
+    { "code": "nb", "name": "Norsk bokmål" },
+    { "code": "es", "name": "Español" },
+    { "code": "pt-BR", "name": "Português (Brasil)" },
+    { "code": "fr", "name": "Français" },
+    { "code": "de", "name": "Deutsch" },
+    { "code": "it", "name": "Italiano" },
+    { "code": "nl", "name": "Nederlands" },
+    { "code": "ar", "name": "العربية" },
+    { "code": "tr", "name": "Türkçe" },
+    { "code": "pl", "name": "Polski" },
+    { "code": "sv", "name": "Svenska" },
+    { "code": "da", "name": "Dansk" },
+    { "code": "fi", "name": "Suomi" }
+  ]
+}

@@ -47,13 +47,16 @@ public struct Shelf<Content: View>: View {
                             .foregroundStyle(KanalColor.secondaryText)
                     }
                 }
+                #if !os(tvOS)
                 Spacer()
+                #endif
                 if let onSeeAll {
                     Button(String(UIStrings.seeAll), action: onSeeAll)
-                        .kanalLabel(12)
-                        .foregroundStyle(KanalColor.accentSolid)
-                        .buttonStyle(.plain)
+                        .buttonStyle(KanalChipButtonStyle(isSelected: false))
                 }
+                #if os(tvOS)
+                Spacer()
+                #endif
             }
             .padding(.horizontal, KanalMetrics.lg)
 
@@ -70,6 +73,12 @@ public struct Shelf<Content: View>: View {
             .padding(.vertical, -focusHeadroom)
             .scrollIndicators(.hidden)
             .scrollClipDisabled()
+            #if os(tvOS)
+            .focusSection()
+            #endif
         }
+        #if os(tvOS)
+        .focusSection()
+        #endif
     }
 }

@@ -4,10 +4,52 @@
     "category.other": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "en anden"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "anderer"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Other"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otro"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muut"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autre"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "altro"
           }
         },
         "nb": {
@@ -15,16 +57,88 @@
             "state": "translated",
             "value": "Annet"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ander"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inne"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outro"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "annan"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "diğer"
+          }
         }
       }
     },
     "detect.empty": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "استلموا رابطاً من القائمة للبدء"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indsæt et link til en spilleliste for at komme i gang."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopieren Sie einen Link zu einer Wiedergabeliste, um mit dem Starten zu beginnen."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Paste a playlist link to get started."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pegue el enlace de una lista de reproducción para comenzar."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liitä soittolistalinkki aloittaaksesi."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collez un lien de playlist pour commencer."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incolla un link alla playlist per iniziare."
           }
         },
         "nb": {
@@ -32,16 +146,88 @@
             "state": "translated",
             "value": "Lim inn en spillelistelenke for å komme i gang."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plak een playlist-link om aan de slag te gaan."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wklej link do listy odtwarzania, aby rozpocząć."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cole um link de lista de reprodução para começar."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klistra in en spellista-länk för att komma igång."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Başlamak için bir çalma listesi bağlantısını yapıştırın."
+          }
         }
       }
     },
     "detect.unusable": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هذا لا يبدو وكأنه رابط Kanal يمكن فتحه."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det ser ikke ud til at være en link, som Kanal kan åbne."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das sieht nicht aus wie ein Link, den Kanal öffnen kann."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "That doesn't look like a link Kanal can open."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No parece un enlace que Kanal pueda abrir."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tuo ei näytä linkiltä, jonka Kanal voi avata."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cela ne ressemble pas à un lien que Kanal peut ouvrir."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo non sembra un link che Kanal possa aprire."
           }
         },
         "nb": {
@@ -49,16 +235,88 @@
             "state": "translated",
             "value": "Dette ser ikke ut som en lenke Kanal kan åpne."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dat ziet er niet uit als een link die Kanal kan openen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To nie wygląda na połączenie Kanal."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não parece um link que Kanal possa abrir."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det här ser inte ut som en länk som Kanal kan öppna."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu, Kanal'nin açabileceği bir bağlantı gibi görünmüyor."
+          }
         }
       }
     },
     "error.badResponse": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ذلك الخادم أجاب لكن ليس بطريقة يفهمها Kanal"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den server svarede, men ikke på en måde, som Kanal forstår."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Server antwortete, aber nicht auf eine Weise, die Kanal versteht."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "That server answered, but not in a way Kanal understands."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese servidor respondió, pero no de una manera que Kanal entienda."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se palvelin vastasi, mutta ei tavalla, jolla Kanal ymmärtää."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce serveur a répondu, mais pas d'une manière que Kanal comprend."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quel server ha risposto, ma non in un modo che Kanal capisca."
           }
         },
         "nb": {
@@ -66,22 +324,124 @@
             "state": "translated",
             "value": "Serveren svarte, men ikke på en måte Kanal forstår."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die server antwoordde, maar niet op een manier die Kanal begrijpt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serwer odpowiedział, ale nie w sposób Kanal rozumie."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esse servidor respondeu, mas não da forma que Kanal entende."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servern svarade, men inte på ett sätt som Kanal förstår."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O sunucu cevap verdi, ancak Kanal'nin anlayacağı bir şekilde değil."
+          }
         }
       }
     },
     "error.emptyPlaylist": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الخدمة التلفزيونية متصلة لكنها لا تحتوي على قنوات"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tv-tjenesten blev oprettet, men der var ingen kanaler."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Fernsehsender wurde angeschlossen, aber er enthielt keine Kanäle."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The playlist loaded, but it contained no channels."
+            "value": "The TV service connected, but it contained no channels."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El servicio de TV se conectó, pero no contenía canales."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV-palvelussa ei ollut kanavia."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le service de télévision était connecté, mais il ne contenait aucune chaîne."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il servizio televisivo è stato collegato, ma non conteneva canali."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spillelisten ble lastet, men inneholdt ingen kanaler."
+            "value": "TV-tjenesten ble koblet til, men inneholdt ingen kanaler."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De tv-service was verbonden, maar er zaten geen kanalen in."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Telewizor się połączył, ale nie zawierał kanałów."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O serviço de TV foi conectado, mas não continha canais."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV-tjänsten anslöt, men den innehöll inga kanaler."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV servisi bağlandı, ancak hiçbir kanal içermiyordu."
           }
         }
       }
@@ -89,10 +449,52 @@
     "error.expired": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "وقد انتهت مدة الاشتراك."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dette abonnement er udløbet."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Abonnement ist abgelaufen."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "This subscription has expired."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta suscripción ha caducado."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tilaus on päättynyt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cet abonnement a expiré."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo abbonamento è scaduto."
           }
         },
         "nb": {
@@ -100,16 +502,88 @@
             "state": "translated",
             "value": "Dette abonnementet har utløpt."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dit abonnement is verlopen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta prenumerata wygasła."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta assinatura expirou."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detta abonnemang har löpt ut."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu abonelik sona erdi."
+          }
         }
       }
     },
     "error.expiredOn %@": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "وانتهت فترة الاشتراك هذه من %@."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dette abonnement udløb %@."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Abonnement ist abgelaufen %@."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "This subscription expired %@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta suscripción expiró %@."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämä tilaus päättyi %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cet abonnement a expiré %@."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo abbonamento è scaduto %@."
           }
         },
         "nb": {
@@ -117,16 +591,88 @@
             "state": "translated",
             "value": "Dette abonnementet utløp %@."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dit abonnement is verlopen %@."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta prenumerata wygasła %@."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta assinatura expirou em %@."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detta abonnemang löpte ut %@."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu abonelik %@'de sona erdi."
+          }
         }
       }
     },
     "error.http %lld": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ورد الخادم بالخطأ %lld."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servern svarede med fejlen %lld."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Server antwortete mit dem Fehler %lld."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "The server replied with error %lld."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El servidor respondió con el error %lld."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Palvelin vastasi virhe %lld."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le serveur a répondu avec l'erreur %lld."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il server ha risposto con l'errore %lld."
           }
         },
         "nb": {
@@ -134,16 +680,88 @@
             "state": "translated",
             "value": "Serveren svarte med feil %lld."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De server antwoordde met foutcode %lld."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serwer odpowiedział błędem %lld."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O servidor respondeu com o erro %lld."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servern svarade med felet %lld."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sunucu hata %lld ile yanıt verdi."
+          }
         }
       }
     },
     "error.noMetadataKey": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا يوجد TMDB مفتاح تم تشكيله"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der er ikke konfigureret nogen TMDB-nøgle."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine TMDB-Schlüssel ist konfiguriert."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "No TMDB key is configured."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay ninguna clave TMDB configurada."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TMDB-näppäintä ei ole määritetty."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune clé TMDB n’est configurée."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessuna chiave TMDB è configurata."
           }
         },
         "nb": {
@@ -151,22 +769,124 @@
             "state": "translated",
             "value": "Ingen TMDB-nøkkel er satt opp."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geen TMDB-sleutel is geconfigureerd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie skonfigurowano klucza TMDB."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhuma chave TMDB está configurada."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inga TMDB-nycklar är konfigurerade."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TMDB anahtarı yapılandırılmamıştır."
+          }
         }
       }
     },
     "error.noPlaylistLink": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هذه الخدمة التلفزيونية ليس لديها رابط Kanal يمكن فتحه."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne TV-tjeneste har ingen link, som Kanal kan åbne."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Fernsehsender hat keinen Link, den Kanal öffnen kann."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This source has no playlist link."
+            "value": "This TV service has no link Kanal can open."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este servicio de TV no tiene ningún enlace que Kanal pueda abrir."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämä TV-palvelu ei voi avata linkkiä Kanal."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce service TV n'a aucun lien que Kanal peut ouvrir."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo servizio televisivo non ha un link Kanal che può essere aperto."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Denne kilden mangler spillelistelenke."
+            "value": "Denne TV-tjenesten mangler en lenke Kanal kan åpne."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze tv-service heeft geen link die Kanal kan openen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta telewizja nie ma połączenia Kanal może otworzyć."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este serviço de TV não possui nenhum link que Kanal possa abrir."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denna TV-tjänst har ingen länk som Kanal kan öppna."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu TV hizmeti açılabilen bir bağlantıya sahip değildir Kanal."
           }
         }
       }
@@ -174,10 +894,52 @@
     "error.rateLimited": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TMDB طلب منا أن نبطئ"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TMDB bad os om at tage det roligt."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TMDB hat uns gebeten, langsamer zu werden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "TMDB asked us to slow down."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TMDB nos pidió que redujéramos la velocidad."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TMDB pyysi hidastamaan."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TMDB nous a demandé de ralentir."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TMDB ci ha chiesto di rallentare."
           }
         },
         "nb": {
@@ -185,16 +947,88 @@
             "state": "translated",
             "value": "TMDB ba oss senke farten."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TMDB vroeg ons om te vertragen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TMDB prosił, żebyśmy zwolnili."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TMDB nos pediu para desacelerar."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TMDB bad oss att sakta ner."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TMDB bize yavaşlamamızı istedi."
+          }
         }
       }
     },
     "error.requestFailed": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لم أستطع بناء الطلب"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anmodningen kunne ikke opbygges."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Anfrage konnte nicht erstellt werden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Could not build the request."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo generar la solicitud."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pyyntöä ei voitu rakentaa."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de créer la demande."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non è stato possibile costruire la richiesta."
           }
         },
         "nb": {
@@ -202,16 +1036,88 @@
             "state": "translated",
             "value": "Klarte ikke å bygge forespørselen."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De aanvraag kon niet worden opgebouwd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie można zbudować prośby."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível criar a solicitação."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Begäran kunde inte byggas."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Talebi oluşturulamadı."
+          }
         }
       }
     },
     "error.unauthorized": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ورفض اسم المستخدم أو كلمة السر."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brugernavn eller adgangskode blev afvist."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Benutzername oder das Passwort wurde abgelehnt."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "The username or password was rejected."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El nombre de usuario o contraseña fue rechazado."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Käyttäjätunnus tai salasana hylättiin."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le nom d'utilisateur ou le mot de passe a été rejeté."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'username o la password sono stati rifiutati."
           }
         },
         "nb": {
@@ -219,22 +1125,124 @@
             "state": "translated",
             "value": "Brukernavnet eller passordet ble avvist."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Het gebruikersnaam of wachtwoord werd geweigerd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazwa użytkownika lub hasło zostało odrzucone."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O nome de usuário ou senha foi rejeitado."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Användarnamnet eller lösenordet har avvisats."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kullanıcı adı veya şifre reddedildi."
+          }
         }
       }
     },
     "genre.action": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الإجراء"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "handling"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktion"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Action"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "acción"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toiminto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Action"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "azione"
+          }
+        },
         "nb": {
           "stringUnit": {
             "state": "translated",
             "value": "Action"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "actie"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Działanie"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ação"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "handling"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "eylem"
           }
         }
       }
@@ -242,10 +1250,52 @@
     "genre.adult": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الكبار"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "voksen"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erwachsener"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Adult"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adulto"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aikuiset"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adulte"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "adulto"
           }
         },
         "nb": {
@@ -253,16 +1303,88 @@
             "state": "translated",
             "value": "Voksen"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "volwassen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dorośli"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adulto"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vuxen"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "yetişkin"
+          }
         }
       }
     },
     "genre.adventure": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المغامرة"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "eventyr"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abenteuer"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Adventure"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aventura"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seikkailu"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aventure"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "avventura"
           }
         },
         "nb": {
@@ -270,16 +1392,88 @@
             "state": "translated",
             "value": "Eventyr"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "avontuur"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przygoda"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aventura"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "äventyr"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macera"
+          }
         }
       }
     },
     "genre.animation": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التقدير"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "elan"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Animation"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Animation"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Animación"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Animointi"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Animations"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "animazione"
           }
         },
         "nb": {
@@ -287,16 +1481,88 @@
             "state": "translated",
             "value": "Animasjon"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "animatie"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Animacja"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Animação"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "upplivande"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Animasyon"
+          }
         }
       }
     },
     "genre.biography": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "السير الذاتية"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "biografi"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biographie"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Biography"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biografía"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elämäkerta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biographie"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "biografia"
           }
         },
         "nb": {
@@ -304,16 +1570,88 @@
             "state": "translated",
             "value": "Biografi"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "biografie"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biografia"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biografia"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "biografi"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "biyografi"
+          }
         }
       }
     },
     "genre.classics": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "كلاسيكية"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klassikere"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klassiker"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Classics"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clásicos"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klassiset"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classiques"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "studi classici"
           }
         },
         "nb": {
@@ -321,16 +1659,88 @@
             "state": "translated",
             "value": "Klassikere"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "klassieken"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klasyka"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clássicos"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klassiker"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klasikler"
+          }
         }
       }
     },
     "genre.comedy": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الكوميديا"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "komedie"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Komödie"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Comedy"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comedia"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Komedia"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comédie"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "commedia"
           }
         },
         "nb": {
@@ -338,16 +1748,88 @@
             "state": "translated",
             "value": "Komedie"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "komedie"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Komedia"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comédia"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "komedi"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "komedi"
+          }
         }
       }
     },
     "genre.crime": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الجريمة"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "forbrydelse"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbrechen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Crime"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "crimen"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rikos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Criminalité"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "crimine"
           }
         },
         "nb": {
@@ -355,16 +1837,88 @@
             "state": "translated",
             "value": "Krim"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "misdaad"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przestępczość"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crime"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "brott"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "suç"
+          }
         }
       }
     },
     "genre.documentary": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الوثائق"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dokumentarfilm"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dokumentarfilm"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Documentary"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Documental"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asiakirja"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Documentaire"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "documentario"
           }
         },
         "nb": {
@@ -372,22 +1926,124 @@
             "state": "translated",
             "value": "Dokumentar"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "documentaire"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dokument"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Documentário"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dokumentarisk"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "belgesel"
+          }
         }
       }
     },
     "genre.drama": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drama"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "drama"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theaterstück"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Drama"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drama"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drama"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drame"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dramma"
+          }
+        },
         "nb": {
           "stringUnit": {
             "state": "translated",
             "value": "Drama"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "drama"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dramat"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drama"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "drama"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tiyatro"
           }
         }
       }
@@ -395,10 +2051,52 @@
     "genre.education": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التعليم"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "uddannelse"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erziehung"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Education"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Educación"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koulutus"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Éducation"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "istruzione"
           }
         },
         "nb": {
@@ -406,16 +2104,88 @@
             "state": "translated",
             "value": "Læring"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "onderwijs"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edukacja"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Educação"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "undervisning"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "eğitim"
+          }
         }
       }
     },
     "genre.entertainment": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الترفيه"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "fornøjelse"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unterhaltung"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Entertainment"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entretenimiento"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viihde"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Divertissement"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "divertimento"
           }
         },
         "nb": {
@@ -423,16 +2193,88 @@
             "state": "translated",
             "value": "Underholdning"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vermaak"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rozrywka"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entretenimento"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "förplägnad"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "eğlence"
+          }
         }
       }
     },
     "genre.events": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الأحداث"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Begivenheder"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veranstaltungen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Events"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eventos"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tapahtumat"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Événements"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eventi"
           }
         },
         "nb": {
@@ -440,16 +2282,88 @@
             "state": "translated",
             "value": "Arrangementer"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evenementen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wydarzenia"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eventos"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Händelser"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Etkinlikler"
+          }
         }
       }
     },
     "genre.family": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الأسرة"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "familie"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Familie"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Family"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "familia"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perhe"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Famille"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "famiglia"
           }
         },
         "nb": {
@@ -457,22 +2371,124 @@
             "state": "translated",
             "value": "Familie"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "familie"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rodzina"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Família"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "familj"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "aile"
+          }
         }
       }
     },
     "genre.fantasy": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fantasy"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "fantasi"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fantasie"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Fantasy"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "fantasía"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fantasia"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fantaisie"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "fantasia"
+          }
+        },
         "nb": {
           "stringUnit": {
             "state": "translated",
             "value": "Fantasy"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "fantasie"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fantazja"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fantasia"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "fantasi"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "fantazi"
           }
         }
       }
@@ -480,10 +2496,52 @@
     "genre.food": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الغذاء"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mad"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "feste Nahrung"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Food"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "comida"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ruoka"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nourriture"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "cibo"
           }
         },
         "nb": {
@@ -491,16 +2549,88 @@
             "state": "translated",
             "value": "Mat"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "eten"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Żywność"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comida"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mat"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "yemek"
+          }
         }
       }
     },
     "genre.football": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "كرة القدم"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "fodbold"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fußball"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Football"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "futbol"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jalkapallo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Football"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "football"
           }
         },
         "nb": {
@@ -508,22 +2638,124 @@
             "state": "translated",
             "value": "Fotball"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "voetbal"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piłka nożna"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Futebol"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "fotboll"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "futbol"
+          }
         }
       }
     },
     "genre.gaming": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المقامرة"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hasard"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spielen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Gaming"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juegos"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peli"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jeux"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gioco"
+          }
+        },
         "nb": {
           "stringUnit": {
             "state": "translated",
             "value": "Gaming"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gokken"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gry"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jogos"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "spel"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oyun oynamak"
           }
         }
       }
@@ -531,10 +2763,52 @@
     "genre.general": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "معلومات عامة"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "general"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "General"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "generales"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yleistä"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Général"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "generale"
           }
         },
         "nb": {
@@ -542,16 +2816,88 @@
             "state": "translated",
             "value": "Generelt"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "algemeen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ogólne"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geral"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "allmän"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "genel"
+          }
         }
       }
     },
     "genre.health": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الصحة"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "helbred"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gesundheit"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Health"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salud"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terveys"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Santé"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salute"
           }
         },
         "nb": {
@@ -559,16 +2905,88 @@
             "state": "translated",
             "value": "Helse"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gezondheid"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zdrowie"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saúde"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hälsa"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sağlık"
+          }
         }
       }
     },
     "genre.history": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التاريخ"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "historie"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geschichte"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "History"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Historia"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Historia"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Histoire"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "storia"
           }
         },
         "nb": {
@@ -576,16 +2994,88 @@
             "state": "translated",
             "value": "Historie"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "geschiedenis"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Historia"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "História"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "historia"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tarih"
+          }
         }
       }
     },
     "genre.horror": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الرعب"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "rædsel"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grauen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Horror"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terror"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kauhu"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Horreur"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "orrore"
           }
         },
         "nb": {
@@ -593,16 +3083,88 @@
             "state": "translated",
             "value": "Skrekk"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "verschrikking"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Horror"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terror"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "fasa"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "korku"
+          }
         }
       }
     },
     "genre.international": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "International"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "international"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "international"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "International"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internacional"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kansainvälinen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internationale"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "internazionale"
           }
         },
         "nb": {
@@ -610,16 +3172,88 @@
             "state": "translated",
             "value": "Internasjonalt"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "internationaal"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Międzynarodowe"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internacional"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "internationell"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "uluslar arası"
+          }
         }
       }
     },
     "genre.kids": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الأطفال"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Børn"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kinder"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Kids"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "niños"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lapset"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enfants"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bambini"
           }
         },
         "nb": {
@@ -627,16 +3261,88 @@
             "state": "translated",
             "value": "Barn"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kinderen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dzieci"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crianças"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Barn"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Çocuklar"
+          }
         }
       }
     },
     "genre.lifestyle": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أسلوب الحياة"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "livsstil"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lebensstil"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Lifestyle"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estilo de vida"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elämäntapa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mode de vie"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "stile di vita"
           }
         },
         "nb": {
@@ -644,16 +3350,88 @@
             "state": "translated",
             "value": "Livsstil"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "levensstijl"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Styl życia"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estilo de vida"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "livsstil"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yaşam tarzı"
+          }
         }
       }
     },
     "genre.local": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المحلية"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lokal"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokalanästhetikum"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Local"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "locales"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paikallinen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locale"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "locale"
           }
         },
         "nb": {
@@ -661,16 +3439,88 @@
             "state": "translated",
             "value": "Lokalt"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lokaal"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokalne"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "locais"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lokal"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "yerel"
+          }
         }
       }
     },
     "genre.music": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الموسيقى"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "musik"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Musik"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Music"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "musica"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Musiikki"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Musique"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "musica"
           }
         },
         "nb": {
@@ -678,16 +3528,88 @@
             "state": "translated",
             "value": "Musikk"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "muziek"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muzyka"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Música"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "musik"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "müzik"
+          }
         }
       }
     },
     "genre.mystery": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الغامض"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mysterium"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rätsel"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Mystery"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "misterio"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mysteeri"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mystère"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mistero"
           }
         },
         "nb": {
@@ -695,16 +3617,88 @@
             "state": "translated",
             "value": "Mysterium"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mysterie"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tajemnica"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mistério"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mysterium"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gizem"
+          }
         }
       }
     },
     "genre.nature": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الطبيعة"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "natur"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Natur"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Nature"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "naturaleza"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Luonto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nature"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "natura"
           }
         },
         "nb": {
@@ -712,16 +3706,88 @@
             "state": "translated",
             "value": "Natur"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "natuur"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przyroda"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Natureza"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "natur"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tabiat"
+          }
         }
       }
     },
     "genre.news": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الأخبار"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nyhed"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nachrichten"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "News"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noticias"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uutiset"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualités"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "notizie"
           }
         },
         "nb": {
@@ -729,22 +3795,124 @@
             "state": "translated",
             "value": "Nyheter"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nieuws"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktualności"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notícias"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nyheter"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "haberler"
+          }
         }
       }
     },
     "genre.premium": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Premium"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "forsikringspræmie"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versicherungsbeitrag"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Premium"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "prima"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Palkkio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prime"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "premio"
+          }
+        },
         "nb": {
           "stringUnit": {
             "state": "translated",
             "value": "Premium"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "premie"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Premia"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prêmio"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "premie"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "prim"
           }
         }
       }
@@ -752,16 +3920,88 @@
     "genre.radio": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إذاعة"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "radio"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rundfunk"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Radio"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Radio"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Radio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Radio"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "radio"
+          }
+        },
         "nb": {
           "stringUnit": {
             "state": "translated",
             "value": "Radio"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "radio"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Radio"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rádio"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "radio"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "radyo"
           }
         }
       }
@@ -769,16 +4009,88 @@
     "genre.reality": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الواقع"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "virkelighed"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Realität"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Reality"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "realidad"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todellisuus"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réalité"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "realtà"
+          }
+        },
         "nb": {
           "stringUnit": {
             "state": "translated",
             "value": "Reality"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "realiteit"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rzeczywistość"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Realidade"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "verklighet"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gerçek"
           }
         }
       }
@@ -786,16 +4098,88 @@
     "genre.religion": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الدين"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "religion"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Religion"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Religion"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Religión"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uskonto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Religion"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "religione"
+          }
+        },
         "nb": {
           "stringUnit": {
             "state": "translated",
             "value": "Religion"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "religie"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Religia"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Religião"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "religion"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "din"
           }
         }
       }
@@ -803,10 +4187,52 @@
     "genre.romance": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الرومانسية"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "romantik"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liebesgeschichte"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Romance"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "romance"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Romanssi"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Romance"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "romanticismo"
           }
         },
         "nb": {
@@ -814,16 +4240,88 @@
             "state": "translated",
             "value": "Romantikk"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "romantiek"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Romans"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Romance"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "romantik"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "roman"
+          }
         }
       }
     },
     "genre.science": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "العلم"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "videnskab"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "wissenschaftliche Disziplin"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Science"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ciencia"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiede"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sciences"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "scienza"
           }
         },
         "nb": {
@@ -831,22 +4329,124 @@
             "state": "translated",
             "value": "Vitenskap"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "wetenschap"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nauka"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ciência"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vetenskap"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bilim"
+          }
         }
       }
     },
     "genre.scifi": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sci-fi"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Science fiction"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sciencefiction"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Sci-fi"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ciencia ficción"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sci-fi"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Science-fiction"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "fantascienza"
+          }
+        },
         "nb": {
           "stringUnit": {
             "state": "translated",
             "value": "Sci-fi"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sci-fi"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sci- fi"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ficção científica"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sf"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bilim kurgu"
           }
         }
       }
@@ -854,7 +4454,49 @@
     "genre.shopping": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التسوق"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "shopping"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einkaufen"
+          }
+        },
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shopping"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compras"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ostos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Achats"
+          }
+        },
+        "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Shopping"
@@ -864,6 +4506,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Shopping"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "winkelen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zakupy"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compras"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "inköp"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "alışveriş"
           }
         }
       }
@@ -871,16 +4543,88 @@
     "genre.sport": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الرياضة"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sport"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sport"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Sport"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "deporte"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Urheilu"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sport"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sport"
+          }
+        },
         "nb": {
           "stringUnit": {
             "state": "translated",
             "value": "Sport"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sport"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sport"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esporte"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sport"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "spor"
           }
         }
       }
@@ -888,16 +4632,88 @@
     "genre.thriller": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ذيل"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "thriller"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thriller"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Thriller"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suspense"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thriller"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thriller"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "thriller"
+          }
+        },
         "nb": {
           "stringUnit": {
             "state": "translated",
             "value": "Thriller"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "thriller"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thriller"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suspense"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "rysare"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "korku filmi"
           }
         }
       }
@@ -905,10 +4721,52 @@
     "genre.travel": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "السفر"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "rejse"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reise"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Travel"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "viajar"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Matkailu"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voyage"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "viaggiare"
           }
         },
         "nb": {
@@ -916,16 +4774,88 @@
             "state": "translated",
             "value": "Reise"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "reizen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podróże"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viajar"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "resa"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gidip gelmek"
+          }
         }
       }
     },
     "genre.war": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الحرب"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "krig"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Krieg"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "War"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "guerra"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sota"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guerre"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "guerra"
           }
         },
         "nb": {
@@ -933,16 +4863,88 @@
             "state": "translated",
             "value": "Krig"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "oorlog"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wojna"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guerra"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "krig"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "savaş"
+          }
         }
       }
     },
     "genre.weather": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الطقس"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vejr"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wetter"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Weather"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El tiempo"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sää"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Météo"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tempo"
           }
         },
         "nb": {
@@ -950,22 +4952,124 @@
             "state": "translated",
             "value": "Vær"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "weer"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pogoda"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tempo"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "väder"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hava"
+          }
         }
       }
     },
     "genre.western": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "غرب غرب"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vestlig"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Western"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Western"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "occidental"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Länsi"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Occidental"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "occidentale"
+          }
+        },
         "nb": {
           "stringUnit": {
             "state": "translated",
             "value": "Western"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "westers"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zachód"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocidental"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "västlig"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "batı"
           }
         }
       }
@@ -973,10 +5077,52 @@
     "kind.liveTV": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بث مباشر"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live-tv"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live-TV"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Live TV"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Televisión en vivo"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live TV"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Télévision en direct"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV in diretta"
           }
         },
         "nb": {
@@ -984,16 +5130,88 @@
             "state": "translated",
             "value": "Direkte"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live TV"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Telewizja na żywo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV ao vivo"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direktsänd TV"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Canlı TV"
+          }
         }
       }
     },
     "kind.movies": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الأفلام"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Film"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filme"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Films"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Películas"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elokuva"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Films"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Film"
           }
         },
         "nb": {
@@ -1001,16 +5219,88 @@
             "state": "translated",
             "value": "Filmer"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Films"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filmy"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filmes"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filmer"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filmler"
+          }
         }
       }
     },
     "kind.series": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المسلسلات"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serie"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Series"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serie"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sarja"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Série"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie"
           }
         },
         "nb": {
@@ -1018,16 +5308,88 @@
             "state": "translated",
             "value": "Serier"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seria"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Série"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dizi"
+          }
         }
       }
     },
     "loading.source %@": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الموقع %@"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indlæser %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ wird geladen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Loading %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cargando %@"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ladataan %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement de %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caricamento di %@"
           }
         },
         "nb": {
@@ -1035,16 +5397,88 @@
             "state": "translated",
             "value": "Laster %@"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laad %@"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ładowanie %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carregando %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laddar %@"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ yükleniyor"
+          }
         }
       }
     },
     "maturity.adult": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الكبار - لا شيء مخفي"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voksen - intet skjult"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erwachsene - nichts verborgen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Adult — nothing hidden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adulto: nada oculto"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aikuinen ei mitään piilossa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adulte – rien de caché"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adulto — niente nascosto"
           }
         },
         "nb": {
@@ -1052,16 +5486,88 @@
             "state": "translated",
             "value": "Voksen – ingenting skjules"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volwassene — niets verborgen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dorośli - nic ukrytego"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adulto - nada escondido"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vuxen - inget gömt"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yetişkin — saklı hiçbir şey yok"
+          }
         }
       }
     },
     "maturity.allAges": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جميع الأعمار"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle aldre"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Altersgruppen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "All ages"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todas las edades"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaikki ikäluokat"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tous les âges"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutti gli anni"
           }
         },
         "nb": {
@@ -1069,16 +5575,88 @@
             "state": "translated",
             "value": "Alle"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle leeftijden"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "W każdym wieku"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todas as idades"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alla åldrar"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tüm yaş grupları"
+          }
         }
       }
     },
     "maturity.fifteen": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 وفوق"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 år og opefter"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 und älter"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "15 and up"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 y más"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 vuotta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 ans et plus"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 anni e oltre"
           }
         },
         "nb": {
@@ -1086,16 +5664,88 @@
             "state": "translated",
             "value": "15 år"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 en ouder"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 i do góry"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 e acima"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 år och uppåt"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 ve üstü"
+          }
         }
       }
     },
     "maturity.nine": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "9"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "9 år og opefter"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "9 und älter"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "9 and up"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "9 y más"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "9 ja ylös"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "9 ans et plus"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "9 e oltre"
           }
         },
         "nb": {
@@ -1103,16 +5753,88 @@
             "state": "translated",
             "value": "9 år"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "9 en ouder"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "9 i w górę"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "9 e acima"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "9 år och uppåt"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "9 ve üstü"
+          }
         }
       }
     },
     "maturity.six": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 år og opefter"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 und älter"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "6 and up"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 y más"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 ja ylös"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 ans et plus"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 e oltre"
           }
         },
         "nb": {
@@ -1120,16 +5842,88 @@
             "state": "translated",
             "value": "6 år"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 en ouder"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 i do góry"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 e acima"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 år och uppåt"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 ve üstü"
+          }
         }
       }
     },
     "maturity.twelve": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 år og opefter"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 und älter"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "12 and up"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 y más"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 vuotta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 ans et plus"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 anni e oltre"
           }
         },
         "nb": {
@@ -1137,16 +5931,88 @@
             "state": "translated",
             "value": "12 år"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 en ouder"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 i do góry"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 e acima"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 år och uppåt"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 ve üstü"
+          }
         }
       }
     },
     "pairing.mismatch": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هذا الرمز لم يتطابق أظهر واحدة جديدة وحاول مرة أخرى"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den kode stemte ikke overens. Vis en ny, og prøv igen."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Code stimmte nicht überein. Zeigen Sie einen neuen und versuchen Sie es erneut."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "That code didn't match. Show a fresh one and try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese código no coincidía. Muestre uno nuevo e inténtelo de nuevo."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koodi ei täsmännyt. Näytä uusi ja yritä uudelleen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce code ne correspondait pas. Montrez-en un nouveau et réessayez."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quel codice non corrispondeva. Mostra uno nuovo e riprova."
           }
         },
         "nb": {
@@ -1154,16 +6020,88 @@
             "state": "translated",
             "value": "Koden stemte ikke. Vis en ny og prøv igjen."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die code paste niet. Toon een nieuwe en probeer het opnieuw."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten kod nie pasuje. Pokaż świeży i spróbuj jeszcze raz."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esse código não correspondeu. Mostre um novo e tente novamente."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denna kod stämde inte överens. Visa en ny och försök igen."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O kod eşleşmedi. Yeni bir tane gösterin ve tekrar deneyin."
+          }
         }
       }
     },
     "pairing.notFound": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لم أجد ذلك Apple TV فحص كلا الجهازين على نفس الرقم Wi-Fi."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jeg kunne ikke finde Apple TV. Sørg for, at begge enheder er tilsluttet den samme Wi-Fi."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konnte das Apple TV nicht finden. Überprüfen Sie, ob beide Geräte auf demselben Wi-Fi sind."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Couldn't find that Apple TV. Check both devices are on the same Wi-Fi."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo encontrar ese Apple TV. Verifique que ambos dispositivos estén en el mismo Wi-Fi."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En löytänyt Apple TV:tä. Tarkista, että molemmat laitteet ovat samassa Wi-Fissä."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de trouver ce Apple TV. Vérifiez que les deux appareils sont sur le même Wi-Fi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non sono riuscito a trovare quel Apple TV. Controlla che entrambi i dispositivi siano sullo stesso Wi-Fi."
           }
         },
         "nb": {
@@ -1171,16 +6109,88 @@
             "state": "translated",
             "value": "Fant ikke Apple TV-en. Sjekk at begge enhetene er på samme Wi-Fi."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kon dat Apple TV niet vinden. Controleer of beide apparaten op dezelfde Wi-Fi staan."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie mogłem znaleźć Apple TV. Sprawdź oba urządzenia są na tym samym Wi-Fi."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível encontrar esse Apple TV. Verifique se ambos os dispositivos estão no mesmo Wi-Fi."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple TV kunde inte hittas. Kontrollera att båda enheterna är anslutna till samma Wi-Fi."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Apple TV'yi bulamadım. Her iki cihazın da aynı Wi-Fi'de olduğundan emin olun."
+          }
         }
       }
     },
     "pairing.unreadableCode": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هذا الرمز غير قابل للقراءة"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den kode er ulæselig."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Code ist nicht lesbar."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "That code is not readable."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese código no es legible."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koodia ei voi lukea."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce code n'est pas lisible."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quel codice non è leggibile."
           }
         },
         "nb": {
@@ -1188,16 +6198,88 @@
             "state": "translated",
             "value": "Koden kunne ikke leses."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die code is niet leesbaar."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten kod nie jest czytelny."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esse código não é legível."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den koden är oläsbar."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O kod okunamıyor."
+          }
         }
       }
     },
     "player.alternativeEngine.failed": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هذا المجرى لن يفتح قد يكون خارج الخط، أو قد يكون مقدمك قد وصل حد اتصاله."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne streaming kunne ikke åbnes. Den er muligvis offline, eller din udbyder har nået sin forbindelsesgrænse."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Stream konnte nicht geöffnet werden. Er ist möglicherweise offline oder Ihr Anbieter hat seine Verbindungsgrenze erreicht."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "This stream wouldn't open. It may be offline, or your provider may have reached its connection limit."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta transmisión no se abre. Es posible que esté desconectado o que su proveedor haya alcanzado su límite de conexión."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tämä virta ei aukeaisi. Se voi olla offline, tai palveluntarjoajasi on ehkä saavuttanut sen yhteys rajan."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce flux ne s'ouvrirait pas. Il est peut-être hors ligne ou votre fournisseur a peut-être atteint sa limite de connexion."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo flusso non si apre. Potrebbe essere offline, o il tuo provider potrebbe aver raggiunto il limite di connessione."
           }
         },
         "nb": {
@@ -1205,16 +6287,88 @@
             "state": "translated",
             "value": "Denne strømmen ville ikke åpne. Den kan være nede, eller leverandøren din kan ha nådd grensen for antall tilkoblinger."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze stream zou niet openen. Het kan offline zijn, of uw provider heeft zijn verbindingslimiet bereikt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten strumień nie chciał się otworzyć. Może być nieaktywny lub Twój dostawca mógł osiągnąć limit połączenia."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este fluxo não abria. Pode estar offline ou seu provedor pode ter atingido o limite de conexão."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denna ström kunde inte öppnas. Den kan vara offline eller din leverantör har nått sin anslutningsgräns."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu akış açılmayacaktır. Çevrimdışı olabilir veya sağlayıcınız bağlantı sınırını aşmış olabilir."
+          }
         }
       }
     },
     "profile.defaultOwnerName": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أنا"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mig"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mich"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Me"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yo"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lä"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moi"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "me"
           }
         },
         "nb": {
@@ -1222,16 +6376,88 @@
             "state": "translated",
             "value": "Meg"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ik"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "do"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eu"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mig"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "beni"
+          }
         }
       }
     },
     "profile.unnamed": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profile"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "profil"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Profile"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perfil"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profiili"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "profilo"
           }
         },
         "nb": {
@@ -1239,13 +6465,352 @@
             "state": "translated",
             "value": "Profil"
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "profiel"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perfil"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "profil"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "profil"
+          }
+        }
+      }
+    },
+    "purchase.nothingToRestore": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لم يتم العثور على أي شراء في وقت سابق على هوية آبل."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der er ikke fundet nogen tidligere køb på denne Apple-ID."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es wurden keine früheren Käufe für diese Apple-ID gefunden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No earlier purchase was found on this Apple ID."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se encontró ninguna compra anterior en este ID de Apple."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple ID:stä ei löytynyt aikaisempaa ostoa."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun achat antérieur n'a été trouvé sur cet identifiant Apple."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non è stato trovato alcun acquisto precedente su questo ID Apple."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fant ingen tidligere kjøp på denne Apple-kontoen."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er is geen eerdere aankoop gevonden op deze Apple ID."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie znaleziono wcześniejszego zakupu na tym Apple ID."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhuma compra anterior foi encontrada neste ID Apple."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det finns inga tidigare köp registrerade för den här Apple-ID:n."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu Apple Kimliği'nde daha önceki bir satın alma bulunamadı."
+          }
+        }
+      }
+    },
+    "purchase.unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "خيار الشراء هذا غير متاح الآن."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denne købsmulighed er ikke tilgængelig lige nu."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Kaufoption ist derzeit nicht verfügbar."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That purchase option is not available right now."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esa opción de compra no está disponible ahora mismo."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sitä ostovaihtoehtoa ei ole saatavilla juuri nyt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette option d’achat n’est pas disponible pour le moment."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quella opzione di acquisto non è disponibile in questo momento."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dette kjøpsalternativet er ikke tilgjengelig akkurat nå."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die aankoopoptie is momenteel niet beschikbaar."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta opcja zakupu nie jest teraz dostępna."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essa opção de compra não está disponível no momento."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denna köpoption är för närvarande inte tillgänglig."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu satın alma seçeneği şu anda kullanılamıyor."
+          }
+        }
+      }
+    },
+    "purchase.unverified": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ولا يمكن التحقق من هذا الإيصال."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den kvittering kunne ikke verificeres."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Beleg konnte nicht verifiziert werden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That receipt could not be verified."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese recibo no se pudo verificar."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kuittia ei voitu todentaa."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce reçu n'a pas pu être vérifié."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quell'assegno non è stato possibile verificare."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kvitteringen kunne ikke bekreftes."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dat ontvangstbewijs kon niet worden geverifieerd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie można było zweryfikować tego paragonu."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esse recibo não pôde ser verificado."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det mottagarkvitton kunde inte verifieras."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O makbuz doğrulanamadı."
+          }
         }
       }
     },
     "rating.allAges.badge": {
       "extractionState": "manual",
       "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ألف"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "en"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "a"
+          }
+        },
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "un"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un"
+          }
+        },
+        "it": {
           "stringUnit": {
             "state": "translated",
             "value": "A"
@@ -1255,6 +6820,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "A"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "een"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "en"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "de"
           }
         }
       }

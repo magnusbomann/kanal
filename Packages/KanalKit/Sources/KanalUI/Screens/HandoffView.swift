@@ -11,8 +11,11 @@ public struct HandoffView: View {
     @State private var guest = PairingGuest()
     @State private var scanned: Pairing.Invitation?
     @State private var cameraDenied = false
+    @State private var preparationError: String?
 
-    public init() {}
+    public init(invitation: Pairing.Invitation? = nil) {
+        _scanned = State(initialValue: invitation)
+    }
 
     public var body: some View {
         VStack(spacing: 0) {
@@ -27,6 +30,21 @@ public struct HandoffView: View {
         #if !os(tvOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .task(id: scanned) {
+            guard let invitation = scanned else { return }
+            preparationError = nil
+            while model.phase == .starting {
+                try? await Task.sleep(for: .milliseconds(50))
+                guard !Task.isCancelled else { return }
+            }
+            do {
+                let payload = try await model.makePairingPayload()
+                guard !Task.isCancelled else { return }
+                guest.send(payload, to: invitation)
+            } catch {
+                preparationError = error.localizedDescription
+            }
+        }
         .onDisappear { guest.cancel() }
     }
 
@@ -38,7 +56,6 @@ public struct HandoffView: View {
                       let invitation = Pairing.Invitation(url: url)
                 else { return }
                 scanned = invitation
-                guest.send(model.sources, to: invitation)
             } onDenied: {
                 cameraDenied = true
             }
@@ -77,6 +94,15 @@ public struct HandoffView: View {
                     }
                 }
                 .buttonStyle(KanalSecondaryButtonStyle())
+            } else if let preparationError {
+                Text(preparationError)
+                    .font(KanalFont.body())
+                    .foregroundStyle(KanalColor.secondaryText)
+                Button(String(UIStrings.tryAgain)) {
+                    self.preparationError = nil
+                    scanned = nil
+                }
+                .buttonStyle(KanalSecondaryButtonStyle())
             } else {
                 switch guest.state {
                 case .idle, .searching:
@@ -84,7 +110,7 @@ public struct HandoffView: View {
                 Text(UIStrings.handoffFinding)
                     .font(KanalFont.section(17))
                     .foregroundStyle(KanalColor.primaryText)
-                case .connecting:
+                case .connecting, .transmitting, .awaitingReceipt:
                 ProgressView().controlSize(.large).tint(KanalColor.accentSolid)
                 Text(UIStrings.handoffSending)
                     .font(KanalFont.section(17))

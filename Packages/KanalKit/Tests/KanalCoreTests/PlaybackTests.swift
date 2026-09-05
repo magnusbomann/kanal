@@ -73,6 +73,41 @@ struct PlaybackFailureTests {
     func offline() {
         #expect(Self.failure(code: -1009, url: "http://p.tv/movie/u/p/1.mp4") == .offline)
     }
+
+    @Test("Media failures get one chance in the alternative decoder")
+    func alternativeDecoderEligibleFailures() {
+        #expect(PlaybackFailure.unsupportedContainer("mkv").shouldTryAlternativeEngine)
+        #expect(PlaybackFailure.serverNotStreamable.shouldTryAlternativeEngine)
+        #expect(PlaybackFailure.other("The media could not be decoded").shouldTryAlternativeEngine)
+    }
+
+    @Test("A second decoder does not hide connectivity or credential failures")
+    func alternativeDecoderIneligibleFailures() {
+        #expect(!PlaybackFailure.offline.shouldTryAlternativeEngine)
+        #expect(!PlaybackFailure.rejected.shouldTryAlternativeEngine)
+    }
+}
+
+@Suite("Alternative playback order")
+struct AlternativePlaybackOrderTests {
+    @Test("Provider URLs lead for VLC while format guesses remain available")
+    func originalsLead() {
+        let first = StreamCandidatesTests.item("http://p.tv/movie/u/p/1.mkv")
+        let second = MediaItem(
+            id: "2", kind: .movie, title: "T", rawTitle: "T",
+            streamURL: URL(string: "http://backup.tv/movie/u/p/2.avi")!
+        )
+        let candidates = StreamCandidates.candidates(for: first)
+            + StreamCandidates.candidates(for: second)
+        let owners = Array(repeating: first.id, count: 4)
+            + Array(repeating: second.id, count: 4)
+        let plan = PlaybackPlan(item: first, candidates: candidates, owners: owners)
+
+        #expect(plan.alternativeCandidateIndices == [3, 7, 0, 1, 2, 4, 5, 6])
+        #expect(plan.alternativeCandidateIndices.map { plan.owner(at: $0) } == [
+            "1", "2", "1", "1", "1", "2", "2", "2",
+        ])
+    }
 }
 
 private let AVFoundationErrorDomainName = "AVFoundationErrorDomain"

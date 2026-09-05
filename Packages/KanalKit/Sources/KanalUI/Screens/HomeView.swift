@@ -22,6 +22,12 @@ public struct HomeView: View {
             LazyVStack(alignment: .leading, spacing: KanalMetrics.xl) {
                 header
 
+                #if !os(tvOS)
+                if !model.library.isEmpty {
+                    searchEntry
+                }
+                #endif
+
                 // A child's library can legitimately be empty — nothing has
                 // been approved yet. Saying so is the difference between "this
                 // app is broken" and "ask a grown-up", and the person who has
@@ -47,16 +53,32 @@ public struct HomeView: View {
                     }
                 }
 
+                if !model.nextEpisodes.isEmpty {
+                    Shelf(title: String(UIStrings.shelfNextEpisode), itemWidth: cardWidth(.poster)) {
+                        ForEach(model.nextEpisodes) { episode in
+                            PosterCard(
+                                title: episode.seriesName ?? episode.title,
+                                artworkURL: episode.logoURL,
+                                subtitle: nextEpisodeSubtitle(episode),
+                                enrich: episode
+                            ) {
+                                navigator.play(episode)
+                            }
+                        }
+                    }
+                }
+
                 if !model.favoriteChannels.isEmpty {
                     Shelf(
-                        title: String(UIStrings.shelfFavouriteChannels),
+                        title: String(UIStrings.shelfOnNow),
                         itemWidth: cardWidth(.backdrop),
-                        onSeeAll: { navigator.push(.allChannels) }
+                        onSeeAll: { navigator.push(.favoriteChannels) }
                     ) {
                         ForEach(model.favoriteChannelGroups) { group in
                             ChannelCard(
                                 channel: group.primary,
-                                nowPlaying: model.nowPlaying(on: group.primary),
+                                nowPlaying: model.nowPlaying(on: group),
+                                upNext: model.upcoming(on: group, limit: 1).first,
                                 isFavorite: true,
                                 sourceCount: group.variants.count
                             ) {
@@ -69,58 +91,19 @@ public struct HomeView: View {
                     }
                 }
 
-                if !model.favoriteSeries.isEmpty {
-                    Shelf(title: String(UIStrings.shelfFavouriteSeries), itemWidth: cardWidth(.poster)) {
-                        ForEach(model.favoriteSeries) { group in
-                            PosterCard(
-                                title: group.name,
-                                artworkURL: group.artworkURL,
-                                subtitle: String(UIStrings.episodeCount(group.episodes.count)),
-                                enrich: group.episodes.first
-                            ) {
-                                navigator.push(.series(id: group.id))
-                            }
-                        }
-                    }
-                }
-
-                // Recommendations first: a provider's catalogue arrives in
-                // whatever order the panel felt like, and browsing that lands
-                // you in a random action film.
-                ForEach(model.visibleDiscoveryShelves, id: \.shelf.id) { entry in
+                if !model.recentChannelGroups.isEmpty {
                     Shelf(
-                        title: shelfTitle(entry.shelf),
-                        subtitle: subtitle(for: entry.shelf, count: entry.items.count),
-                        itemWidth: cardWidth(.poster)
+                        title: String(UIStrings.shelfRecentChannels),
+                        itemWidth: cardWidth(.backdrop)
                     ) {
-                        ForEach(entry.items) { item in
-                            PosterCard(
-                                title: item.seriesName ?? item.title,
-                                artworkURL: item.logoURL,
-                                subtitle: item.year.map(String.init),
-                                progressFraction: model.progress(for: item)?.fraction,
-                                enrich: item
-                            ) {
-                                navigator.showDetails(
-                                    for: item, seriesGroup: seriesGroup(for: item)
-                                )
-                            }
-                        }
-                    }
-                }
-
-                ForEach(topChannelCategories, id: \.name) { category in
-                    Shelf(
-                        title: CategoryLocalizer.display(category.name),
-                        subtitle: String(UIStrings.channelCount(groups(in: category.name).count)),
-                        itemWidth: cardWidth(.backdrop),
-                        onSeeAll: { navigator.push(.category(kind: .liveTV, name: category.name)) }
-                    ) {
-                        ForEach(groups(in: category.name).prefix(20)) { group in
+                        ForEach(model.recentChannelGroups) { group in
                             ChannelCard(
                                 channel: group.primary,
-                                nowPlaying: model.nowPlaying(on: group.primary),
-                                isFavorite: model.watchState.isFavorite(group.primary.id),
+                                nowPlaying: model.nowPlaying(on: group),
+                                upNext: model.upcoming(on: group, limit: 1).first,
+                                isFavorite: group.variants.contains {
+                                    model.watchState.isFavorite($0.id)
+                                },
                                 sourceCount: group.variants.count
                             ) {
                                 navigator.play(
@@ -132,14 +115,13 @@ public struct HomeView: View {
                     }
                 }
 
-                ForEach(topMovieCategories, id: \.name) { category in
+                if !model.newlyAddedMovies.isEmpty || !model.newlyAddedSeries.isEmpty {
                     Shelf(
-                        title: CategoryLocalizer.display(category.name),
-                        subtitle: String(UIStrings.filmCount(category.items.count)),
-                        itemWidth: cardWidth(.poster),
-                        onSeeAll: { navigator.push(.category(kind: .movie, name: category.name)) }
+                        title: String(UIStrings.shelfRecentlyAdded),
+                        subtitle: newContentSummary,
+                        itemWidth: cardWidth(.poster)
                     ) {
-                        ForEach(category.items.prefix(20)) { movie in
+                        ForEach(model.newlyAddedMovies) { movie in
                             PosterCard(
                                 title: movie.title,
                                 artworkURL: movie.logoURL,
@@ -149,33 +131,162 @@ public struct HomeView: View {
                                 navigator.showDetails(for: movie)
                             }
                         }
+                        ForEach(model.newlyAddedSeries) { group in
+                            PosterCard(
+                                title: group.name,
+                                artworkURL: group.artworkURL,
+                                subtitle: group.year.map(String.init),
+                                enrich: group.episodes.first
+                            ) {
+                                guard let first = group.episodes.first else { return }
+                                navigator.showDetails(for: first, seriesGroup: group)
+                            }
+                        }
+                    }
+                }
+
+                if !model.favoriteSeries.isEmpty {
+                    Shelf(title: String(UIStrings.shelfFavouriteSeries), itemWidth: cardWidth(.poster)) {
+                        ForEach(model.favoriteSeries) { group in
+                            PosterCard(
+                                title: group.name,
+                                artworkURL: group.artworkURL,
+                                subtitle: seriesSubtitle(group),
+                                enrich: group.episodes.first
+                            ) {
+                                navigator.push(.series(id: group.id))
+                            }
+                        }
+                    }
+                }
+
+                let browse = model.discoveryPresentation.browse
+
+                if !browse.topMovies.isEmpty {
+                    Shelf(
+                        title: String(
+                            browse.topMoviesAreTrending
+                                ? UIStrings.shelfTopMovies
+                                : UIStrings.shelfFeaturedMovies
+                        ),
+                        itemWidth: cardWidth(.poster),
+                        onSeeAll: { navigator.push(.allMovies) }
+                    ) {
+                        ForEach(browse.topMovies) { movie in
+                            PosterCard(
+                                title: movie.title,
+                                artworkURL: movie.logoURL,
+                                subtitle: movie.year.map(String.init),
+                                progressFraction: model.progress(for: movie)?.fraction,
+                                enrich: movie
+                            ) {
+                                navigator.showDetails(for: movie)
+                            }
+                            .contextMenu {
+                                FavoriteButton(id: movie.id)
+                            }
+                        }
+                    }
+                }
+
+                if !browse.topSeries.isEmpty {
+                    Shelf(
+                        title: String(
+                            browse.topSeriesAreTrending
+                                ? UIStrings.shelfTopSeries
+                                : UIStrings.shelfFeaturedSeries
+                        ),
+                        itemWidth: cardWidth(.poster),
+                        onSeeAll: { navigator.push(.allSeries) }
+                    ) {
+                        ForEach(browse.topSeries) { group in
+                            seriesCard(group)
+                        }
+                    }
+                }
+
+                ForEach(browse.homeServiceSpotlights) { spotlight in
+                    Shelf(
+                        title: String(UIStrings.shelfOnService(spotlight.serviceName)),
+                        itemWidth: cardWidth(.poster)
+                    ) {
+                        ForEach(spotlight.items) { item in
+                            discoveryCard(item)
+                        }
                     }
                 }
             }
             .padding(.bottom, KanalMetrics.xxl * 2)
         }
         .background(KanalColor.background)
+        .task { await model.prepareHome() }
+        #if os(tvOS)
+        .fullScreenCover(isPresented: $isShowingSettings) {
+            NavigationStack { SettingsView() }
+        }
+        .fullScreenCover(isPresented: $isUnlockingSwitch) {
+            unlockProfileSwitch
+        }
+        #else
         .sheet(isPresented: $isShowingSettings) {
             NavigationStack { SettingsView() }
         }
         .sheet(isPresented: $isUnlockingSwitch) {
-            ParentalCodeView(purpose: .unlock) { entered in
-                guard model.parentalCode.matches(entered) else { return false }
-                model.beginChoosingProfile()
-                return true
+            unlockProfileSwitch
+        }
+        #endif
+    }
+
+    private var unlockProfileSwitch: some View {
+        ParentalCodeView(purpose: .unlock) { entered in
+            guard model.parentalCode.matches(entered) else { return false }
+            model.beginChoosingProfile()
+            return true
+        }
+    }
+
+    private var searchEntry: some View {
+        Button {
+            navigator.openSearch()
+        } label: {
+            HStack(spacing: KanalMetrics.md) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(KanalColor.accentSolid)
+                Text(UIStrings.searchPrompt)
+                    .font(KanalFont.body(15))
+                    .foregroundStyle(KanalColor.secondaryText)
+                Spacer(minLength: KanalMetrics.sm)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(KanalColor.tertiaryText)
+            }
+            .padding(.horizontal, KanalMetrics.md)
+            .frame(minHeight: 52)
+            .background(KanalColor.surface, in: .rect(cornerRadius: 15, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 15, style: .continuous)
+                    .strokeBorder(KanalColor.separator, lineWidth: 1)
             }
         }
+        .buttonStyle(KanalCardButtonStyle())
+        .accessibilityLabel(Text(UIStrings.search))
+        .padding(.horizontal, KanalMetrics.lg)
     }
 
     private var header: some View {
         VStack(alignment: .leading, spacing: KanalMetrics.xs) {
+            #if !os(tvOS)
             Text(greeting)
                 .kanalLabel(12)
                 .foregroundStyle(KanalColor.accentSolid)
+            #endif
             HStack(alignment: .firstTextBaseline) {
-                Text(model.activeSource?.name ?? "Kanal")
+                Text(UIStrings.homeQuestion)
                     .kanalDisplay(KanalMetrics.scale * 34)
                     .foregroundStyle(KanalColor.primaryText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                 Spacer()
                 if model.isRefreshingGuide {
                     ProgressView()
@@ -193,33 +304,34 @@ public struct HomeView: View {
                             isUnlockingSwitch = true
                         }
                     } label: {
-                        ProfileAvatar(profile: profile, size: 38)
+                        ProfileAvatar(profile: profile, size: headerControlSize)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(KanalCardButtonStyle())
                     .accessibilityLabel(Text(UIStrings.switchProfile))
                 }
                 Button {
                     isShowingSettings = true
                 } label: {
                     Image(systemName: "gearshape.fill")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: headerControlSize * 0.4, weight: .semibold))
                         .foregroundStyle(KanalColor.secondaryText)
-                        .frame(width: 38, height: 38)
+                        .frame(width: headerControlSize, height: headerControlSize)
                         .kanalGlassPill()
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(KanalCardButtonStyle())
                 .accessibilityLabel(Text(UIStrings.settings))
             }
-            Text(librarySummary)
-                .font(KanalFont.body(13))
-                .foregroundStyle(KanalColor.secondaryText)
         }
         .padding(.horizontal, KanalMetrics.lg)
         .padding(.top, KanalMetrics.md)
     }
 
-    private func groups(in category: String) -> [ChannelGroup] {
-        model.library.channelGroups.filter { $0.categories.contains(category) }
+    private var headerControlSize: CGFloat {
+        #if os(tvOS)
+        64
+        #else
+        38
+        #endif
     }
 
     private var greeting: LocalizedStringResource {
@@ -231,43 +343,61 @@ public struct HomeView: View {
         }
     }
 
-    private var librarySummary: String {
-        let library = model.library
+    private var newContentSummary: String {
         var parts: [String] = []
-        if !library.channels.isEmpty { parts.append(String(UIStrings.channelCount(library.channels.count))) }
-        if !library.movies.isEmpty { parts.append(String(UIStrings.filmCount(library.movies.count))) }
-        if !library.series.isEmpty { parts.append(String(UIStrings.seriesCount(library.series.count))) }
-        return parts.isEmpty ? String(UIStrings.libraryEmpty) : parts.joined(separator: " · ")
+        if !model.newlyAddedMovies.isEmpty {
+            parts.append(String(UIStrings.filmCount(model.newlyAddedMovies.count)))
+        }
+        if !model.newlyAddedSeries.isEmpty {
+            parts.append(String(UIStrings.seriesCount(model.newlyAddedSeries.count)))
+        }
+        return parts.joined(separator: " · ")
     }
 
-    /// Only the biggest few categories get a shelf; the rest live behind the tabs.
-    private var topChannelCategories: [(name: String, items: [MediaItem])] {
-        Array(model.library.channelCategories.prefix(4))
+    private func nextEpisodeSubtitle(_ episode: MediaItem) -> String? {
+        [episode.episodeCode, episode.episodeTitle]
+            .compactMap { $0 }
+            .filter { !$0.isEmpty }
+            .joined(separator: " · ")
+            .nilIfEmpty
     }
 
-    private var topMovieCategories: [(name: String, items: [MediaItem])] {
-        Array(model.library.movieCategories.prefix(3))
-    }
-
-    private func shelfTitle(_ shelf: DiscoveryShelf) -> String {
-        switch shelf.source {
-        case .trending: String(UIStrings.shelfTrending)
-        case .newReleases: String(UIStrings.shelfNewReleases)
-        case .service(_, let name): String(UIStrings.shelfOnService(name))
+    @ViewBuilder
+    private func seriesCard(_ group: SeriesGroup) -> some View {
+        PosterCard(
+            title: group.name,
+            artworkURL: group.artworkURL,
+            subtitle: seriesSubtitle(group),
+            enrich: group.episodes.first
+        ) {
+            guard let first = group.episodes.first else { return }
+            navigator.showDetails(for: first, seriesGroup: group)
+        }
+        .contextMenu {
+            FavoriteButton(id: group.id)
         }
     }
 
-    private func subtitle(for shelf: DiscoveryShelf, count: Int) -> String {
-        switch shelf.kind {
-        case .movie: String(UIStrings.filmCount(count))
-        case .series: String(UIStrings.seriesCount(count))
-        case .liveTV: String(UIStrings.channelCount(count))
+    @ViewBuilder
+    private func discoveryCard(_ item: MediaItem) -> some View {
+        let group = item.kind == .series ? model.seriesGroup(for: item) : nil
+        PosterCard(
+            title: group?.name ?? item.title,
+            artworkURL: group?.artworkURL ?? item.logoURL,
+            subtitle: group.flatMap(seriesSubtitle) ?? item.year.map(String.init),
+            progressFraction: model.progress(for: item)?.fraction,
+            enrich: group?.episodes.first ?? item
+        ) {
+            navigator.showDetails(for: item, seriesGroup: group)
+        }
+        .contextMenu {
+            FavoriteButton(id: group?.id ?? item.id)
         }
     }
 
-    private func seriesGroup(for item: MediaItem) -> SeriesGroup? {
-        guard let key = item.seriesKey else { return nil }
-        return model.library.series.first { $0.id == key }
+    private func seriesSubtitle(_ group: SeriesGroup) -> String? {
+        if group.needsEpisodeLoad { return group.year.map(String.init) }
+        return String(UIStrings.episodeCount(group.episodes.count))
     }
 
     private enum CardShape { case poster, backdrop }
@@ -285,4 +415,8 @@ public struct HomeView: View {
         return shape == .poster ? 150 : 250
         #endif
     }
+}
+
+private extension String {
+    var nilIfEmpty: String? { isEmpty ? nil : self }
 }

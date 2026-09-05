@@ -4,12 +4,12 @@
 "detect.empty" = "Lim inn en spillelistelenke for å komme i gang.";
 "detect.unusable" = "Dette ser ikke ut som en lenke Kanal kan åpne.";
 "error.badResponse" = "Serveren svarte, men ikke på en måte Kanal forstår.";
-"error.emptyPlaylist" = "Spillelisten ble lastet, men inneholdt ingen kanaler.";
+"error.emptyPlaylist" = "TV-tjenesten ble koblet til, men inneholdt ingen kanaler.";
 "error.expired" = "Dette abonnementet har utløpt.";
 "error.expiredOn %@" = "Dette abonnementet utløp %@.";
 "error.http %lld" = "Serveren svarte med feil %lld.";
 "error.noMetadataKey" = "Ingen TMDB-nøkkel er satt opp.";
-"error.noPlaylistLink" = "Denne kilden mangler spillelistelenke.";
+"error.noPlaylistLink" = "Denne TV-tjenesten mangler en lenke Kanal kan åpne.";
 "error.rateLimited" = "TMDB ba oss senke farten.";
 "error.requestFailed" = "Klarte ikke å bygge forespørselen.";
 "error.unauthorized" = "Brukernavnet eller passordet ble avvist.";
@@ -73,4 +73,7 @@
 "player.alternativeEngine.failed" = "Denne strømmen ville ikke åpne. Den kan være nede, eller leverandøren din kan ha nådd grensen for antall tilkoblinger.";
 "profile.defaultOwnerName" = "Meg";
 "profile.unnamed" = "Profil";
+"purchase.nothingToRestore" = "Fant ingen tidligere kjøp på denne Apple-kontoen.";
+"purchase.unavailable" = "Dette kjøpsalternativet er ikke tilgjengelig akkurat nå.";
+"purchase.unverified" = "Kvitteringen kunne ikke bekreftes.";
 "rating.allAges.badge" = "A";

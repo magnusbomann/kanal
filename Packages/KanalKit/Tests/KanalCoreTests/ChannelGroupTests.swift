@@ -154,6 +154,125 @@ struct PlaybackPlanTests {
     }
 }
 
+/// Frame rate describes delivery, not identity.
+///
+/// Names taken verbatim from the measured provider, where six channels were
+/// split this way — every one of them sport, which is exactly where a viewer
+/// most needs a second feed to fall back on.
+@Suite("Frame-rate feeds belong to their channel")
+struct FrameRateFoldingTests {
+
+    @Test("A 50FPS feed joins its channel rather than starting a new one")
+    func fiftyFramesFolds() throws {
+        let library = Library(items: [
+            ChannelGroupTests.channel("V sport Premier League", url: "http://p.tv/1/m3u8"),
+            ChannelGroupTests.channel("V sport Premier League HD", url: "http://p.tv/2/m3u8"),
+            ChannelGroupTests.channel("V sport Premier League HD | 50FPS", url: "http://p.tv/3/m3u8"),
+        ])
+        #expect(library.channelGroups.count == 1, "one channel, not two cards")
+        let group = try #require(library.channelGroups.first)
+        #expect(group.variants.count == 3)
+    }
+
+    /// The smoothest feed of a football match is the one worth opening on,
+    /// but never at the cost of dropping to standard definition for it.
+    @Test("A high frame rate leads, resolution first")
+    func frameRateOrdering() throws {
+        let library = Library(items: [
+            ChannelGroupTests.channel("V sport Premier League", url: "http://p.tv/1/m3u8"),
+            ChannelGroupTests.channel("V sport Premier League HD", url: "http://p.tv/2/m3u8"),
+            ChannelGroupTests.channel("V sport Premier League HD | 50FPS", url: "http://p.tv/3/m3u8"),
+        ])
+        let group = try #require(library.channelGroups.first)
+        #expect(group.primary.rawTitle == "V sport Premier League HD | 50FPS")
+    }
+
+    @Test("A numbered channel is still its own channel")
+    func numbersAreNotQuality() {
+        let library = Library(items: [
+            ChannelGroupTests.channel("V sport Premier League HD | 50FPS", url: "http://p.tv/1/m3u8"),
+            ChannelGroupTests.channel("V sport Premier League 1 HD | 50FPS", url: "http://p.tv/2/m3u8"),
+            ChannelGroupTests.channel("V sport Premier League 2 HD | 50FPS", url: "http://p.tv/3/m3u8"),
+        ])
+        #expect(library.channelGroups.count == 3)
+    }
+}
+
+/// A plan mixes two kinds of step, and only one of them costs a connection.
+@Suite("Where one feed ends and the next begins")
+struct PlanVariantBoundaryTests {
+
+    static func group() -> ChannelGroup {
+        let library = Library(items: [
+            ChannelGroupTests.channel("V sport Premier League HD | 50FPS", url: "http://p.tv/1/m3u8"),
+            ChannelGroupTests.channel("V sport Premier League HD", url: "http://p.tv/2/m3u8"),
+            ChannelGroupTests.channel("V sport Premier League", url: "http://p.tv/3/m3u8"),
+        ])
+        return library.channelGroups[0]
+    }
+
+    /// Live streams are asked for exactly as published, so each candidate is a
+    /// feed of its own and every step between them opens a new connection.
+    @Test("Every channel candidate is a fresh connection")
+    func liveCandidatesAreAllFeeds() {
+        let plan = PlaybackPlan(group: Self.group())
+        #expect(plan.variantCount == 3)
+        #expect(plan.variantStarts == [0, 1, 2])
+        #expect((0..<3).allSatisfy(plan.isVariantStart))
+        #expect(plan.crossesVariant(advancingFrom: 0))
+        #expect(!plan.crossesVariant(advancingFrom: 2), "nothing follows the last")
+    }
+
+    @Test("Sources are counted the way a viewer would count them")
+    func numbering() {
+        let plan = PlaybackPlan(group: Self.group())
+        #expect((0..<3).map(plan.variantNumber) == [1, 2, 3])
+    }
+
+    @Test("The next feed is found by owner, not by candidate")
+    func nextFeed() {
+        let plan = PlaybackPlan(group: Self.group())
+        #expect(plan.nextVariantStart(after: 0) == 1)
+        #expect(plan.nextVariantStart(after: 2) == nil, "the last feed has no successor")
+    }
+
+    /// A film asking the same panel for another container is not a second
+    /// feed, and must not be counted or waited for as though it were.
+    @Test("Format guesses on one stream are a single source")
+    func formatGuessesAreOneSource() {
+        let item = MediaItem(
+            id: "1", kind: .movie, title: "T", rawTitle: "T",
+            streamURL: URL(string: "http://p.tv/movie/u/p/1.mkv")!
+        )
+        let plan = PlaybackPlan(item: item)
+        #expect(plan.candidates.count == 4)
+        #expect(plan.variantCount == 1)
+        #expect(!plan.crossesVariant(advancingFrom: 0))
+        #expect(!plan.isVariantStart(1))
+    }
+}
+
+/// A refusal arriving moments after another stream was released is most often
+/// the provider still counting it, not a broken feed.
+@Suite("A refusal that may just be the connection limit")
+struct ConnectionLimitTests {
+
+    @Test("Refusals and unreadable servers are worth one patient retry")
+    func retriable() {
+        #expect(PlaybackFailure.rejected.mayBeConnectionLimit)
+        #expect(PlaybackFailure.serverNotStreamable.mayBeConnectionLimit)
+        #expect(PlaybackFailure.other("Cannot Open").mayBeConnectionLimit)
+    }
+
+    /// No amount of waiting turns Matroska into something AVFoundation opens,
+    /// and a device with no network will not find one by asking twice.
+    @Test("Waiting cannot fix a container or a missing network")
+    func notRetriable() {
+        #expect(!PlaybackFailure.unsupportedContainer("mkv").mayBeConnectionLimit)
+        #expect(!PlaybackFailure.offline.mayBeConnectionLimit)
+    }
+}
+
 @Suite("Remembering what worked")
 struct WorkingVariantTests {
 

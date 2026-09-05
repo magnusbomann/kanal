@@ -46,6 +46,17 @@ public struct ProfilePickerView: View {
             }
             .padding(.horizontal, KanalMetrics.lg)
         }
+        #if os(tvOS)
+        .fullScreenCover(item: $editing) { draft in
+            NavigationStack { ProfileEditorView(draft: draft) }
+        }
+        .fullScreenCover(isPresented: $isManaging) {
+            NavigationStack { ProfilesView() }
+        }
+        .fullScreenCover(item: $codeChallenge) { challenge in
+            codeView(challenge)
+        }
+        #else
         .sheet(item: $editing) { draft in
             NavigationStack { ProfileEditorView(draft: draft) }
         }
@@ -53,11 +64,16 @@ public struct ProfilePickerView: View {
             NavigationStack { ProfilesView() }
         }
         .sheet(item: $codeChallenge) { challenge in
-            ParentalCodeView(purpose: .unlock) { entered in
-                guard model.parentalCode.matches(entered) else { return false }
-                challenge.onSuccess()
-                return true
-            }
+            codeView(challenge)
+        }
+        #endif
+    }
+
+    private func codeView(_ challenge: CodeChallenge) -> some View {
+        ParentalCodeView(purpose: .unlock) { entered in
+            guard model.parentalCode.matches(entered) else { return false }
+            challenge.onSuccess()
+            return true
         }
     }
 
@@ -67,7 +83,11 @@ public struct ProfilePickerView: View {
         LazyVGrid(columns: columns, spacing: KanalMetrics.lg) {
             ForEach(model.profiles) { profile in
                 Button {
-                    Task { await model.activate(profile) }
+                    if profile.requiresCodeForSelection(parentalCodeIsSet: model.parentalCode.isSet) {
+                        guardedByCode { Task { await model.activate(profile) } }
+                    } else {
+                        Task { await model.activate(profile) }
+                    }
                 } label: {
                     VStack(spacing: KanalMetrics.sm) {
                         ProfileAvatar(

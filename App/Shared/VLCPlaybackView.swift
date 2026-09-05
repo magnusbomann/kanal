@@ -71,6 +71,7 @@ final class VLCPlaybackController: PlaybackControlling {
     @ObservationIgnored private var proxy: PlayerDelegateProxy?
     private var hasSeekedToStart = false
     private var hasLoadedTracks = false
+    private var hasReportedReady = false
 
     init(request: AlternativePlayerRequest) {
         self.request = request
@@ -151,6 +152,10 @@ final class VLCPlaybackController: PlaybackControlling {
         switch state {
         case .playing:
             isBuffering = false
+            if !hasReportedReady {
+                hasReportedReady = true
+                request.onReady()
+            }
             seekToStartIfNeeded()
             loadTracksIfNeeded()
         case .opening:
@@ -194,11 +199,23 @@ final class VLCPlaybackController: PlaybackControlling {
         guard !hasLoadedTracks else { return }
         hasLoadedTracks = true
 
+        // The language libvlc parsed out of the container, by track id.
+        //
+        // Worth the extra lookup: measured across fourteen children's films on
+        // a real provider, every one declared a proper `nor`/`dan`/`swe` code,
+        // while two of them titled every track "Stereo". Reading the name and
+        // hoping would have failed those two outright — and they were The Lion
+        // King and Inside Out 2.
+        let languages = Self.languagesByTrackID(in: player.media)
         audioTracks = Self.tracks(
-            names: player.audioTrackNames, indexes: player.audioTrackIndexes
+            names: player.audioTrackNames,
+            indexes: player.audioTrackIndexes,
+            languages: languages
         )
         subtitleTracks = Self.tracks(
-            names: player.videoSubTitlesNames, indexes: player.videoSubTitlesIndexes
+            names: player.videoSubTitlesNames,
+            indexes: player.videoSubTitlesIndexes,
+            languages: languages
         )
         selectedAudioTrackID = String(player.currentAudioTrackIndex)
         let subtitleIndex = player.currentVideoSubTitleIndex
@@ -207,7 +224,9 @@ final class VLCPlaybackController: PlaybackControlling {
 
     /// VLC returns parallel arrays, and includes a "Disable" entry for
     /// subtitles that the chrome already offers as "Off".
-    static func tracks(names: [Any], indexes: [Any]) -> [PlaybackTrack] {
+    static func tracks(
+        names: [Any], indexes: [Any], languages: [Int: String] = [:]
+    ) -> [PlaybackTrack] {
         zip(names, indexes).compactMap { name, index in
             guard let title = name as? String,
                   let number = (index as? NSNumber)?.intValue,
@@ -216,9 +235,28 @@ final class VLCPlaybackController: PlaybackControlling {
             return PlaybackTrack(
                 id: String(number),
                 name: title,
-                languageCode: Self.languageCode(in: title)
+                // What the container declared, before what the label implies.
+                languageCode: languages[number] ?? Self.languageCode(in: title)
             )
         }
+    }
+
+    /// Track id to declared language, read from the container itself.
+    ///
+    /// `tracksInformation` is only populated once the media has been parsed,
+    /// which by the first `.playing` it has been. An empty result simply
+    /// leaves every track to be identified by its name, as before.
+    static func languagesByTrackID(in media: VLCMedia?) -> [Int: String] {
+        guard let rows = media?.tracksInformation as? [[String: Any]] else { return [:] }
+        var result: [Int: String] = [:]
+        for row in rows {
+            guard let id = (row[VLCMediaTracksInformationId] as? NSNumber)?.intValue,
+                  let language = row[VLCMediaTracksInformationLanguage] as? String,
+                  !language.isEmpty
+            else { continue }
+            result[id] = language
+        }
+        return result
     }
 
     /// Track names arrive like "Track 1 - [Norwegian]" or "English [eng]".
@@ -248,12 +286,12 @@ private final class PlayerDelegateProxy: NSObject, VLCMediaPlayerDelegate, @unch
         self.onTime = onTime
     }
 
-    func mediaPlayerStateChanged(_ aNotification: Notification!) {
-        guard let player = aNotification?.object as? VLCMediaPlayer else { return }
+    func mediaPlayerStateChanged(_ aNotification: Notification) {
+        guard let player = aNotification.object as? VLCMediaPlayer else { return }
         onState(player.state, player.isPlaying)
     }
 
-    func mediaPlayerTimeChanged(_ aNotification: Notification!) {
+    func mediaPlayerTimeChanged(_ aNotification: Notification) {
         onTime()
     }
 }

@@ -1,0 +1,5 @@
+// Localized system-facing app information.
+
+"CFBundleDisplayName" = "Kanal";
+"NSLocalNetworkUsageDescription" = "Kanal verwendet Ihr lokales Netzwerk, um eine Wiedergabeliste an Ihren Apple TV zu senden. Nichts wird über das Internet gesendet.";
+"NSCameraUsageDescription" = "Kanal liest den Kopplungscode ab, der auf Ihrer Apple TV angezeigt wird.";

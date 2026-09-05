@@ -28,7 +28,9 @@ public final class AppModel {
     /// Plain-language progress for a first connection or repair attempt.
     public private(set) var connectionProgress: ConnectionProgress?
     public private(set) var syncState: HouseholdSyncState = .waiting
-    public private(set) var sources: [PlaylistSource] = []
+    public private(set) var sources: [PlaylistSource] = [] {
+        didSet { if !isApplyingHousehold { householdRevision &+= 1 } }
+    }
     public private(set) var activeSourceID: UUID?
     /// Everything the source returned, before any profile is considered.
     ///
@@ -37,8 +39,11 @@ public final class AppModel {
     public internal(set) var catalogue: Library = .empty
     /// What the person watching right now is allowed to see.
     public internal(set) var library: Library = .empty
-    public internal(set) var profiles: [Profile] = []
+    public internal(set) var profiles: [Profile] = [] {
+        didSet { if !isApplyingHousehold { householdRevision &+= 1 } }
+    }
     public internal(set) var activeProfileID: UUID?
+    var profileSelectionGeneration: UInt64 = 0
     /// Whether the "who is watching?" screen is up.
     ///
     /// Kept apart from `phase` on purpose: the picker is shown *over* whatever
@@ -89,6 +94,7 @@ public final class AppModel {
     @ObservationIgnored private var libraryUpdatesExpiryTask: Task<Void, Never>?
     public var watchState = WatchState() {
         didSet {
+            if !isApplyingHousehold { householdRevision &+= 1 }
             scheduleWatchStateSave()
             if oldValue.favoriteIDs != watchState.favoriteIDs {
                 rebuildFavoriteContent()
@@ -122,6 +128,15 @@ public final class AppModel {
     private let householdSync: any HouseholdSyncing
     private var watchStateSaveTask: Task<Void, Never>?
     private var householdSyncTask: Task<Void, Never>?
+    private var householdReplica = HouseholdReplica()
+    private var householdRevision: UInt64 = 0
+    private var isApplyingHousehold = false
+    private var isSyncInFlight = false
+    private var isReceivingPairing = false
+    private var syncRequestedAgain = false
+    private var credentialMigrationFailure: String?
+    private static let replicaFile = "household-replica.json"
+    private var householdChangeTask: Task<Void, Never>?
     private var matchingTask: Task<Void, Never>?
     private var discoveryMatchGeneration: UInt64 = 0
     /// Who the cached `discoveryShelves` were fetched for.
@@ -130,6 +145,7 @@ public final class AppModel {
     /// Every library load supersedes the one before it. The generation is
     /// checked after each suspension point before any result reaches state.
     private var libraryLoadGeneration: UInt64 = 0
+    @ObservationIgnored private var deferredLibraryTask: Task<Void, Never>?
     /// Guide downloads have their own generation because they outlive the
     /// library load that discovered their URL.
     private var guideLoadGeneration: UInt64 = 0
@@ -189,6 +205,7 @@ public final class AppModel {
 
     /// Restores persisted state and refreshes the active source.
     public func start() async {
+        observeHouseholdChanges()
         await metadata.loadCaches()
         usesArtworkProvider = await metadata.hasArtworkProvider
         hasCompletedIntro = await storage.load(Bool.self, from: Self.introFile) ?? false
@@ -202,10 +219,12 @@ public final class AppModel {
         let stored = await storage.load([PlaylistSource].self, from: Self.sourcesFile) ?? []
         sources = await migrateAndHydrate(stored)
         profiles = await storage.load([Profile].self, from: Self.profilesFile) ?? []
-        try? await pullNewerHouseholdSnapshot()
-        activeSourceID = sources.first?.id
+        householdReplica = await storage.load(HouseholdReplica.self, from: Self.replicaFile)
+            ?? HouseholdReplica()
+        await syncNow()
+        activeSourceID = sources.first(where: Self.hasConnection)?.id ?? sources.first?.id
 
-        guard let source = activeSource else {
+        guard let source = activeSource, Self.hasConnection(source) else {
             phase = .welcome
             scheduleHouseholdSync()
             return
@@ -327,7 +346,7 @@ public final class AppModel {
     /// Every source proves it can load before any of them appears on disk or
     /// in memory. The final source becomes active, matching the order the
     /// sending device presented.
-    public func add(_ incomingSources: [PlaylistSource]) async throws {
+    public func add(_ incomingSources: [PlaylistSource], household: HouseholdSnapshot? = nil) async throws {
         guard let firstSource = incomingSources.first,
               let lastSource = incomingSources.last
         else { return }
@@ -344,14 +363,28 @@ public final class AppModel {
 
         var validated: [ValidatedSource] = []
         validated.reserveCapacity(incomingSources.count)
+        var stagedFirstImport = false
         do {
             for source in incomingSources {
                 connectionProgress = progressForContacting(source)
-                let result = try await loader.loadLibrary(for: source)
+                let staged: LibraryLoader.LibraryResult?
+                if incomingSources.count == 1 && sources.isEmpty {
+                    staged = try await loader.loadPlayableChannels(for: source)
+                } else {
+                    staged = nil
+                }
+                let result: LibraryLoader.LibraryResult
+                if let staged {
+                    result = staged
+                } else {
+                    result = try await loader.loadLibrary(for: source)
+                }
                 guard isCurrent(load) else { throw CancellationError() }
                 connectionProgress = .organising
                 validated.append(ValidatedSource(source: source, result: result))
+                stagedFirstImport = staged != nil
             }
+            try await commit(validated, load: load, household: household)
         } catch {
             guard isCurrent(load) else { throw CancellationError() }
             // An existing library remains usable, including its phase and
@@ -364,7 +397,64 @@ public final class AppModel {
             throw error
         }
 
-        try await commit(validated, load: load)
+        if stagedFirstImport, let active = validated.last {
+            scheduleDeferredLibrary(
+                for: active.source, including: active.result, load: load
+            )
+        }
+    }
+
+    /// Transfers a complete household over the QR-authenticated LAN channel.
+    /// No profile or credential is expected to arrive later through iCloud.
+    public func makePairingPayload() async throws -> Pairing.Payload {
+        await flushPendingWatchState()
+        let hydrated = await hydrate(sources)
+        guard !hydrated.isEmpty else { throw LibraryLoader.LoadError.emptyPlaylist }
+        guard hydrated.allSatisfy(Self.hasConnection) else { throw LibraryLoader.LoadError.noPlaylistURL }
+        var files: [String: String] = [:]
+        var outgoing = hydrated
+        for index in outgoing.indices where outgoing[index].kind == .localFile {
+            guard let url = outgoing[index].playlistURL, url.isFileURL else {
+                throw LibraryLoader.LoadError.emptyPlaylist
+            }
+            let data = try Data(contentsOf: url)
+            guard data.count <= 3_500_000, let text = String(data: data, encoding: .utf8) else {
+                throw SyncError.payloadTooLarge
+            }
+            files[outgoing[index].id.uuidString] = text
+            outgoing[index].playlistURL = nil
+        }
+        let local = await makeHouseholdSnapshot()
+        householdReplica.observe(local: local)
+        return Pairing.Payload(sources: outgoing,
+                               household: householdReplica.snapshot().sanitizedForSync(),
+                               activeSourceID: activeSourceID, localPlaylists: files)
+    }
+
+    public func receivePairing(_ payload: Pairing.Payload) async throws {
+        guard !isReceivingPairing, !payload.sources.isEmpty,
+              Set(payload.sources.map(\.id)).count == payload.sources.count else {
+            throw LibraryLoader.LoadError.emptyPlaylist
+        }
+        isReceivingPairing = true
+        householdSyncTask?.cancel()
+        defer { isReceivingPairing = false; scheduleHouseholdSync() }
+        // Let any already-running merge finish before staging the handoff.
+        while isSyncInFlight { try await Task.sleep(for: .milliseconds(20)) }
+        var incoming = payload.sources
+        for index in incoming.indices where incoming[index].kind == .localFile {
+            guard let text = payload.localPlaylists?[incoming[index].id.uuidString],
+                  !M3UParser().parse(text).items.isEmpty else {
+                throw LibraryLoader.LoadError.emptyPlaylist
+            }
+            incoming[index].playlistURL = try await storage.saveImportedPlaylist(text, for: incoming[index].id)
+        }
+        // add() activates its last entry. Preserve the phone's selected service.
+        if let id = payload.activeSourceID, let index = incoming.firstIndex(where: { $0.id == id }) {
+            incoming.append(incoming.remove(at: index))
+        }
+        try await add(incoming, household: payload.household)
+        await completeIntro()
     }
 
     public func completeIntro() async {
@@ -443,7 +533,18 @@ public final class AppModel {
         defer { finishLibraryLoad(load) }
 
         do {
-            let result = try await loader.loadLibrary(for: source)
+            let staged: LibraryLoader.LibraryResult?
+            if !inBackground && catalogue.isEmpty {
+                staged = try await loader.loadPlayableChannels(for: source)
+            } else {
+                staged = nil
+            }
+            let result: LibraryLoader.LibraryResult
+            if let staged {
+                result = staged
+            } else {
+                result = try await loader.loadLibrary(for: source)
+            }
             if !inBackground { connectionProgress = .organising }
             let updates = LibraryUpdates.detect(previous: catalogue, current: result.library)
             let preparedRatings = await ratingsForInstallation(of: result.library)
@@ -465,6 +566,7 @@ public final class AppModel {
             }
             self.diagnostics = diagnostics
             phase = .ready
+            self.diagnostics.timeToFirstPlayableChannel = elapsedSeconds(since: load.startedAt)
             if !inBackground { connectionProgress = .ready }
 
             if var updated = sources.first(where: { $0.id == source.id }) {
@@ -492,6 +594,9 @@ public final class AppModel {
                 loadGuide(from: epgURL, for: source.id)
             }
             if !inBackground { refreshDiscovery() }
+            if staged != nil {
+                scheduleDeferredLibrary(for: source, including: result, load: load)
+            }
         } catch {
             guard isCurrent(load), activeSourceID == source.id else { return }
             // A refresh behind a visible catalogue must not replace it with an
@@ -502,6 +607,54 @@ public final class AppModel {
         }
     }
 
+    /// Lets a successful channel stage end the blocking setup flow. The rest
+    /// of a large Xtream catalogue lands as a second, generation-checked
+    /// snapshot and cannot overwrite a later source switch or repair.
+    private func scheduleDeferredLibrary(
+        for source: PlaylistSource,
+        including initial: LibraryLoader.LibraryResult,
+        load: LibraryLoad
+    ) {
+        deferredLibraryTask?.cancel()
+        deferredLibraryTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            await Task.yield()
+            guard self.isCurrent(load) else { return }
+            self.isRefreshingLibrary = true
+            defer {
+                if self.isCurrent(load) { self.isRefreshingLibrary = false }
+            }
+            do {
+                guard let result = try await self.loader.loadDeferredLibrary(
+                    for: source, including: initial
+                ) else { return }
+                let preparedRatings = await self.ratingsForInstallation(of: result.library)
+                guard !Task.isCancelled,
+                      self.isCurrent(load),
+                      self.activeSourceID == source.id
+                else { return }
+
+                self.installCatalogue(result.library, ratings: preparedRatings)
+                self.scheduleDiscoveryMatching()
+                let mergedRatings = await self.ratingService.merge(preparedRatings)
+                guard !Task.isCancelled,
+                      self.isCurrent(load),
+                      self.activeSourceID == source.id
+                else { return }
+                self.ratings = mergedRatings
+                self.applyPolicy()
+                self.scheduleVerification()
+                await self.loader.saveCache(result.library, for: source.id, storage: self.storage)
+            } catch is CancellationError {
+                return
+            } catch {
+                // Channels remain playable. A later manual refresh retries the
+                // optional catalogues without turning success into an error.
+                return
+            }
+        }
+    }
+
     /// Runs the matching after the current screen has had a chance to draw.
     func scheduleDiscoveryMatching(reset: Bool = false) {
         matchingTask?.cancel()
@@ -509,6 +662,7 @@ public final class AppModel {
         let generation = discoveryMatchGeneration
         let library = library
         let shelves = discoveryShelves
+        let audience = discoveryAudience
 
         // A profile change must never leave the previous profile's discovery
         // cards on screen while its replacement is being calculated.
@@ -523,7 +677,7 @@ public final class AppModel {
             try? await Task.sleep(for: .milliseconds(120))
             guard !Task.isCancelled else { return }
             let presentation = await DiscoveryPresentationQueue.shared.build(
-                library: library, shelves: shelves
+                library: library, shelves: shelves, audience: audience
             )
             guard !Task.isCancelled, generation == discoveryMatchGeneration else { return }
             discoveryPresentation = presentation
@@ -665,10 +819,12 @@ public final class AppModel {
     private func commit(
         _ validated: [ValidatedSource],
         load: LibraryLoad,
-        replacing sourceID: UUID? = nil
+        replacing sourceID: UUID? = nil,
+        household: HouseholdSnapshot? = nil
     ) async throws {
         guard let active = validated.last else { return }
         let preparedRatings = await ratingsForInstallation(of: active.result.library)
+        try Task.checkCancellation()
         guard isCurrent(load) else { throw CancellationError() }
 
         let refreshedAt = Date.now
@@ -680,23 +836,63 @@ public final class AppModel {
         }
         guard let activeSource = committed.last else { return }
 
-        // The first playlist creates the household's first profile, so there is
-        // always somebody a library belongs to. This happens only after the
-        // playlist has proved it can produce playable entries.
-        let createdOwner = profiles.isEmpty
-        if createdOwner {
-            let owner = Profile.makeOwner(named: String(localized: CoreStrings.profileDefaultOwnerName))
-            profiles = [owner]
-            activeProfileID = owner.id
+        // Persist credentials before installing/redacting anything. Previously
+        // persistSources swallowed Keychain failures after phase became ready.
+        for source in committed {
+            let credentials = SourceCredentials(source: source)
+            if !credentials.isEmpty { try await credentialStore.save(credentials, for: source.id) }
         }
-
-        if let sourceID,
-           committed.count == 1,
-           let replacement = committed.first,
-           let index = sources.firstIndex(where: { $0.id == sourceID }) {
-            sources[index] = replacement
-        } else {
-            sources.append(contentsOf: committed)
+        try Task.checkCancellation()
+        guard isCurrent(load) else { throw CancellationError() }
+        var nextSources = sources
+        for source in committed {
+            if let index = nextSources.firstIndex(where: { $0.id == source.id }) {
+                nextSources[index] = source
+            } else { nextSources.append(source) }
+        }
+        var nextProfiles = profiles
+        var importedStates: [String: WatchState] = [:]
+        var replica = householdReplica
+        if let household {
+            replica.observe(local: await makeHouseholdSnapshot())
+            replica.merge(remote: household)
+            let merged = replica.snapshot()
+            nextProfiles = merged.profiles
+            importedStates = merged.watchStates
+        }
+        let createdOwner = nextProfiles.isEmpty
+        if createdOwner {
+            nextProfiles = [Profile.makeOwner(named: String(localized: CoreStrings.profileDefaultOwnerName))]
+        }
+        try await storage.saveVerified(nextSources.map(\.redactedForPersistence), to: Self.sourcesFile)
+        try await storage.saveVerified(nextProfiles, to: Self.profilesFile)
+        for profile in nextProfiles {
+            if let state = importedStates[profile.id.uuidString] {
+                try await storage.saveVerified(state, to: profile.watchStateFileName)
+            }
+        }
+        if household != nil {
+            try await storage.saveVerified(replica, to: Self.replicaFile)
+        }
+        try Task.checkCancellation()
+        guard isCurrent(load) else { throw CancellationError() }
+        credentialMigrationFailure = nil
+        sources = nextSources
+        profiles = nextProfiles
+        if household != nil { householdReplica = replica }
+        if activeProfile == nil || household != nil {
+            // Restore the transferred people, never silently invent/activate a
+            // replacement owner or leave a nil policy hiding the whole library.
+            if shouldAskWhoIsWatching {
+                activeProfileID = nil
+                isChoosingProfile = true
+                watchState = WatchState()
+            } else if let only = profiles.first {
+                activeProfileID = only.id
+                let restored = await storage.load(WatchState.self, from: only.watchStateFileName)
+                watchState = importedStates[only.id.uuidString] ?? restored ?? WatchState()
+                isChoosingProfile = false
+            }
         }
         activeSourceID = activeSource.id
         invalidateGuideLoads()
@@ -715,6 +911,8 @@ public final class AppModel {
         self.diagnostics = diagnostics
 
         phase = .ready
+        diagnostics.timeToFirstPlayableChannel = elapsedSeconds(since: load.startedAt)
+        self.diagnostics = diagnostics
         connectionProgress = .ready
         let mergedRatings = await ratingService.merge(preparedRatings)
         guard isCurrent(load), activeSourceID == activeSource.id else { return }
@@ -812,6 +1010,7 @@ public final class AppModel {
     private struct LibraryLoad: Equatable {
         let generation: UInt64
         let sourceID: UUID
+        let startedAt: ContinuousClock.Instant
     }
 
     private func beginLibraryLoad(
@@ -824,7 +1023,12 @@ public final class AppModel {
         // clearing here cannot let an old request clear a newer marker later.
         episodeLoadsInFlight.removeAll()
         isRefreshingLibrary = showsRefreshActivity
-        return LibraryLoad(generation: libraryLoadGeneration, sourceID: source.id)
+        deferredLibraryTask?.cancel()
+        return LibraryLoad(
+            generation: libraryLoadGeneration,
+            sourceID: source.id,
+            startedAt: .now
+        )
     }
 
     private func finishLibraryLoad(_ load: LibraryLoad) {
@@ -836,8 +1040,14 @@ public final class AppModel {
         load.generation == libraryLoadGeneration
     }
 
+    private func elapsedSeconds(since start: ContinuousClock.Instant) -> TimeInterval {
+        let parts = start.duration(to: .now).components
+        return Double(parts.seconds) + Double(parts.attoseconds) / 1_000_000_000_000_000_000
+    }
+
     private func invalidateLibraryLoads() {
         libraryLoadGeneration &+= 1
+        deferredLibraryTask?.cancel()
         episodeLoadsInFlight.removeAll()
         isRefreshingLibrary = false
     }
@@ -887,7 +1097,14 @@ public final class AppModel {
         for source in sources {
             let credentials = SourceCredentials(source: source)
             if !credentials.isEmpty {
-                try? await credentialStore.save(credentials, for: source.id)
+                do {
+                    try await credentialStore.save(credentials, for: source.id)
+                } catch {
+                    // Keep the last recoverable descriptor on disk. In
+                    // particular, never erase a legacy plaintext credential
+                    // before its replacement has reached Keychain.
+                    return
+                }
             }
         }
         await storage.save(sources.map(\.redactedForPersistence), to: Self.sourcesFile)
@@ -958,6 +1175,7 @@ public final class AppModel {
     /// parent's Continue watching would be the harmless half of getting that
     /// wrong.
     private func scheduleWatchStateSave() {
+        guard !isApplyingHousehold else { return }
         watchStateSaveTask?.cancel()
         let snapshot = watchState
         let file = activeProfile?.watchStateFileName ?? WatchState.fileName
@@ -971,30 +1189,74 @@ public final class AppModel {
 
     // MARK: - Secure household sync
 
+    /// Capture the owner and value together before suspending. Used when a
+    /// playback checkpoint or background transition cannot wait for debounce.
+    public func flushPendingWatchState() async {
+        watchStateSaveTask?.cancel()
+        let snapshot = watchState
+        let file = activeProfile?.watchStateFileName ?? WatchState.fileName
+        await storage.save(snapshot, to: file)
+    }
+
     /// Pulls the newest private iCloud household and then publishes this
     /// device's merged snapshot. Called at launch, foreground and from the
     /// explicit Settings action.
     public func syncNow() async {
-        syncState = .syncing
-        do {
-            try await pullNewerHouseholdSnapshot()
-            // A synchronisable Keychain item can arrive a moment after the
-            // iCloud snapshot on a newly set-up device. Re-hydrate even when
-            // the snapshot itself is not newer so a later foreground pass
-            // completes the connection without asking the person again.
-            sources = await hydrate(sources)
-            let snapshot = await makeHouseholdSnapshot()
-            try await householdSync.push(snapshot)
-            await storage.save(snapshot.modifiedAt, to: Self.syncStampFile)
-            syncState = .current(snapshot.modifiedAt)
-        } catch is SyncError {
-            syncState = .unavailable
-        } catch {
-            syncState = .failed(error.localizedDescription)
+        guard !isReceivingPairing else { return }
+        if let credentialMigrationFailure {
+            syncState = .failed(credentialMigrationFailure)
+            return
         }
+        guard !isSyncInFlight else { syncRequestedAgain = true; return }
+        isSyncInFlight = true
+        defer { isSyncInFlight = false }
+        repeat {
+            syncRequestedAgain = false
+            syncState = .syncing
+            do {
+                let remote = try await householdSync.pull()
+                if let remote { _ = await hydrate(remote.sources) }
+                if credentialMigrationFailure != nil { throw SyncError.keyNotAvailable }
+                // Retry preparation if a user changes state during disk or
+                // Keychain reads. No partially prepared merge reaches the UI.
+                while true {
+                    let revision = householdRevision
+                    let local = await makeHouseholdSnapshot()
+                    guard revision == householdRevision else { continue }
+                    var candidate = householdReplica
+                    candidate.observe(local: local)
+                    if let remote { candidate.merge(remote: remote) }
+                    let merged = candidate.snapshot().sanitizedForSync()
+                    let hydrated = await hydrate(merged.sources)
+                    if credentialMigrationFailure != nil { throw SyncError.keyNotAvailable }
+                    guard revision == householdRevision else { continue }
+                    householdReplica = candidate
+                    await installHousehold(merged, hydrated: hydrated, local: local)
+                    // Persist merge metadata before publishing, so a restart
+                    // cannot forget deletions or reinterpret remote edits.
+                    await storage.save(candidate, to: Self.replicaFile)
+                    if remote?.sanitizedForSync() != merged,
+                       !merged.sources.isEmpty || !merged.profiles.isEmpty || merged.syncRecords?.isEmpty == false {
+                        try await householdSync.push(merged)
+                    }
+                    syncState = .current(merged.modifiedAt)
+                    if householdRevision != revision { syncRequestedAgain = true }
+                    break
+                }
+            } catch let error as SyncError {
+                syncState = if case .unavailable = error { .unavailable }
+                    else { .failed(error.localizedDescription) }
+                break
+            } catch {
+                syncState = .failed(error.localizedDescription)
+                break
+            }
+        } while syncRequestedAgain
     }
 
     func scheduleHouseholdSync() {
+        guard !isApplyingHousehold, !isReceivingPairing else { return }
+        if isSyncInFlight { syncRequestedAgain = true; return }
         householdSyncTask?.cancel()
         householdSyncTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .seconds(3))
@@ -1003,106 +1265,192 @@ public final class AppModel {
         }
     }
 
+    private func observeHouseholdChanges() {
+        guard householdChangeTask == nil else { return }
+        householdChangeTask = Task { @MainActor [weak self, householdSync] in
+            let changes = await householdSync.externalChanges()
+            for await _ in changes {
+                guard !Task.isCancelled, let self else { return }
+                await self.syncNow()
+            }
+        }
+    }
+
     private func makeHouseholdSnapshot() async -> HouseholdSnapshot {
+        let selectedID = activeProfileID
+        let selectedState = watchState
+        let profileSnapshot = profiles
+        let sourceSnapshot = sources
         var states: [String: WatchState] = [:]
-        for profile in profiles {
-            if profile.id == activeProfileID {
-                states[profile.id.uuidString] = watchState
-            } else if let saved = await storage.load(
-                WatchState.self, from: profile.watchStateFileName
-            ) {
+        for profile in profileSnapshot {
+            if profile.id == selectedID {
+                states[profile.id.uuidString] = selectedState
+            } else if let saved = await storage.load(WatchState.self, from: profile.watchStateFileName) {
                 states[profile.id.uuidString] = saved
             }
         }
         return HouseholdSnapshot(
-            sources: sources
-                .filter { $0.kind != .localFile }
-                .map(\.redactedForPersistence),
-            profiles: profiles,
-            watchStates: states
+            sources: sourceSnapshot.filter { $0.kind != .localFile }.map(\.redactedForPersistence),
+            profiles: profileSnapshot, watchStates: states
         )
     }
 
-    private func pullNewerHouseholdSnapshot() async throws {
-        do {
-            guard let remote = try await householdSync.pull() else { return }
-            let applied = await storage.load(Date.self, from: Self.syncStampFile) ?? .distantPast
-            guard remote.modifiedAt > applied else {
-                syncState = .current(applied)
-                return
-            }
-
-            let previousSources = sources
-            let previousActiveSourceID = activeSourceID
-            let localFiles = sources.filter { $0.kind == .localFile }
-            sources = await hydrate(remote.sources + localFiles)
-            if !remote.profiles.isEmpty { profiles = remote.profiles }
-            for profile in profiles {
-                if let state = remote.watchStates[profile.id.uuidString] {
-                    await storage.save(state, to: profile.watchStateFileName)
+    private func installHousehold(
+        _ merged: HouseholdSnapshot, hydrated: [PlaylistSource], local: HouseholdSnapshot
+    ) async {
+        let previousSource = activeSource
+        let previousProfile = activeProfile
+        let localFiles = sources.filter { $0.kind == .localFile }
+        var states = merged.watchStates
+        for (profileID, var state) in states {
+            // A local stream remains local. New devices receive only stubs and
+            // fetch the current episode URLs from their own provider account.
+            for (key, item) in state.recentItems {
+                if let existing = local.watchStates[profileID]?.recentItems[key],
+                   existing.id == item.id, existing.streamURL.scheme != "kanal-history" {
+                    state.recentItems[key] = existing
                 }
             }
-            await storage.save(sources.map(\.redactedForPersistence), to: Self.sourcesFile)
-            await storage.save(profiles, to: Self.profilesFile)
-            await storage.save(remote.modifiedAt, to: Self.syncStampFile)
+            states[profileID] = state
+        }
 
-            if let activeProfileID,
-               !profiles.contains(where: { $0.id == activeProfileID }) {
-                self.activeProfileID = profiles.first?.id
+        isApplyingHousehold = true
+        watchStateSaveTask?.cancel()
+        sources = hydrated.map { source in
+            var updated = source
+            updated.lastRefreshedAt = sources.first { $0.id == source.id }?.lastRefreshedAt
+            return updated
+        } + localFiles
+        profiles = merged.profiles
+        if let previousProfile {
+            let replacement = profiles.first { $0.id == previousProfile.id }
+            // A remote policy edit must never silently grant a child more
+            // access. Re-enter the chooser even if only an allowlist changed.
+            if replacement == nil || (previousProfile.isRestricted &&
+                replacement.map { previousProfile.narrows(differentlyThan: $0) } == true) {
+                activeProfileID = nil
+                profileSelectionGeneration &+= 1
+                isChoosingProfile = !profiles.isEmpty
+                watchState = WatchState()
             }
-            if let activeProfileID = self.activeProfileID,
-               let state = remote.watchStates[activeProfileID.uuidString] {
-                watchState = state
-                applyPolicy(resetDiscovery: true)
-            }
-            if let activeSourceID,
-               !sources.contains(where: { $0.id == activeSourceID }) {
-                self.activeSourceID = sources.first?.id
-            }
-            syncState = .current(remote.modifiedAt)
+        }
+        if activeProfileID == nil, previousProfile == nil, !isChoosingProfile, phase != .starting, !profiles.isEmpty {
+            if shouldAskWhoIsWatching { isChoosingProfile = true }
+            else { activeProfileID = profiles.first?.id; isChoosingProfile = false }
+        }
+        if let id = activeProfileID { watchState = states[id.uuidString] ?? WatchState() }
+        if activeSourceID == nil || !sources.contains(where: { $0.id == activeSourceID }) {
+            activeSourceID = sources.first?.id
+        }
+        let sourceChanged = previousSource != activeSource
+        if sourceChanged {
+            invalidateLibraryLoads()
+            invalidateGuideLoads()
+            clearLoadedEpisodes()
+            catalogue = .empty
+            guide = nil
+        }
+        if sourceChanged || previousProfile != activeProfile {
+            applyPolicy(resetDiscovery: true)
+            scheduleVerification()
+        } else {
+            rebuildHomeIndex()
+            rebuildHomeContent()
+        }
+        isApplyingHousehold = false
 
-            if phase != .starting,
-               let active = activeSource {
-                let previous = previousSources.first {
-                    $0.id == (previousActiveSourceID ?? active.id)
-                }
-                if previousActiveSourceID != active.id || previous != active {
-                    await refresh(active, inBackground: !catalogue.isEmpty)
-                }
+        let savedSources = sources.map(\.redactedForPersistence)
+        let savedProfiles = profiles
+        await storage.save(savedSources, to: Self.sourcesFile)
+        await storage.save(savedProfiles, to: Self.profilesFile)
+        for profile in savedProfiles {
+            if let state = states[profile.id.uuidString] {
+                await storage.save(state, to: profile.watchStateFileName)
             }
-        } catch {
-            throw error
+        }
+        if phase != .starting {
+            if activeSource == nil || activeSource.map(Self.hasConnection) == false {
+                // Cloud descriptors may arrive without credentials on TV.
+                // Keep the real profiles but offer QR setup instead of an
+                // empty library or fabricating a replacement household.
+                isChoosingProfile = false
+                phase = .welcome
+            } else if sourceChanged, let active = activeSource {
+                await refresh(active)
+            } else {
+                await prepareHome()
+            }
+        }
+    }
+
+    private static func hasConnection(_ source: PlaylistSource) -> Bool {
+        switch source.kind {
+        case .m3u, .localFile: source.playlistURL != nil
+        case .xtream: source.portalURL != nil && source.username != nil && source.password != nil
         }
     }
 
     private func migrateAndHydrate(_ stored: [PlaylistSource]) async -> [PlaylistSource] {
-        var migrated = false
+        var migrationFailed = false
         var result: [PlaylistSource] = []
-        result.reserveCapacity(stored.count)
         for source in stored {
-            let inline = SourceCredentials(source: source)
-            if !inline.isEmpty {
-                migrated = true
-                try? await credentialStore.save(inline, for: source.id)
+            let saved: SourceCredentials?
+            do { saved = try await credentialStore.load(for: source.id) }
+            catch {
+                migrationFailed = true
+                credentialMigrationFailure = error.localizedDescription
+                result.append(source)
+                continue
             }
-            let saved = try? await credentialStore.load(for: source.id)
-            result.append(source.applying(saved ?? (inline.isEmpty ? nil : inline)))
+            let combined = mergeCredentials(source: source, saved: saved)
+            if !combined.isEmpty {
+                do { try await credentialStore.save(combined, for: source.id) }
+                catch {
+                    migrationFailed = true
+                    credentialMigrationFailure = error.localizedDescription
+                }
+            }
+            result.append(source.applying(combined))
         }
-        if migrated {
+        if !migrationFailed {
             await storage.save(result.map(\.redactedForPersistence), to: Self.sourcesFile)
         }
         return result
     }
 
+    private func mergeCredentials(source: PlaylistSource, saved: SourceCredentials?) -> SourceCredentials {
+        let inline = SourceCredentials(source: source)
+        guard var result = saved else { return inline }
+        if let value = inline.portalURL { result.portalURL = value }
+        if let value = inline.playlistURL { result.playlistURL = value }
+        if let value = inline.epgURL { result.epgURL = value }
+        if let value = inline.username { result.username = value }
+        if let value = inline.password { result.password = value }
+        return result
+    }
+
     private func hydrate(_ descriptors: [PlaylistSource]) async -> [PlaylistSource] {
         var result: [PlaylistSource] = []
-        result.reserveCapacity(descriptors.count)
         for source in descriptors {
-            let saved = try? await credentialStore.load(for: source.id)
-            result.append(source.applying(saved))
+            let saved: SourceCredentials?
+            do { saved = try await credentialStore.load(for: source.id) }
+            catch {
+                credentialMigrationFailure = error.localizedDescription
+                result.append(sources.first { $0.id == source.id } ?? source)
+                continue
+            }
+            let credentials = mergeCredentials(source: source, saved: saved)
+            // Older cloud descriptors carried the portal root. Move it into
+            // the same Keychain record without replacing existing passwords.
+            if source.portalURL != nil, credentials != saved {
+                do { try await credentialStore.save(credentials, for: source.id) }
+                catch { credentialMigrationFailure = error.localizedDescription }
+            }
+            result.append(source.applying(credentials))
         }
         return result
     }
+
 }
 
 // MARK: - Episodes
@@ -1118,10 +1466,15 @@ public extension AppModel {
     /// The episodes to show for a group: the ones the playlist already had, or
     /// the ones we fetched from the panel.
     func episodes(for group: SeriesGroup) -> [MediaItem] {
-        guard let id = group.providerSeriesID, let fetched = loadedEpisodes[id], !fetched.isEmpty else {
-            return group.episodes
+        let episodes: [MediaItem]
+        if let id = group.providerSeriesID, let fetched = loadedEpisodes[id], !fetched.isEmpty {
+            episodes = fetched
+        } else {
+            episodes = group.episodes
         }
-        return fetched
+        // The on-demand cache is shared across profiles and sits outside the
+        // filtered library. Reapply the current policy at this read boundary.
+        return isRestricted ? episodes.filter { policy.allows($0) } : episodes
     }
 
     func episodeLoadFailure(for group: SeriesGroup) -> String? {
@@ -1304,7 +1657,8 @@ public extension AppModel {
             guideCoveragePercent: Int(diagnostics.guideCoverage * 100),
             guideWasRepaired: !diagnostics.guideRepairs.isEmpty,
             guideIsPartial: diagnostics.guideIsPartial,
-            skippedPlaylistLines: diagnostics.skippedPlaylistLines
+            skippedPlaylistLines: diagnostics.skippedPlaylistLines,
+            timeToFirstPlayableChannel: diagnostics.timeToFirstPlayableChannel
         )
     }
 
@@ -1383,6 +1737,11 @@ public extension AppModel {
         }
     }
 
+    /// Pins an explicit source independently of successful playback history.
+    func lockVariant(_ variantID: String?, forGroup groupID: String) {
+        watchState.lockedVariants[groupID] = variantID
+    }
+
     /// Remembers which of a channel's stream variants actually played, so the
     /// next attempt starts with the one that worked rather than the first one
     /// the provider happened to list.
@@ -1458,7 +1817,7 @@ public extension AppModel {
         for id in recentIDs where recentItems[id] == nil {
             guard let snapshot = watchState.recentItems[id],
                   currentItemID(from: id) != nil,
-                  canPlay(snapshot)
+                  policy.allows(snapshot)
             else { continue }
             switch snapshot.kind {
             case .liveTV:
@@ -1471,8 +1830,16 @@ public extension AppModel {
                 ] else { continue }
                 recentItems[id] = current
             case .series:
-                guard seriesGroup(for: snapshot) != nil else { continue }
-                recentItems[id] = snapshot
+                guard let group = seriesGroup(for: snapshot) else { continue }
+                let resolved = episodes(for: group).first {
+                    $0.id == snapshot.id || ($0.season == snapshot.season &&
+                        $0.episode == snapshot.episode && snapshot.episode != nil)
+                }
+                if let resolved, canPlay(resolved) {
+                    recentItems[id] = resolved
+                } else if snapshot.streamURL.scheme != "kanal-history" {
+                    recentItems[id] = snapshot
+                }
             }
         }
 
@@ -1671,9 +2038,13 @@ private struct HomeLibraryIndex {
 private actor DiscoveryPresentationQueue {
     static let shared = DiscoveryPresentationQueue()
 
-    func build(library: Library, shelves: [DiscoveryShelf]) -> DiscoveryPresentation {
+    func build(
+        library: Library, shelves: [DiscoveryShelf], audience: DiscoveryAudience
+    ) -> DiscoveryPresentation {
         guard !Task.isCancelled else { return DiscoveryPresentation() }
-        return DiscoveryPresentation.build(library: library, shelves: shelves)
+        return DiscoveryPresentation.build(
+            library: library, shelves: shelves, audience: audience
+        )
     }
 }
 

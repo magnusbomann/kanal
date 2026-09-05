@@ -290,6 +290,18 @@ public enum CoreStrings {
     public static let maturityAdult = resource(
         "maturity.adult", "Age limit option: an adult's profile, nothing withheld"
     )
+
+    // MARK: - Purchases
+
+    public static let purchaseUnverified = resource(
+        "purchase.unverified", "Shown when the App Store returns a receipt that fails its own signature check"
+    )
+    public static let purchaseNothingToRestore = resource(
+        "purchase.nothingToRestore", "Shown when Restore finds no earlier purchase on this Apple ID"
+    )
+    public static let purchaseUnavailable = resource(
+        "purchase.unavailable", "Shown when the selected App Store product could not be loaded"
+    )
 }
 
 public extension LocalizedStringResource {

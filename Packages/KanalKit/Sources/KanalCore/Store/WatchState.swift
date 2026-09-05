@@ -29,18 +29,28 @@ public struct WatchProgress: Codable, Sendable, Hashable, Identifiable {
 }
 
 /// Favourites and watch history, persisted together.
-public struct WatchState: Codable, Sendable {
+public struct WatchState: Codable, Sendable, Equatable {
     public var favoriteIDs: Set<String> = []
     public var hiddenCategoryNames: Set<String> = []
     public var progress: [String: WatchProgress] = [:]
     /// Most recent first.
     public var recentIDs: [String] = []
+    /// Small snapshots for on-demand episodes that are not part of the initial
+    /// catalogue, keyed by source + item. Without these, an episode disappears
+    /// from Continue watching after relaunch even though its progress survived.
+    public var recentItems: [String: MediaItem] = [:]
+    /// Source-scoped channel group ids, most recent first. Kept separate from
+    /// video progress: a live channel has no finite duration to record.
+    public var recentChannelGroupIDs: [String] = []
     /// Channel group id → the variant that last played successfully.
     ///
     /// A provider carries the same channel on several streams and some of them
     /// are dead. Remembering which one worked means the second viewing does
     /// not repeat yesterday's failures.
     public var workingVariants: [String: String] = [:]
+
+    /// Explicit user choice; independent of the last successful stream.
+    public var lockedVariants: [String: String] = [:]
 
     public init() {}
 
@@ -57,6 +67,15 @@ public struct WatchState: Codable, Sendable {
             [String: WatchProgress].self, forKey: .progress
         ) ?? [:]
         recentIDs = try container.decodeIfPresent([String].self, forKey: .recentIDs) ?? []
+        recentItems = try container.decodeIfPresent(
+            [String: MediaItem].self, forKey: .recentItems
+        ) ?? [:]
+        recentChannelGroupIDs = try container.decodeIfPresent(
+            [String].self, forKey: .recentChannelGroupIDs
+        ) ?? []
+        lockedVariants = try container.decodeIfPresent(
+            [String: String].self, forKey: .lockedVariants
+        ) ?? [:]
         workingVariants = try container.decodeIfPresent(
             [String: String].self, forKey: .workingVariants
         ) ?? [:]
@@ -64,11 +83,24 @@ public struct WatchState: Codable, Sendable {
 
     public static let fileName = "watch-state.json"
 
-    public mutating func record(_ update: WatchProgress) {
+    public mutating func record(_ update: WatchProgress, item: MediaItem? = nil) {
         progress[update.itemID] = update
+        if let item { recentItems[update.itemID] = item }
         recentIDs.removeAll { $0 == update.itemID }
         recentIDs.insert(update.itemID, at: 0)
-        if recentIDs.count > 200 { recentIDs.removeLast(recentIDs.count - 200) }
+        if recentIDs.count > 200 {
+            let removed = Array(recentIDs.suffix(from: 200))
+            recentIDs.removeLast(recentIDs.count - 200)
+            for id in removed { recentItems[id] = nil }
+        }
+    }
+
+    public mutating func recordChannel(groupID: String) {
+        recentChannelGroupIDs.removeAll { $0 == groupID }
+        recentChannelGroupIDs.insert(groupID, at: 0)
+        if recentChannelGroupIDs.count > 50 {
+            recentChannelGroupIDs.removeLast(recentChannelGroupIDs.count - 50)
+        }
     }
 
     public mutating func toggleFavorite(_ id: String) {

@@ -45,10 +45,30 @@ public protocol PlaybackControlling: AnyObject, Observable {
     func skip(by seconds: TimeInterval)
     func selectAudioTrack(_ id: PlaybackTrack.ID?)
     func selectSubtitleTrack(_ id: PlaybackTrack.ID?)
+
+    /// Whether another stream carries the same channel.
+    ///
+    /// Defaulted, because only the engine that walks a `PlaybackPlan` has
+    /// feeds to walk between. A film has one source and the control never
+    /// appears over it.
+    var canSwitchSource: Bool { get }
+    /// True while the old feed has been let go and the new one has not opened.
+    var isSwitchingSource: Bool { get }
+    /// Which feed this is, counting from one, and how many exist.
+    var sourceNumber: Int { get }
+    var sourceCount: Int { get }
+    /// Give up on this feed and try the next one carrying the same channel.
+    func switchSource()
 }
 
 public extension PlaybackControlling {
     var isLive: Bool { isLiveContent }
+
+    var canSwitchSource: Bool { false }
+    var isSwitchingSource: Bool { false }
+    var sourceNumber: Int { 1 }
+    var sourceCount: Int { 1 }
+    func switchSource() {}
 
     /// Whether there is a length to scrub through. A live stream never has
     /// one; a recording has one once its stream has said so.

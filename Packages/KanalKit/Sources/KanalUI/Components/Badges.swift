@@ -4,6 +4,7 @@ import SwiftUI
 /// The pulsing "LIVE" marker.
 public struct LiveBadge: View {
     @State private var isPulsing = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     public init() {}
 
@@ -21,6 +22,7 @@ public struct LiveBadge: View {
         .padding(.vertical, 4)
         .background(KanalColor.live, in: .capsule)
         .onAppear {
+            guard !reduceMotion else { return }
             withAnimation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true)) {
                 isPulsing = true
             }

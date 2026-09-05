@@ -1,0 +1,88 @@
+{
+  "identifier" : "A1B2C3D4",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "599.00",
+      "familyShareable" : true,
+      "internalID" : "KANAL0003",
+      "localizations" : [
+        {
+          "description" : "Kanal Pluss, one payment.",
+          "displayName" : "Kanal Pluss",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.bomann.kanal.pro.lifetime",
+      "referenceName" : "Pluss (one-off)",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_failTransactionsEnabled" : false,
+    "_locale" : "nb_NO",
+    "_storefront" : "NOR",
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21520000",
+      "localizations" : [],
+      "name" : "Kanal Pluss",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "39.00",
+          "familyShareable" : true,
+          "groupNumber" : 1,
+          "internalID" : "KANAL0001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Kanal Pluss, monthly.",
+              "displayName" : "Kanal Pluss",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.bomann.kanal.pro.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Pluss (monthly)",
+          "subscriptionGroupID" : "21520000",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "249.00",
+          "familyShareable" : true,
+          "groupNumber" : 1,
+          "internalID" : "KANAL0002",
+          "introductoryOffer" : {
+            "internalID" : "KANAL0002T",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Kanal Pluss, yearly. First week free.",
+              "displayName" : "Kanal Pluss",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.bomann.kanal.pro.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Pluss (yearly)",
+          "subscriptionGroupID" : "21520000",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

@@ -12,6 +12,27 @@ import Foundation
 /// finds nothing, then falls back to the key. That failure is invisible in
 /// English and total in every other language.
 public enum UIStrings {
+    public static let playerSeek = text("player.seek", "Focusable playback timeline")
+    public static let playerSeekHint = text("player.seek.hint", "Remote seeking instructions")
+
+    public static let pairingClose = text("pairing.close", "Close the QR setup panel")
+    public static let pairingShowQR = text("pairing.showQR", "Return to phone setup")
+    public static let pairingManualTitle = text("pairing.manual.title", "Manual setup action")
+    public static let pairingManualBody = text("pairing.manual.body", "Explains manual TV setup")
+    public static let guideReturnToNow = text("guide.returnToNow", "Return to the current programmes")
+
+    public static let streamPlaying = text("stream.playing", "The active stream")
+    public static let streamChoose = text("stream.choose", "Live stream selection and recovery")
+    public static let streamLock = text("stream.lock", "Live stream selection and recovery")
+    public static let streamLockBody = text("stream.lock.body", "Live stream selection and recovery")
+    public static let streamLocked = text("stream.locked", "Live stream selection and recovery")
+    public static let streamSelected = text("stream.selected", "Live stream selection and recovery")
+    public static let streamWaiting = text("stream.waiting", "Live stream selection and recovery")
+    public static let streamWaitingBody = text("stream.waiting.body", "Live stream selection and recovery")
+    public static let streamSearchStopped = text("stream.stopped", "Live stream selection and recovery")
+    public static let streamSearchStoppedBody = text("stream.stopped.body", "Live stream selection and recovery")
+    public static let streamDone = text("stream.done", "Live stream selection and recovery")
+
 
     private static var bundle: LocalizedStringResource.BundleDescription {
         .atURL(Bundle.module.bundleURL)
@@ -305,6 +326,23 @@ public enum UIStrings {
             comment: "How many streams carry this channel"
         )
     }
+    // MARK: - Sound
+
+    public static let audioLanguage = text(
+        "audio.language", "Row that chooses which language a film starts in"
+    )
+    public static let audioLanguageOriginal = text(
+        "audio.language.original", "The option that leaves the film in the language it was made in"
+    )
+    public static let audioLanguageFooter = text(
+        "audio.language.footer",
+        "Explains that a grown-up's films stay in their original language unless one is chosen"
+    )
+    public static let audioLanguageChildFooter = text(
+        "audio.language.child.footer",
+        "Explains that a child's films switch to this language whenever the film offers it"
+    )
+
     public static let tryAnotherSource = text(
         "player.switchSource",
         "Button over the picture that gives up on this stream and tries the next one"

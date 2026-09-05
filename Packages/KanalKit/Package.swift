@@ -17,6 +17,18 @@ let package = Package(
             resources: [
                 .copy("Resources/en.lproj"),
                 .copy("Resources/nb.lproj"),
+                .copy("Resources/es.lproj"),
+                .copy("Resources/pt-BR.lproj"),
+                .copy("Resources/fr.lproj"),
+                .copy("Resources/de.lproj"),
+                .copy("Resources/it.lproj"),
+                .copy("Resources/nl.lproj"),
+                .copy("Resources/ar.lproj"),
+                .copy("Resources/tr.lproj"),
+                .copy("Resources/pl.lproj"),
+                .copy("Resources/sv.lproj"),
+                .copy("Resources/da.lproj"),
+                .copy("Resources/fi.lproj"),
                 .copy("Resources/titles"),
             ],
             swiftSettings: [.swiftLanguageMode(.v6)]
@@ -24,7 +36,23 @@ let package = Package(
         .target(
             name: "KanalUI",
             dependencies: ["KanalCore"],
-            resources: [.copy("Resources/en.lproj"), .copy("Resources/nb.lproj")],
+            resources: [
+                .copy("Resources/en.lproj"),
+                .copy("Resources/nb.lproj"),
+                .copy("Resources/es.lproj"),
+                .copy("Resources/pt-BR.lproj"),
+                .copy("Resources/fr.lproj"),
+                .copy("Resources/de.lproj"),
+                .copy("Resources/it.lproj"),
+                .copy("Resources/nl.lproj"),
+                .copy("Resources/ar.lproj"),
+                .copy("Resources/tr.lproj"),
+                .copy("Resources/pl.lproj"),
+                .copy("Resources/sv.lproj"),
+                .copy("Resources/da.lproj"),
+                .copy("Resources/fi.lproj"),
+                .copy("Resources/legal"),
+            ],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(

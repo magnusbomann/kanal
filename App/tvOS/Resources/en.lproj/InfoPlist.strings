@@ -1,0 +1,4 @@
+// Localized system-facing app information.
+
+"CFBundleDisplayName" = "Kanal";
+"NSLocalNetworkUsageDescription" = "Kanal uses your local network to receive a playlist from your iPhone. Nothing is sent over the internet.";

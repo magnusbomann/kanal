@@ -19,6 +19,9 @@ public enum KanalColor {
         endPoint: .trailing
     )
 
+    /// Dark lettering remains readable across both ends of the coral gradient.
+    public static let onAccent = Color(hex: 0x20100B)
+
     public static let accentSolid = Color(hex: 0xFF7A4D)
 
     // MARK: Surfaces
@@ -54,13 +57,13 @@ public enum KanalColor {
     )
 
     public static let secondaryText = Color(
-        light: Color(hex: 0x76767C),
+        light: Color(hex: 0x636369),
         dark: Color(hex: 0x9A9AA2)
     )
 
     public static let tertiaryText = Color(
-        light: Color(hex: 0xAEAEB4),
-        dark: Color(hex: 0x6C6C74)
+        light: Color(hex: 0x68686E),
+        dark: Color(hex: 0x92929A)
     )
 
     public static let separator = Color(

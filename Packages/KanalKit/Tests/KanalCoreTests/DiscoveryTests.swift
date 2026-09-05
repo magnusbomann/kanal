@@ -137,6 +137,100 @@ struct DiscoveryServiceSelectionTests {
         let chosen = DiscoveryService.curatedServices(ranked, limit: 2)
         #expect(chosen.map(\.name) == ["Netflix", "Local One"])
     }
+
+    /// Measured against the real catalogue: Disney carried seventeen films a
+    /// nine-year-old could watch, Netflix twelve — and Disney is the one a
+    /// parent goes looking for.
+    @Test("A child's rows lead with Disney")
+    func childrenLeadWithDisney() {
+        let ranked = [
+            DiscoveryService.Service(id: 1, name: "Local One"),
+            DiscoveryService.Service(id: 8, name: "Netflix"),
+            DiscoveryService.Service(id: 337, name: "Disney Plus"),
+            DiscoveryService.Service(id: 4, name: "Max"),
+        ]
+
+        let chosen = DiscoveryService.curatedServices(
+            ranked, limit: 3, leadingWith: DiscoveryAudience.children(.nine).preferredServices
+        )
+        #expect(chosen.map(\.name) == ["Disney Plus", "Netflix", "Max"])
+    }
+
+    @Test("A grown-up's ordering is left exactly as it was")
+    func grownUpsUnchanged() {
+        let ranked = [
+            DiscoveryService.Service(id: 337, name: "Disney Plus"),
+            DiscoveryService.Service(id: 8, name: "Netflix"),
+        ]
+
+        #expect(
+            DiscoveryService.curatedServices(
+                ranked, limit: 2, leadingWith: DiscoveryAudience.everyone.preferredServices
+            ) == DiscoveryService.curatedServices(ranked, limit: 2)
+        )
+    }
+}
+
+/// The rows a child gets are a different question put to TMDB, not the
+/// grown-up answer with the unsuitable parts taken out.
+@Suite("Who the recommendations are for")
+struct DiscoveryAudienceTests {
+
+    @Test("A grown-up's profile asks for nothing extra")
+    func grownUp() {
+        let audience = DiscoveryAudience(profile: Profile(name: "A", maturity: .adult))
+        #expect(audience == .everyone)
+        #expect(audience.movieGenres == nil)
+        #expect(audience.seriesGenres == nil)
+        #expect(audience.movieCertification == nil)
+    }
+
+    /// Failing safe: before anyone has chosen, the audience is a child's.
+    @Test("No profile is treated as a child's")
+    func noProfile() {
+        #expect(DiscoveryAudience(profile: nil) == .everyone)
+    }
+
+    @Test("Every child ceiling carries a board limit TMDB can filter on")
+    func ceilings() {
+        let expected: [MaturityRating: String] = [
+            .allAges: "G", .six: "G", .nine: "PG", .twelve: "PG-13", .fifteen: "R",
+        ]
+        for (ceiling, code) in expected {
+            let audience = DiscoveryAudience.children(ceiling)
+            let certification = audience.movieCertification
+            #expect(certification?.country == "US")
+            #expect(certification?.code == code, "ceiling \(ceiling.rawValue)")
+        }
+    }
+
+    /// The mistake this app has already made once, in the profile suggestions:
+    /// Animation is a technique, not an audience. Filtering shows by it
+    /// returns Family Guy next to Paw Patrol — measured, two usable shows
+    /// against seven for the audience genres.
+    @Test("Shows are chosen by audience, never by Animation alone")
+    func showsUseAudienceGenres() {
+        let genres = DiscoveryAudience.children(.nine).seriesGenres
+        #expect(genres == "10762|10751")
+        #expect(genres != "16")
+    }
+
+    @Test("Films may use Animation, because a board rating gates them too")
+    func filmsMayUseAnimation() {
+        #expect(DiscoveryAudience.children(.nine).movieGenres == "16|10751")
+        #expect(DiscoveryAudience.children(.nine).movieCertification != nil)
+    }
+
+    /// Two profiles that ask different questions must not share an answer.
+    @Test("Each audience caches under its own name")
+    func cacheScopes() {
+        let scopes = [
+            DiscoveryAudience.everyone,
+            .children(.allAges), .children(.six), .children(.nine),
+            .children(.twelve), .children(.fifteen),
+        ].map(\.cacheScope)
+        #expect(Set(scopes).count == scopes.count)
+    }
 }
 
 @Suite("An actor's other work")
@@ -211,5 +305,93 @@ struct CreditMatchingTests {
         let role = try JSONDecoder().decode(KnownRole.self, from: Data(legacy.utf8))
         #expect(role.year == nil)
         #expect(library.item(matching: role)?.title == "Interstellar")
+    }
+}
+
+/// A child sees a film only once a board has been consulted about it, and the
+/// queue that consults them is tens of thousands long. Which end it starts at
+/// decides whether their Home fills in minutes or in days.
+@Suite("Which titles get checked first")
+struct DiscoveryVerificationOrderTests {
+
+    static func movie(_ title: String) -> MediaItem {
+        MediaItem(
+            id: title, kind: .movie, title: title, rawTitle: title,
+            streamURL: URL(string: "http://p.tv/play/\(abs(title.hashValue))")!
+        )
+    }
+
+    static func shelf(_ names: [String]) -> DiscoveryShelf {
+        DiscoveryShelf(
+            id: "trending.movie", source: .trending, kind: .movie,
+            titles: names.enumerated().map { DiscoveryTitle(id: $0.offset, names: [$0.element]) }
+        )
+    }
+
+    @Test("The recommendations go to the front, in their own order")
+    func recommendationsLead() {
+        let pool = [
+            Self.movie("Some Panel Filler"),
+            Self.movie("Toy Story"),
+            Self.movie("Another Filler"),
+            Self.movie("Coco"),
+        ]
+        let ranking = DiscoveryVerificationOrder.ranking(for: [Self.shelf(["Coco", "Toy Story"])])
+        let ordered = DiscoveryVerificationOrder.prioritised(pool, by: ranking)
+
+        #expect(ordered.map(\.title) == [
+            "Coco", "Toy Story", "Some Panel Filler", "Another Filler",
+        ])
+    }
+
+    /// Nothing may be dropped: the queue exists to reach the end of the
+    /// catalogue, and a title nobody recommended still needs an answer.
+    @Test("Everything in the pool survives the reordering")
+    func nothingIsLost() {
+        let pool = (1...50).map { Self.movie("Film \($0)") }
+        let ranking = DiscoveryVerificationOrder.ranking(for: [Self.shelf(["Film 40", "Film 3"])])
+        let ordered = DiscoveryVerificationOrder.prioritised(pool, by: ranking)
+
+        #expect(ordered.count == pool.count)
+        #expect(Set(ordered.map(\.id)) == Set(pool.map(\.id)))
+        #expect(ordered.prefix(2).map(\.title) == ["Film 40", "Film 3"])
+    }
+
+    @Test("With no recommendations the pool is left exactly as it was")
+    func noRecommendations() {
+        let pool = [Self.movie("A"), Self.movie("B")]
+        #expect(DiscoveryVerificationOrder.prioritised(pool, by: [:]).map(\.id) == ["A", "B"])
+        #expect(
+            DiscoveryVerificationOrder.prioritised(pool, by: ["nothing here": 0]).map(\.id)
+                == ["A", "B"]
+        )
+    }
+
+    /// A localised name is how a Norwegian provider files a Disney film, and
+    /// the recommendation carries both.
+    @Test("A title is recognised by any name it goes by")
+    func matchesLocalisedName() {
+        let pool = [Self.movie("Filler"), Self.movie("Løvenes konge")]
+        let shelf = DiscoveryShelf(
+            id: "trending.movie", source: .trending, kind: .movie,
+            titles: [DiscoveryTitle(id: 1, names: ["Løvenes konge", "The Lion King"])]
+        )
+        let ordered = DiscoveryVerificationOrder.prioritised(
+            pool, by: DiscoveryVerificationOrder.ranking(for: [shelf])
+        )
+        #expect(ordered.first?.title == "Løvenes konge")
+    }
+
+    /// Shows are filed per episode; the queue is about the show.
+    @Test("An episode is recognised by its show's name")
+    func matchesSeriesName() {
+        var episode = Self.movie("Bluey S01E01")
+        episode.kind = .series
+        episode.seriesName = "Bluey"
+        let pool = [Self.movie("Filler"), episode]
+        let ordered = DiscoveryVerificationOrder.prioritised(
+            pool, by: DiscoveryVerificationOrder.ranking(for: [Self.shelf(["Bluey"])])
+        )
+        #expect(ordered.first?.seriesName == "Bluey")
     }
 }

@@ -6,6 +6,11 @@ A native IPTV player for iPhone, iPad and Apple TV. App Store name:
 Kanal is a *player*. It ships no channels and hosts nothing — you bring the
 subscription you already pay for.
 
+> **Working on this project?** Read [`WORKLOG.md`](WORKLOG.md) first — it holds
+> the current state, the working rules, and a running session log. This README
+> explains *how the code works*; the worklog tracks *what has happened and what
+> to do next*.
+
 ## The product bet
 
 UHF proved the category can be beautiful. The gap it leaves is setup: it still
@@ -19,13 +24,14 @@ finds the film for her grandchildren** — even though her provider listed it as
 
 | Pillar | Where it lives | State |
 | --- | --- | --- |
-| One-field setup | `SourceDetector` | Done |
+| One-field setup and in-place repair | `SourceDetector`, `ConnectionProgress`, `WelcomeView` | Done |
 | Auto-organisation | `TitleCleaner`, `MediaClassifier`, `CategoryNormalizer`, `Library` | Done |
 | No settings | `SettingsView` manages playlists and nothing else | Done |
 | Search that forgives | `SearchNormalizer`, `SearchIndex`, `MetadataService` | Done |
 | Speaks your language | `UIStrings`, `CoreStrings`, `PreferredLanguages`, `Scripts/check-localization.py` | Done (en, nb) |
 | TV guide | `GuideView`, `XMLTVParser` | Done |
 | Phone → TV handoff | `Pairing`, `PairingHost`, `PairingGuest`, `PairingView`, `HandoffView` | Built, not yet tested on real hardware |
+| Set up once, use everywhere | `SourceCredentialStore`, `HouseholdSync` | Built, real-iCloud device round pending |
 
 ## How search finds a film nobody listed under that name
 
@@ -376,7 +382,7 @@ Kanal/
   Packages/KanalKit/
     Sources/KanalCore          Models, parsing, organisation, metadata, pairing, storage
     Sources/KanalUI            Design system and every screen
-    Tests/KanalCoreTests       122 tests
+    Tests/KanalCoreTests       300+ offline tests
 ```
 
 Almost all code lives in the package; the app targets are shells. That is why
@@ -406,6 +412,35 @@ key that exists only while the pairing screen is open.
 No account, no backend, **no running cost** — and provider credentials never
 leave the house.
 
+## Private Apple-device sync
+
+Kanal still has no account and no backend. A TV service is split before it is
+saved: its harmless descriptor goes to ordinary app storage, while usernames,
+passwords, signed playlist links and guide links go to a synchronisable
+Keychain item. Existing plaintext `sources.json` installations migrate on the
+next launch and the file is rewritten without those fields.
+
+Profiles, provider descriptors, favourites, settings and watch progress form a
+small `HouseholdSnapshot`. Before it reaches the app's private iCloud key-value
+store, it is sealed with AES-GCM. The key is a separate synchronisable Keychain
+item, so the cloud payload is not useful without the person's iCloud Keychain.
+Kanal pulls on launch and foreground, coalesces local writes, and also exposes
+Sync now in Settings. Conflicts use last-completed-snapshot wins; this is simple
+and predictable for a person moving between a phone and a TV, and avoids a
+server-side merge service.
+
+Local imported files stay on their original device. They may be large, are not
+stable URLs, and do not belong in Keychain or the one-megabyte iCloud key-value
+budget. Normal URL and portal services sync automatically. The parental code
+also remains device-local by design; profile age rules sync, but a four-digit
+door key is not copied silently to every screen in the household.
+
+Setup now reports the steps in ordinary language, and a failed saved service
+can be repaired with a new link or sign-in without changing its id or losing
+history. Settings can produce a redacted support report that includes counts
+and failure shape but excludes URLs, credentials, profile names, titles and
+watch history.
+
 ## Running it
 
 ```bash
@@ -429,7 +464,8 @@ cd Packages/KanalKit && KANAL_LIVE_TESTS=1 swift test --filter LiveIntegrationTe
 
 - iOS and tvOS both build and run; screenshots taken on iPhone 17 Pro, iPad
   Pro 13" and Apple TV 4K, in light and dark.
-- 122 offline tests, plus live ones against Wikidata, TMDB and a real EPG file, including Kari's exact scenario.
+- 308 offline tests, plus opt-in live ones against Wikidata, TMDB and a real EPG
+  file, including provider-shape, secure migration and two-device sync coverage.
 - Both apps run in Norwegian end to end, verified by screenshot with
   `-AppleLanguages '(nb)'`.
 
@@ -441,16 +477,33 @@ cd Packages/KanalKit && KANAL_LIVE_TESTS=1 swift test --filter LiveIntegrationTe
 - No Xtream panel has been tested. `XtreamClient` is written against the
   documented API and its shape is covered by unit tests, but no live panel has
   answered it.
+- Private iCloud sync and synchronisable Keychain have passed deterministic
+  two-device tests and signed simulator builds, but not yet a round trip between
+  a physical iPhone and Apple TV signed into a real Apple account.
 
 ## Before shipping
 
 - **Wikimedia user agent.** `WikidataProvider` sends
   `Kanal/1.0 (IPTV player for Apple platforms)`. Wikimedia's policy wants a
   contact URL in there — add one once the site exists.
-- **Attribution.** Wikidata is CC0 and needs none, but crediting it is polite.
-  TMDB is enabled and *requires* attribution — its wording must appear in the
-  app before release. Not yet added.
-- `DEVELOPMENT_TEAM` in `project.yml` is empty.
+- Confirm the iCloud key-value entitlement is enabled for the App ID in the
+  Developer portal before the first device/archive build.
+
+## Manual acceptance round
+
+The automated gate proves data shape, migration, encryption boundaries and UI
+buildability. The remaining real-world pass is deliberately separate:
+
+1. Connect 5–10 real provider link shapes, including a wrong password, an
+   expired link, a large library and a malformed guide; confirm the progress
+   wording remains useful and repair preserves favourites/history.
+2. Pair one physical iPhone with one physical Apple TV and play one AVFoundation
+   stream plus one stream that falls back to VLC.
+3. With iCloud Keychain enabled on both devices, add a URL/portal service on the
+   phone, then verify profiles, favourites and progress arrive on Apple TV.
+   Remove or edit the service on the TV and verify the change returns to phone.
+4. Inspect and share a support report from both platforms; confirm no provider
+   URL, username, password, title or profile name appears.
 
 ## Next
 

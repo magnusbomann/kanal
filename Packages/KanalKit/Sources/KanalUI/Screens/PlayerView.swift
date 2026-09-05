@@ -11,12 +11,16 @@ import SwiftUI
 /// would leave the two paths visibly different in a way that reads as a bug.
 public struct PlayerView: View {
     @Environment(AppModel.self) private var model
+    /// Optional for the same reason as the navigator: the player is presented
+    /// from more than one place, and a missing store must not be a crash.
+    @Environment(PurchaseStore.self) private var purchases: PurchaseStore?
     /// Optional on purpose. A non-optional environment lookup is a hard crash
     /// when the value is absent, and the player is presented from more than
     /// one place — auto-advance is worth having, but not at that price.
     @Environment(Navigator.self) private var navigator: Navigator?
     @Environment(\.alternativePlayer) private var alternativePlayer
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
 
     public let plan: PlaybackPlan
     public var item: MediaItem { plan.item }
@@ -25,9 +29,26 @@ public struct PlayerView: View {
     @State private var alternativeError: String?
     @State private var alternativeSnapshot: (position: TimeInterval, duration: TimeInterval) = (0, 0)
     @State private var handle: AlternativePlayerHandle?
+    /// Prevents one failed system attempt from repeatedly rebuilding VLC as
+    /// SwiftUI observes the same failure. A deliberate retry is still allowed.
+    @State private var hasTriedAlternative = false
+    /// Ignores a late callback from a VLC instance that has already been
+    /// replaced by Retry.
+    @State private var alternativeAttempt = 0
+    /// Position in `PlaybackPlan.alternativeCandidateIndices`, not the raw URL
+    /// index. VLC starts with every provider-original URL before guesses.
+    @State private var alternativeCandidatePosition = 0
+    @State private var alternativePlayingOwnerID: String?
+    /// Whether this profile's language has already been applied to whatever
+    /// is playing. Once per stream: after that the tracks belong to whoever is
+    /// watching, and a preference must never undo a choice they just made.
+    @State private var hasChosenAudioLanguage = false
     /// Counted down after an episode ends, before the next one starts itself.
     @State private var secondsUntilNext: Int?
     @State private var countdown: Task<Void, Never>?
+    @State private var progressTask: Task<Void, Never>?
+    @State private var playbackSourceID: UUID?
+    @State private var playbackProfileID: UUID?
 
     /// The engine currently playing, whichever it is.
     private var activeController: any PlaybackControlling {
@@ -48,7 +69,7 @@ public struct PlayerView: View {
         // offered as something to continue.
         let snapshot = activeController
         if snapshot.duration > 0 {
-            model.record(itemID: item.id, position: snapshot.duration, duration: snapshot.duration)
+            model.record(item: item, position: snapshot.duration, duration: snapshot.duration)
         }
 
         countdown?.cancel()
@@ -71,11 +92,42 @@ public struct PlayerView: View {
         navigator.play(next)
     }
 
+    private func closePlayback() {
+        // Do not rely on a presentation animation to eventually tear down the
+        // engines. Clearing the navigation item also covers nested player
+        // views whose inherited dismiss action may target the wrong layer.
+        countdown?.cancel()
+        progressTask?.cancel()
+        system.stop()
+        let closingHandle = handle
+        handle = nil
+        closingHandle?.controller.stop()
+        navigator?.playing = nil
+        dismiss()
+    }
+
     public init(plan: PlaybackPlan) {
         self.plan = plan
     }
 
     public var body: some View {
+        if item.kind == .liveTV {
+            LiveChannelPlayer(plan: plan, makeChrome: { controller, title, subtitle, sources in
+                AnyView(PlayerChrome(
+                    controller: controller, title: title, subtitle: subtitle,
+                    sourceAccessory: sources,
+                    trailingAccessory: AnyView(AirPlayButton()), watermark: watermark,
+                    onClose: closePlayback
+                ))
+            }, onClose: closePlayback, onPlaybackEnded: { played in
+                navigator?.lastPlaybackPlayed = played
+            })
+        } else {
+            recordedBody
+        }
+    }
+
+    private var recordedBody: some View {
         ZStack {
             Color.black.ignoresSafeArea()
 
@@ -89,21 +141,29 @@ public struct PlayerView: View {
                         controller: handle.controller,
                         title: item.title,
                         subtitle: subtitle,
-                        onClose: { dismiss() }
+                        watermark: watermark,
+                        sourceControl: alternativeSourceControl,
+                        onClose: closePlayback
                     )
                 }
             } else {
                 VideoSurface(player: system.player)
                     .ignoresSafeArea()
                 if let failure = system.failure {
-                    errorOverlay(failure)
+                    // A recoverable system failure is handed to VLC on the
+                    // same update. Keeping it off screen avoids flashing a
+                    // technical error before the alternative surface appears.
+                    if !canTryAlternative(after: failure) {
+                        errorOverlay(failure)
+                    }
                 } else {
                     PlayerChrome(
                         controller: system,
                         title: item.title,
                         subtitle: subtitle,
                         trailingAccessory: AnyView(AirPlayButton()),
-                        onClose: { dismiss() }
+                        watermark: watermark,
+                        onClose: closePlayback
                     )
                 }
             }
@@ -114,7 +174,7 @@ public struct PlayerView: View {
                     onPlayNow: { advance(to: next) },
                     onStop: {
                         countdown?.cancel()
-                        dismiss()
+                        closePlayback()
                     }
                 )
                 .padding(KanalMetrics.lg)
@@ -123,24 +183,41 @@ public struct PlayerView: View {
             }
         }
         .task { startPlayback() }
+        // Track lists arrive after playback begins and can arrive more than
+        // once, so this watches for them rather than running at start.
+        .onChange(of: activeController.audioTracks) { _, _ in
+            chooseAudioLanguageIfNeeded()
+        }
         .onChange(of: activeController.hasEnded) { _, ended in
             guard ended else { return }
             beginCountdownToNextEpisode()
         }
 
-        // A container the system player cannot open is routed across rather
-        // than shown to anyone as an error.
+        // Format, byte-range and otherwise generic media failures are routed
+        // across rather than shown to anyone as an error. Connectivity and
+        // credentials would fail in both engines, so those stay actionable.
         .onChange(of: system.failure) { _, failure in
-            guard let failure, alternativePlayer != nil else { return }
-            if case .unsupportedContainer = failure {
-                system.stop()
-                handle = alternativePlayer?(alternativeRequest)
-                engine = .alternative
-            }
+            guard let failure, canTryAlternative(after: failure) else { return }
+            startAlternativePlayback()
+        }
+        .onChange(of: activeController.isPlaying) { wasPlaying, isPlaying in
+            // A pause is an explicit checkpoint. This also covers a pause
+            // issued by the system while the app is backgrounding.
+            guard wasPlaying, !isPlaying else { return }
+            checkpointProgress()
+        }
+        .onChange(of: scenePhase) { _, phase in
+            guard phase != .active else { return }
+            checkpointProgress()
         }
         .onDisappear {
             countdown?.cancel()
+            progressTask?.cancel()
+            // Read before the engines are torn down: closing a stream that
+            // never played is the one case that must not be asked for money.
+            navigator?.lastPlaybackPlayed = didPlay
             recordProgress()
+            Task { await model.flushPendingWatchState() }
             // Whichever engine is running, not just the built-in one.
             system.stop()
             handle?.controller.stop()
@@ -151,25 +228,101 @@ public struct PlayerView: View {
         #endif
     }
 
+    /// Whether anything actually reached the screen.
+    ///
+    /// Not "did we try" — a provider url that failed in both engines leaves the
+    /// viewer with nothing, and the app has no business celebrating that with
+    /// an offer.
+    private var didPlay: Bool {
+        system.playingOwnerID != nil || alternativePlayingOwnerID != nil
+    }
+
+    /// Free tier only, and never over a child's viewing.
+    private var watermark: AnyView? {
+        guard let purchases, !purchases.isPro, !model.isRestricted else { return nil }
+        return AnyView(FreeWatermark { navigator?.wantsPro = true; closePlayback() })
+    }
+
     private var subtitle: String? {
         item.kind == .liveTV
             ? model.nowPlaying(on: item)?.title
             : item.category.map(CategoryLocalizer.display)
     }
 
-    private var alternativeRequest: AlternativePlayerRequest {
+    private func alternativeRequest(
+        for attempt: Int,
+        candidateIndex: Int
+    ) -> AlternativePlayerRequest {
         AlternativePlayerRequest(
-            url: item.streamURL,
+            url: plan.candidates[candidateIndex],
             isLive: item.kind == .liveTV,
             startAt: resumePosition,
             title: item.title,
             subtitle: subtitle,
+            onReady: {
+                guard attempt == alternativeAttempt else { return }
+                alternativePlayingOwnerID = plan.owner(at: candidateIndex)
+            },
             onProgress: { position, duration in
+                guard attempt == alternativeAttempt else { return }
                 alternativeSnapshot = (position, duration)
             },
-            onFailure: { message in alternativeError = message },
-            onClose: { dismiss() }
+            onFailure: { message in
+                guard attempt == alternativeAttempt else { return }
+                let order = plan.alternativeCandidateIndices
+                if alternativeCandidatePosition + 1 < order.count {
+                    startAlternativePlayback(at: alternativeCandidatePosition + 1)
+                } else {
+                    alternativeError = message
+                }
+            },
+            onClose: closePlayback
         )
+    }
+
+    /// The same control the system engine offers, for the engine that has no
+    /// plan of its own to walk.
+    ///
+    /// VLC is handed one url at a time, so "try another source" has to be
+    /// answered here, where the plan lives. It steps to the next feed's own url
+    /// rather than the next candidate, since the format guesses in between
+    /// belong to the feed the viewer has just rejected.
+    private var alternativeSourceControl: SourceControl? {
+        let order = plan.alternativeCandidateIndices
+        guard plan.variantCount > 1, !order.isEmpty else { return nil }
+        let current = order.indices.contains(alternativeCandidatePosition)
+            ? order[alternativeCandidatePosition]
+            : 0
+        return SourceControl(
+            number: plan.variantNumber(at: current),
+            count: plan.variantCount,
+            isSwitching: false,
+            onSwitch: {
+                // Wraps, so someone who has been through every feed is offered
+                // the first again rather than a dead end.
+                let next = (alternativeCandidatePosition + 1) % order.count
+                startAlternativePlayback(at: next)
+            }
+        )
+    }
+
+    /// Starts the sound in the language this profile asked for, if the file
+    /// has it.
+    ///
+    /// Silent when it does not: a Norwegian dub that was never recorded is not
+    /// an error, and saying so would put a message in front of a child for
+    /// something no one can act on. The picker still lists everything the file
+    /// carries, so a grown-up can see for themselves what was available.
+    private func chooseAudioLanguageIfNeeded() {
+        guard !hasChosenAudioLanguage else { return }
+        let controller = activeController
+        guard let wanted = AudioLanguagePreference.track(
+            matching: model.activeProfile?.preferredAudioLanguage,
+            in: controller.audioTracks,
+            selected: controller.selectedAudioTrackID
+        ) else { return }
+        hasChosenAudioLanguage = true
+        controller.selectAudioTrack(wanted.id)
     }
 
     private var resumePosition: TimeInterval? {
@@ -177,26 +330,103 @@ public struct PlayerView: View {
     }
 
     private func startPlayback() {
+        playbackSourceID = model.activeSourceID
+        playbackProfileID = model.activeProfileID
+        progressTask?.cancel()
+        progressTask = Task { @MainActor in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(15))
+                guard !Task.isCancelled else { return }
+                checkpointProgress()
+            }
+        }
+        hasChosenAudioLanguage = false
         // Without a second engine there is nothing to escalate to, so the
         // system player takes everything and guesses at formats on failure.
         engine = alternativePlayer == nil ? .system : PlaybackEngine.preferred(for: item)
         guard engine == .system else {
-            handle = alternativePlayer?(alternativeRequest)
+            startAlternativePlayback()
             return
         }
+        hasTriedAlternative = false
         system.start(plan: plan, resumingAt: resumePosition)
     }
 
+    /// Starts a fresh VLC instance. Rebuilding is intentional: once a decoder
+    /// reports a terminal error, replaying its existing media object is less
+    /// reliable than giving the same request to a clean one.
+    private func startAlternativePlayback(at position: Int = 0) {
+        guard let alternativePlayer else { return }
+        let order = plan.alternativeCandidateIndices
+        guard order.indices.contains(position) else { return }
+        let candidateIndex = order[position]
+
+        system.stop()
+        handle?.controller.stop()
+        hasTriedAlternative = true
+        hasChosenAudioLanguage = false
+        alternativeCandidatePosition = position
+        alternativePlayingOwnerID = nil
+        alternativeError = nil
+        alternativeSnapshot = (0, 0)
+        alternativeAttempt += 1
+        let attempt = alternativeAttempt
+        handle = alternativePlayer(alternativeRequest(
+            for: attempt,
+            candidateIndex: candidateIndex
+        ))
+        engine = .alternative
+    }
+
+    private func canTryAlternative(after failure: PlaybackFailure) -> Bool {
+        alternativePlayer != nil
+            && !hasTriedAlternative
+            && failure.shouldTryAlternativeEngine
+    }
+
+    /// Retry stays with the engine the viewer actually saw fail. In
+    /// particular, a failed VLC fallback must not silently jump back to the
+    /// same AVFoundation path that already rejected the stream.
+    private func retryPlayback() {
+        switch engine {
+        case .system:
+            system.retry()
+        case .alternative:
+            startAlternativePlayback()
+        }
+    }
+
     private func recordProgress() {
+        // A delayed dismissal can race a source/profile switch. Never attach
+        // an outgoing player's position to the newly active household state.
+        guard playbackSourceID == model.activeSourceID,
+              playbackProfileID == model.activeProfileID else { return }
         // A channel that finally played on its third variant should open on
         // that one next time.
-        if let owner = system.playingOwnerID, owner != item.id {
-            model.rememberWorkingVariant(owner, forGroup: item.id)
+        let playingOwner = engine == .alternative
+            ? alternativePlayingOwnerID
+            : system.playingOwnerID
+        if let groupID = plan.groupID, let playingOwner {
+            model.rememberWorkingVariant(playingOwner, forGroup: groupID)
         }
-        guard item.kind != .liveTV else { return }
+        if item.kind == .liveTV {
+            // Closing a stream that never reached Ready must not make a broken
+            // channel look like something the viewer recently watched.
+            guard playingOwner != nil else { return }
+            let groupID = plan.groupID
+                ?? model.library.channelGroup(containing: item)?.id
+                ?? item.id
+            model.recordChannel(groupID: groupID)
+            return
+        }
         let snapshot = engine == .alternative ? alternativeSnapshot : system.snapshot()
         guard snapshot.duration > 0 else { return }
-        model.record(itemID: item.id, position: snapshot.position, duration: snapshot.duration)
+        model.record(item: item, position: snapshot.position, duration: snapshot.duration)
+    }
+
+    private func checkpointProgress() {
+        recordProgress()
+        Task { await model.flushPendingWatchState() }
     }
 
     // MARK: Failure
@@ -218,9 +448,9 @@ public struct PlayerView: View {
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
             HStack(spacing: KanalMetrics.md) {
-                Button(String(UIStrings.closePlayer)) { dismiss() }
+                Button(String(UIStrings.closePlayer), action: closePlayback)
                     .buttonStyle(KanalSecondaryButtonStyle(size: 14))
-                Button(String(UIStrings.tryAgain)) { system.retry() }
+                Button(String(UIStrings.tryAgain)) { retryPlayback() }
                     .buttonStyle(KanalPrimaryButtonStyle(size: 14))
             }
         }

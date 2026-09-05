@@ -1,0 +1,49 @@
+Privacy
+Last updated 23 August 2026
+
+Kanal has no user accounts, no analytics and no server of its own. This page exists to say exactly what that means rather than to ask you to take it on trust.
+
+What we collect
+
+Nothing. We operate no back end that your copy of Kanal talks to, so there is no place for your data to arrive. We do not know that you installed the app, what you added to it, or what you watched.
+
+What stays on your device
+
+• The playlist or panel details you entered. Provider credentials are kept in an encrypted, synchronizable iCloud Keychain vault.
+• Your library, favourites, viewing progress and profile settings. When device sync is enabled, redacted profile, favourite, progress and history metadata is stored in your private iCloud area.
+• Downloaded programme guide data and cached artwork.
+
+Local copies are removed with the app. Synced metadata remains in your private iCloud area until removed through the app or Apple's iCloud controls. The credential vault is kept in iCloud Keychain and is separate from the household sync snapshot; Keychain items can remain after the app is deleted. iCloud device backups may include local data under Apple's own terms; we never see those backups.
+
+Who your device talks to
+
+Kanal makes network requests only on your behalf, and only to these:
+
+• Your provider. The address you entered, for the playlist, the guide and the streams themselves. Credentials are sent there when needed to access your service.
+• Apple's private iCloud services, when device sync is enabled, for the redacted household metadata described above. Kanal has no server of its own.
+• Apple's iCloud Keychain, when enabled for the Apple ID, for the encrypted credential vault.
+• Wikidata (wikidata.org), when a title cannot be identified offline. The request contains a title, never anything identifying you. Wikimedia's privacy policy applies to it.
+• TMDB (themoviedb.org), for cover artwork, where the app is built with a TMDB credential. Again: a title, nothing more.
+• Another one of your own devices, when you hand a playlist from your iPhone to your Apple TV. That exchange happens on your local network and is encrypted; it does not travel over the internet.
+
+Kanal contains no advertising, no third-party SDKs and no tracking of any kind.
+
+This website
+
+This site sets no cookies, loads no fonts or scripts from third parties, and runs no analytics. Our host records standard server logs, including IP addresses, for a short period for security and abuse prevention. That is the whole of it, which is also why you were not shown a cookie banner.
+
+Children
+
+Kanal is not directed at children and collects no personal information from anyone, of any age. Child profile settings are a control for parents; redacted profile metadata may be included in the user's private iCloud sync. The parental code remains device-local.
+
+Your rights
+
+Under the GDPR and similar laws you have rights of access, correction, deletion and portability over personal data a company holds about you. Kanal has no account or back end and does not receive your private iCloud data. You can remove local data in the app or by deleting it, remove synced metadata through the app or Apple's iCloud controls, and manage Keychain items through Apple's account and device controls.
+
+Changes
+
+If this ever changes — if Kanal gains an optional feature that needs a server, for instance — this page will say so before the feature ships, and the change will be dated here.
+
+Contact
+
+privacy@kanalplayer.com

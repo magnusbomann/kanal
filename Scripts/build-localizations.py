@@ -21,6 +21,7 @@ CATALOGS = [
     (ROOT / "Localizations/KanalCore.xcstrings", ROOT / "Packages/KanalKit/Sources/KanalCore/Resources"),
     (ROOT / "Localizations/KanalUI.xcstrings", ROOT / "Packages/KanalKit/Sources/KanalUI/Resources"),
 ]
+LANGUAGE_CONFIG = ROOT / "Localizations/languages.json"
 
 PLURAL_CATEGORIES = ["zero", "one", "two", "few", "many", "other"]
 
@@ -128,11 +129,29 @@ def copy_title_packs(languages: set[str]) -> list[str]:
 
 
 def main() -> int:
-    languages: set[str] = set()
+    configuration = json.loads(LANGUAGE_CONFIG.read_text())
+    languages = {language["code"] for language in configuration["languages"]}
     for catalog_path, _ in CATALOGS:
         data = json.loads(catalog_path.read_text())
+        catalog_languages: set[str] = set()
         for entry in data.get("strings", {}).values():
-            languages.update(entry.get("localizations", {}).keys())
+            catalog_languages.update(entry.get("localizations", {}).keys())
+        if catalog_languages != languages:
+            missing = sorted(languages - catalog_languages)
+            unexpected = sorted(catalog_languages - languages)
+            if missing:
+                print(f"{catalog_path.name}: missing languages: {', '.join(missing)}", file=sys.stderr)
+            if unexpected:
+                print(f"{catalog_path.name}: unexpected languages: {', '.join(unexpected)}", file=sys.stderr)
+            return 1
+        for key, entry in data.get("strings", {}).items():
+            missing = languages - set(entry.get("localizations", {}))
+            if missing:
+                print(
+                    f"{catalog_path.name}: {key!r} is missing {', '.join(sorted(missing))}",
+                    file=sys.stderr,
+                )
+                return 1
 
     for catalog_path, output_root in CATALOGS:
         if not catalog_path.exists():

@@ -61,7 +61,7 @@ public struct KanalPrimaryButtonStyle: ButtonStyle {
         var body: some View {
             configuration.label
                 .kanalLabel(size)
-                .foregroundStyle(isEnabled ? .white : KanalColor.tertiaryText)
+                .foregroundStyle(isEnabled ? KanalColor.onAccent : KanalColor.tertiaryText)
                 .padding(.vertical, KanalMetrics.md * 0.9)
                 .padding(.horizontal, KanalMetrics.xl)
                 .frame(maxWidth: fullWidth ? .infinity : nil)
@@ -81,12 +81,17 @@ public struct KanalPrimaryButtonStyle: ButtonStyle {
                         lineWidth: 1
                     )
                 }
+                // Padding and glass belong to the control's tap target, too.
+                .contentShape(.capsule)
                 .shadow(
                     color: KanalColor.accentEnd.opacity(shadowOpacity),
                     radius: configuration.isPressed ? 6 : 16,
                     y: configuration.isPressed ? 2 : 8
                 )
                 .scaleEffect(scale)
+                .overlay {
+                    Capsule().strokeBorder(isFocused ? KanalColor.primaryText : .clear, lineWidth: 4)
+                }
                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
                 .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isFocused)
         }
@@ -118,6 +123,16 @@ public struct KanalSecondaryButtonStyle: ButtonStyle {
     }
 
     public func makeBody(configuration: Configuration) -> some View {
+        SecondaryBody(configuration: configuration, fullWidth: fullWidth, size: size)
+    }
+
+    private struct SecondaryBody: View {
+        let configuration: Configuration
+        let fullWidth: Bool
+        let size: CGFloat
+        @Environment(\.isFocused) private var isFocused
+
+        var body: some View {
         configuration.label
             .kanalLabel(size)
             .foregroundStyle(KanalColor.primaryText)
@@ -126,8 +141,11 @@ public struct KanalSecondaryButtonStyle: ButtonStyle {
             .frame(maxWidth: fullWidth ? .infinity : nil)
             .frame(minHeight: KanalMetrics.minTarget)
             .kanalGlassPill(interactive: true)
-            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .overlay { Capsule().strokeBorder(isFocused ? KanalColor.primaryText : .clear, lineWidth: 4) }
+            .contentShape(.capsule)
+            .scaleEffect(configuration.isPressed ? 0.97 : (isFocused ? 1.04 : 1))
             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+        }
     }
 }
 
@@ -179,13 +197,16 @@ public struct KanalChipButtonStyle: ButtonStyle {
                         Capsule().fill(KanalColor.surface)
                     }
                 }
+                .overlay {
+                    Capsule().strokeBorder(isFocused ? KanalColor.primaryText : .clear, lineWidth: 4)
+                }
                 .scaleEffect(configuration.isPressed ? 0.94 : (isFocused ? 1.06 : 1))
                 .animation(.spring(response: 0.28, dampingFraction: 0.75), value: isFocused)
                 .animation(.spring(response: 0.24, dampingFraction: 0.72), value: configuration.isPressed)
         }
 
         private var foreground: Color {
-            if isSelected { return .white }
+            if isSelected { return KanalColor.onAccent }
             if isFocused { return KanalColor.background }
             return KanalColor.secondaryText
         }

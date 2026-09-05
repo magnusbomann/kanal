@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>CFBundleURLTypes</key>
+    <array><dict>
+        <key>CFBundleURLName</key><string>com.bomann.kanal.pairing</string>
+        <key>CFBundleURLSchemes</key><array><string>kanal</string></array>
+        <key>CFBundleTypeRole</key><string>Editor</string>
+    </dict></array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -21,6 +27,18 @@
 	<array>
 		<string>en</string>
 		<string>nb</string>
+		<string>es</string>
+		<string>pt-BR</string>
+		<string>fr</string>
+		<string>de</string>
+		<string>it</string>
+		<string>nl</string>
+		<string>ar</string>
+		<string>tr</string>
+		<string>pl</string>
+		<string>sv</string>
+		<string>da</string>
+		<string>fi</string>
 	</array>
 	<key>CFBundleDisplayName</key>
 	<string>Kanal</string>

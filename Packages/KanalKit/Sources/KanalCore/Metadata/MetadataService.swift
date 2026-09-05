@@ -25,6 +25,7 @@ public actor MetadataService {
     /// shape: one title at a time, only once someone has shown interest.
     private var detailClient: TMDBClient?
     private let storage: KanalStorage
+    private let cacheScope: String
 
     /// Query → the other names that query goes by.
     private var resolutions: [String: Resolution] = [:]
@@ -46,19 +47,24 @@ public actor MetadataService {
         var resolvedAt: Date
     }
 
-    private static let resolutionsFile = "title-resolutions.json"
-    private static let identifiedFile = "title-identified.json"
-    private static let detailsFile = "title-details.json"
-    private static let peopleFile = "people.json"
+    private var resolutionsFile: String { "title-resolutions-\(cacheScope).json" }
+    private var identifiedFile: String { "title-identified-\(cacheScope).json" }
+    private var detailsFile: String { "title-details-\(cacheScope).json" }
+    private var peopleFile: String { "people-\(cacheScope).json" }
 
     /// - Parameter tmdbAPIKey: optional. Present only adds artwork; Kanal's
     ///   search works identically without it.
     public init(
         tmdbAPIKey: String? = nil,
+        language: String = PreferredLanguages.primaryTag(),
         storage: KanalStorage = .shared,
         providers: [MetadataProvider]? = nil
     ) {
         self.storage = storage
+        self.cacheScope = language
+            .lowercased()
+            .replacingOccurrences(of: "_", with: "-")
+            .filter { $0.isLetter || $0.isNumber || $0 == "-" }
         if let providers {
             self.providers = providers
         } else {
@@ -68,11 +74,11 @@ public actor MetadataService {
             let bundled = BundledTitleProvider()
             if bundled.isLoaded { built.append(bundled) }
             built.append(WikidataProvider())
-            if let tmdbAPIKey, let tmdb = TMDBProvider(apiKey: tmdbAPIKey) {
+            if let tmdbAPIKey, let tmdb = TMDBProvider(apiKey: tmdbAPIKey, language: language) {
                 built.append(tmdb)
             }
             if let tmdbAPIKey {
-                detailClient = TMDBClient(apiKey: tmdbAPIKey)
+                detailClient = TMDBClient(apiKey: tmdbAPIKey, language: language)
             }
             self.providers = built
         }
@@ -88,10 +94,10 @@ public actor MetadataService {
     public var hasArtworkProvider: Bool { providers.contains { $0.providesArtwork } }
 
     public func loadCaches() async {
-        resolutions = await storage.load([String: Resolution].self, from: Self.resolutionsFile) ?? [:]
-        identified = await storage.load([String: ResolvedTitle].self, from: Self.identifiedFile) ?? [:]
-        details = await storage.load([Int: TitleDetails].self, from: Self.detailsFile) ?? [:]
-        people = await storage.load([Int: PersonProfile].self, from: Self.peopleFile) ?? [:]
+        resolutions = await storage.load([String: Resolution].self, from: resolutionsFile) ?? [:]
+        identified = await storage.load([String: ResolvedTitle].self, from: identifiedFile) ?? [:]
+        details = await storage.load([Int: TitleDetails].self, from: detailsFile) ?? [:]
+        people = await storage.load([Int: PersonProfile].self, from: peopleFile) ?? [:]
     }
 
     // MARK: - Translating a query
@@ -288,13 +294,17 @@ public actor MetadataService {
         let identified = identified
         let details = details
         let people = people
+        let resolutionsFile = resolutionsFile
+        let identifiedFile = identifiedFile
+        let detailsFile = detailsFile
+        let peopleFile = peopleFile
         saveTask = Task { [storage] in
             try? await Task.sleep(for: .seconds(3))
             guard !Task.isCancelled else { return }
-            await storage.save(resolutions, to: Self.resolutionsFile)
-            await storage.save(identified, to: Self.identifiedFile)
-            await storage.save(details, to: Self.detailsFile)
-            await storage.save(people, to: Self.peopleFile)
+            await storage.save(resolutions, to: resolutionsFile)
+            await storage.save(identified, to: identifiedFile)
+            await storage.save(details, to: detailsFile)
+            await storage.save(people, to: peopleFile)
         }
     }
 }

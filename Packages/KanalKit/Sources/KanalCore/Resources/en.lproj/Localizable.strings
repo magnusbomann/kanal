@@ -4,12 +4,12 @@
 "detect.empty" = "Paste a playlist link to get started.";
 "detect.unusable" = "That doesn't look like a link Kanal can open.";
 "error.badResponse" = "That server answered, but not in a way Kanal understands.";
-"error.emptyPlaylist" = "The playlist loaded, but it contained no channels.";
+"error.emptyPlaylist" = "The TV service connected, but it contained no channels.";
 "error.expired" = "This subscription has expired.";
 "error.expiredOn %@" = "This subscription expired %@.";
 "error.http %lld" = "The server replied with error %lld.";
 "error.noMetadataKey" = "No TMDB key is configured.";
-"error.noPlaylistLink" = "This source has no playlist link.";
+"error.noPlaylistLink" = "This TV service has no link Kanal can open.";
 "error.rateLimited" = "TMDB asked us to slow down.";
 "error.requestFailed" = "Could not build the request.";
 "error.unauthorized" = "The username or password was rejected.";
@@ -73,4 +73,7 @@
 "player.alternativeEngine.failed" = "This stream wouldn't open. It may be offline, or your provider may have reached its connection limit.";
 "profile.defaultOwnerName" = "Me";
 "profile.unnamed" = "Profile";
+"purchase.nothingToRestore" = "No earlier purchase was found on this Apple ID.";
+"purchase.unavailable" = "That purchase option is not available right now.";
+"purchase.unverified" = "That receipt could not be verified.";
 "rating.allAges.badge" = "A";

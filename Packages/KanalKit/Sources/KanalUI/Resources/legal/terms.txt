@@ -1,0 +1,46 @@
+Terms of use
+Last updated 23 August 2026
+
+By installing or using Kanal you agree to these terms. If you do not, do not use the app.
+
+1. What Kanal is
+
+Kanal is a media player for Apple devices. It plays media from sources you supply. It ships with no channels, films or other content, hosts nothing, indexes nothing, resells nothing, and provides no means of finding or obtaining a source. It is supplied empty and stays empty until you add something to it.
+
+2. Your sources are your responsibility
+
+You are solely responsible for every source you add and everything you play through it, including holding the rights to do so and complying with the law where you are. We have no knowledge of, and no control over, what a given address contains. We are not a party to any agreement between you and a provider, and we do not endorse, verify or support any provider.
+
+You must not use Kanal to access material you have no right to access, or in a way that infringes anyone's rights.
+
+3. Licence
+
+Subject to these terms and to Apple's, you get a personal, non-exclusive, non-transferable licence to use Kanal on devices you own or control. You may not decompile, reverse-engineer or redistribute the app except where the law says you may despite this clause. Open-source components carry their own licences, which prevail for those components — see Open source.
+
+4. Apple
+
+Kanal is distributed through the App Store, and Apple's Licensed Application End User Licence Agreement applies alongside these terms. Apple is not a party to these terms and has no obligation to provide support for Kanal.
+
+5. No warranty
+
+Kanal is provided "as is". Providers change formats, rotate credentials and take streams offline without notice, and no player can guarantee that a given stream will work. To the fullest extent the law allows, we disclaim all warranties, including fitness for a particular purpose.
+
+6. Liability
+
+To the fullest extent the law allows, we are not liable for indirect or consequential loss, loss of data, or any loss arising from content you accessed through the app. Nothing here limits liability that cannot be limited by law, including for death, personal injury, or fraud.
+
+7. Termination
+
+These terms apply for as long as you use Kanal. Delete the app and they end.
+
+8. Changes
+
+We may update these terms; material changes will be dated on this page. Continuing to use the app after a change means you accept it.
+
+9. Governing law
+
+These terms are governed by Norwegian law, without prejudice to mandatory consumer protections in your country of residence.
+
+Contact
+
+legal@kanalplayer.com

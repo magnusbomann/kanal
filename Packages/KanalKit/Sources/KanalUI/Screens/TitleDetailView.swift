@@ -20,6 +20,9 @@ public struct TitleDetailView: View {
     /// offered rather than just the episode that was tapped.
     public let seriesGroup: SeriesGroup?
 
+    #if os(tvOS)
+    @FocusState private var playFocused: Bool
+    #endif
     @State private var details: TitleDetails?
     @State private var isLoading = true
     @State private var person: CastMember?
@@ -34,6 +37,37 @@ public struct TitleDetailView: View {
     }
 
     public var body: some View {
+        Group {
+            #if os(tvOS)
+            televisionBody
+            #else
+            touchBody
+            #endif
+        }
+        .background(KanalColor.background)
+        .task(id: item.id) {
+            details = await model.metadata.details(for: item)
+            isLoading = false
+        }
+        .task(id: seriesGroup?.id) {
+            // A panel lists shows without their episodes; they arrive on
+            // request. A flat playlist already has them and this does nothing.
+            guard let seriesGroup else { return }
+            await model.loadEpisodesIfNeeded(for: seriesGroup)
+        }
+        #if os(tvOS)
+        .fullScreenCover(item: $person, onDismiss: openPending) { member in
+            PersonSheet(member: member) { chosen in pendingTitle = chosen }
+        }
+        #else
+        .sheet(item: $person, onDismiss: openPending) { member in
+            PersonSheet(member: member) { chosen in pendingTitle = chosen }
+        }
+        .presentationBackground(KanalColor.background)
+        #endif
+    }
+
+    private var touchBody: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: KanalMetrics.lg) {
                 backdrop
@@ -49,43 +83,141 @@ public struct TitleDetailView: View {
             }
             .padding(.bottom, KanalMetrics.xxl)
         }
-        .background(KanalColor.background)
         .scrollIndicators(.hidden)
-        .task(id: item.id) {
-            details = await model.metadata.details(for: item)
-            isLoading = false
-        }
-        .task(id: seriesGroup?.id) {
-            // A panel lists shows without their episodes; they arrive on
-            // request. A flat playlist already has them and this does nothing.
-            guard let seriesGroup else { return }
-            await model.loadEpisodesIfNeeded(for: seriesGroup)
-        }
-        .sheet(item: $person, onDismiss: openPending) { member in
-            PersonSheet(member: member) { chosen in
-                // Opened after this sheet has gone, not during: swapping the
-                // screen underneath a modal that is still on top of it is how
-                // you end up with a detail screen nobody can reach.
-                pendingTitle = chosen
+    }
+
+    #if os(tvOS)
+    /// A television detail page is a destination, not a phone sheet enlarged
+    /// in the centre. The artwork establishes context across the screen while
+    /// the first remote focus lands on a large Play action inside the safe area.
+    private var televisionBody: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                ZStack(alignment: .bottomLeading) {
+                    detailArtwork
+                        .aspectRatio(KanalMetrics.backdropAspect, contentMode: .fill)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 760)
+                        .clipped()
+
+                    LinearGradient(
+                        colors: [KanalColor.background, .clear],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    LinearGradient(
+                        colors: [.clear, KanalColor.background],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: 360)
+                    .frame(maxHeight: .infinity, alignment: .bottom)
+
+                    VStack(alignment: .leading, spacing: KanalMetrics.lg) {
+                        televisionHeading
+                        televisionActions
+                        if let overview {
+                            Text(overview)
+                                .font(KanalFont.body(22))
+                                .foregroundStyle(KanalColor.secondaryText)
+                                .lineLimit(4)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(maxWidth: 760, alignment: .leading)
+                        }
+                    }
+                    .padding(.horizontal, 92)
+                    .padding(.bottom, 76)
+                }
+
+                VStack(alignment: .leading, spacing: KanalMetrics.xl) {
+                    if let cast = details?.cast, !cast.isEmpty { castRow(cast) }
+                    if let group = seriesGroup { episodeSection(group) }
+                    if isLoading == false && details == nil { noInformation }
+                }
+                .padding(.horizontal, 92)
+                .padding(.bottom, 120)
             }
         }
-        #if !os(tvOS)
-        .presentationBackground(KanalColor.background)
-        #endif
+        .scrollIndicators(.hidden)
+        .defaultFocus($playFocused, true)
+        .onExitCommand { dismiss() }
+        .ignoresSafeArea(edges: .top)
+        .overlay(alignment: .topTrailing) {
+            Button { dismiss() } label: {
+                Label(String(UIStrings.done), systemImage: "xmark")
+            }
+            .buttonStyle(KanalSecondaryButtonStyle(size: 14))
+            .padding(.top, 52)
+            .padding(.trailing, 72)
+        }
     }
+
+    private var televisionHeading: some View {
+        VStack(alignment: .leading, spacing: KanalMetrics.md) {
+            Text(displayTitle)
+                .kanalDisplay(64)
+                .foregroundStyle(KanalColor.primaryText)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: 900, alignment: .leading)
+
+            HStack(spacing: KanalMetrics.sm) {
+                if let rating = details?.rating { RatingChip(rating: rating) }
+                if let year = details?.year ?? item.year {
+                    MetaChip(year.formatted(.number.grouping(.never)))
+                }
+                if let minutes = details?.runtimeMinutes {
+                    MetaChip(String(UIStrings.detailRuntime(minutes)))
+                }
+                if let carried = seriesGroup.map({ seasonNumbers($0).count }), carried > 0 {
+                    MetaChip(String(UIStrings.seasonCount(carried)))
+                } else if let seasons = details?.seasonCount, seasons > 0 {
+                    MetaChip(String(UIStrings.seasonCount(seasons)))
+                }
+            }
+
+            if let genres = details?.genres, !genres.isEmpty {
+                Text(genres.prefix(3).joined(separator: " · "))
+                    .font(KanalFont.body(20))
+                    .foregroundStyle(KanalColor.secondaryText)
+            } else if let category = item.category {
+                Text(CategoryLocalizer.display(category))
+                    .font(KanalFont.body(20))
+                    .foregroundStyle(KanalColor.secondaryText)
+            }
+        }
+    }
+
+    private var televisionActions: some View {
+        HStack(spacing: KanalMetrics.md) {
+            Button {
+                navigator.play(playableItem)
+                dismiss()
+            } label: {
+                Label(playLabel, systemImage: "play.fill")
+                    .frame(minWidth: 260)
+            }
+            .buttonStyle(KanalPrimaryButtonStyle(size: 16))
+            .focused($playFocused)
+
+            Button { model.toggleFavorite(favoriteID) } label: {
+                Label(
+                    String(isFavorite ? UIStrings.removeFavourite : UIStrings.addFavourite),
+                    systemImage: isFavorite ? "heart.fill" : "heart"
+                )
+                .frame(minWidth: 260)
+            }
+            .buttonStyle(KanalSecondaryButtonStyle(size: 16))
+        }
+    }
+    #endif
 
     // MARK: Pieces
 
     @ViewBuilder
     private var backdrop: some View {
         ZStack(alignment: .bottom) {
-            Group {
-                if let url = details?.backdropURL ?? details?.posterURL {
-                    Artwork(url: url, title: displayTitle, symbol: item.kind.symbolName)
-                } else {
-                    EnrichedArtwork(item: item)
-                }
-            }
+            detailArtwork
             .aspectRatio(KanalMetrics.backdropAspect, contentMode: .fill)
             .frame(maxWidth: .infinity)
             .clipped()
@@ -97,6 +229,15 @@ public struct TitleDetailView: View {
                 endPoint: .bottom
             )
             .frame(height: 120)
+        }
+    }
+
+    @ViewBuilder
+    private var detailArtwork: some View {
+        if let url = details?.backdropURL ?? details?.posterURL {
+            Artwork(url: url, title: displayTitle, symbol: item.kind.symbolName)
+        } else {
+            EnrichedArtwork(item: item)
         }
     }
 

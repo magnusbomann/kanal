@@ -44,6 +44,18 @@ public final class SystemPlaybackController: PlaybackControlling {
     private var resumeTarget: TimeInterval?
     private var candidateIndex = 0
     @ObservationIgnored private var timeout: Task<Void, Never>?
+    @ObservationIgnored private var pendingOpen: Task<Void, Never>?
+
+    /// True while one feed has been let go and the next has not yet arrived.
+    ///
+    /// Separate from `isBuffering` because it means something different to the
+    /// person watching: buffering is this picture catching up, switching is a
+    /// different picture on its way. A spinner that says neither is what makes
+    /// a four-second wait feel like a hang.
+    public private(set) var isSwitchingSource = false
+    /// Which feed is being watched, counting from one, and how many there are.
+    public private(set) var sourceNumber = 1
+    public private(set) var sourceCount = 1
 
     /// The library entry whose stream is actually playing. A channel may carry
     /// several variants, and the one that worked is worth remembering.
@@ -59,9 +71,9 @@ public final class SystemPlaybackController: PlaybackControlling {
         self.plan = plan
         resumeTarget = resume
         failure = nil
-        candidateIndex = 0
+        sourceCount = plan.variantCount
         configureAudioSession()
-        play(plan.candidates[0], kind: plan.item.kind)
+        open(candidate: 0, settling: false)
     }
 
     public func retry() {
@@ -71,6 +83,8 @@ public final class SystemPlaybackController: PlaybackControlling {
 
     public func stop() {
         timeout?.cancel()
+        pendingOpen?.cancel()
+        isSwitchingSource = false
         if let timeObserver { player.removeTimeObserver(timeObserver) }
         timeObserver = nil
         if let endObserver { NotificationCenter.default.removeObserver(endObserver) }
@@ -131,6 +145,78 @@ public final class SystemPlaybackController: PlaybackControlling {
         update(id)
     }
 
+    // MARK: Choosing a feed
+
+    /// Whether there is another stream carrying this channel to fall back on.
+    public var canSwitchSource: Bool { (plan?.variantCount ?? 1) > 1 }
+
+    /// Move to the next feed because the viewer said this one is no good.
+    ///
+    /// Deliberately a single step with no list attached. A provider's own
+    /// wording for its feeds — "Norway Sport", "All Sport", "50FPS" — describes
+    /// where the entry was filed, not what the picture looks like, so offering
+    /// it as a menu asks the viewer to choose on information they do not have.
+    /// One button that means "not this one, try another" asks nothing.
+    ///
+    /// Wraps around rather than running out: someone who has been through every
+    /// feed is usually better served by the first one again than by a dead end.
+    public func switchSource() {
+        guard let plan, canSwitchSource else { return }
+        let next = plan.nextVariantStart(after: candidateIndex) ?? 0
+        failure = nil
+        open(candidate: next, settling: true)
+    }
+
+    /// Opens one candidate, optionally pausing first.
+    ///
+    /// A provider account is commonly allowed a single connection at a time —
+    /// the test panel's `max_connections` is exactly 1 — and the slot the old
+    /// stream held is not free the moment the socket closes: measured there,
+    /// `active_cons` fell to zero 40 to 50 seconds after a stream was
+    /// abandoned. Releasing the current item before asking for the next, and
+    /// letting a beat pass, is what keeps the replacement from being refused
+    /// the connection its predecessor is still holding.
+    private func open(candidate index: Int, settling: Bool) {
+        guard let plan, plan.candidates.indices.contains(index) else { return }
+        timeout?.cancel()
+        pendingOpen?.cancel()
+
+        candidateIndex = index
+        sourceNumber = plan.variantNumber(at: index)
+        hasRetriedForConnection = false
+        release()
+
+        guard settling else {
+            play(plan.candidates[index], kind: plan.item.kind)
+            return
+        }
+        // Stays true until the new feed is actually on screen, not until the
+        // request goes out — the wait a viewer feels is the several seconds
+        // before the picture returns, and that is the whole span the label has
+        // to cover. Cleared on `readyToPlay`, or when a failure is reported.
+        isSwitchingSource = true
+        pendingOpen = Task { [weak self] in
+            try? await Task.sleep(for: Self.connectionSettle)
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                guard let self, let plan = self.plan else { return }
+                self.play(plan.candidates[index], kind: plan.item.kind)
+            }
+        }
+    }
+
+    /// Long enough for the socket to be gone before the next one opens, short
+    /// enough that nobody reads it as a stall. Measured against the panel, the
+    /// gap barely moves the median — around four seconds either way — but an
+    /// overlapping request is the one thing that reliably gets refused.
+    private static let connectionSettle: Duration = .milliseconds(700)
+
+    /// Lets go of the current stream without tearing down the controller.
+    private func release() {
+        player.pause()
+        player.replaceCurrentItem(with: nil)
+    }
+
     // MARK: Playing one candidate
 
     private func play(_ url: URL, kind: MediaKind) {
@@ -160,20 +246,68 @@ public final class SystemPlaybackController: PlaybackControlling {
     /// indefinitely — no error is ever delivered, so the spinner simply never
     /// stops. A viewer reads that as the app being broken. Giving up after a
     /// while and saying why is the only honest behaviour.
+    ///
+    /// What it gives up *on* matters as much as when. A fixed deadline was the
+    /// wrong shape: timed against the panel, a channel switch delivered video
+    /// in around four seconds most of the time but occasionally took
+    /// twenty-five, and the old six-second limit condemned the whole tail. Each
+    /// premature verdict then opened another connection while the previous one
+    /// was still being held, so a channel with three feeds could report itself
+    /// dead in eighteen seconds when its second feed was fine.
+    ///
+    /// So this waits on evidence rather than on a clock: as long as the stream
+    /// is loading anything at all, it keeps waiting. Only silence runs out.
     private func startTimeout(for url: URL) {
         timeout?.cancel()
-        // Speculative candidates get less patience than the provider's own url.
-        let isLast = plan?.isLast(candidateIndex) ?? true
-        let seconds: Double = isLast ? 15 : 6
+        // A format guess costs nothing to abandon — the same feed will answer
+        // again. A fresh feed has a connection to win first.
+        let isFreshConnection = plan?.isVariantStart(candidateIndex) ?? true
+        let silenceAllowed: Double = isFreshConnection ? 9 : 5
+        let ceiling: Double = isFreshConnection ? 30 : 12
 
         timeout = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(seconds))
-            guard !Task.isCancelled else { return }
-            await MainActor.run {
-                guard let self, self.player.currentItem?.status != .readyToPlay else { return }
-                self.advance(after: nil, url: url)
+            let started = ContinuousClock.now
+            var lastProgress = started
+            var loadedSeconds: Double = -1
+
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(500))
+                guard !Task.isCancelled else { return }
+
+                let verdict = await MainActor.run { () -> (done: Bool, loaded: Double)? in
+                    guard let self, let item = self.player.currentItem else { return nil }
+                    guard item.status != .readyToPlay else { return (true, 0) }
+                    return (false, Self.bufferedSeconds(of: item))
+                }
+                guard let verdict else { return }
+                if verdict.done { return }
+
+                // Any growth in what has been fetched means the provider is
+                // answering, however slowly, and is worth waiting out.
+                if verdict.loaded > loadedSeconds {
+                    loadedSeconds = verdict.loaded
+                    lastProgress = .now
+                }
+                let silent = ContinuousClock.now - lastProgress
+                let elapsed = ContinuousClock.now - started
+                guard silent > .seconds(silenceAllowed) || elapsed > .seconds(ceiling) else {
+                    continue
+                }
+                await MainActor.run {
+                    guard let self, self.player.currentItem?.status != .readyToPlay else { return }
+                    self.advance(after: nil, url: url)
+                }
+                return
             }
         }
+    }
+
+    /// How much of the stream has actually arrived.
+    private static func bufferedSeconds(of item: AVPlayerItem) -> Double {
+        item.loadedTimeRanges
+            .map(\.timeRangeValue.duration.seconds)
+            .filter(\.isFinite)
+            .reduce(0, +)
     }
 
     /// Every candidate before the last is a guess at a format the panel might
@@ -183,15 +317,55 @@ public final class SystemPlaybackController: PlaybackControlling {
     private func advance(after error: (any Error)?, url: URL) {
         guard let plan else { return }
         timeout?.cancel()
+        let reason = PlaybackFailure(error: error, url: url)
+
+        // A refusal moments after letting go of another stream is most often
+        // the provider still counting the connection we just closed, not a
+        // dead feed. Condemning it there would walk through every remaining
+        // variant collecting the same answer, and each attempt makes the next
+        // one likelier to be refused too. One patient retry costs a moment and
+        // keeps a working feed.
+        // Only where a connection was actually being opened. Asking the same
+        // feed for another container reuses one, so a failure there is about
+        // the container and waiting would only add up: four guesses, four
+        // pointless pauses, on every film that never had a chance.
+        let openedAConnection = plan.isVariantStart(candidateIndex)
+        if reason.mayBeConnectionLimit, !hasRetriedForConnection, openedAConnection {
+            hasRetriedForConnection = true
+            let index = candidateIndex
+            release()
+            // Same label as a deliberate switch. From the sofa the two are the
+            // same event: this picture is gone and another is being fetched.
+            isSwitchingSource = true
+            pendingOpen = Task { [weak self] in
+                try? await Task.sleep(for: Self.connectionRetryDelay)
+                guard !Task.isCancelled else { return }
+                await MainActor.run {
+                    guard let self, let plan = self.plan else { return }
+                    self.play(plan.candidates[index], kind: plan.item.kind)
+                }
+            }
+            return
+        }
 
         guard candidateIndex + 1 < plan.candidates.count else {
-            failure = PlaybackFailure(error: error, url: url)
+            isSwitchingSource = false
+            failure = reason
             player.pause()
             return
         }
-        candidateIndex += 1
-        play(plan.candidates[candidateIndex], kind: plan.item.kind)
+        // Crossing into a different feed needs the same pause a deliberate
+        // switch does; another container from the same feed does not.
+        open(
+            candidate: candidateIndex + 1,
+            settling: plan.crossesVariant(advancingFrom: candidateIndex)
+        )
     }
+
+    /// Long enough for the panel to stop counting the stream just released.
+    private static let connectionRetryDelay: Duration = .seconds(3)
+    /// One retry per candidate, so a genuinely dead feed still gets abandoned.
+    @ObservationIgnored private var hasRetriedForConnection = false
 
     private func observe(_ playerItem: AVPlayerItem, url: URL) {
         // The end of a recording is a fact the system reports; inferring it
@@ -215,6 +389,7 @@ public final class SystemPlaybackController: PlaybackControlling {
                 case .readyToPlay:
                     self.timeout?.cancel()
                     self.failure = nil
+                    self.isSwitchingSource = false
                     self.playingOwnerID = self.plan?.owner(at: self.candidateIndex)
                     let seconds = item.duration.seconds
                     self.duration = seconds.isFinite ? seconds : 0

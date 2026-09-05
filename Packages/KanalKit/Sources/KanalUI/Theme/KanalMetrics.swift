@@ -31,6 +31,15 @@ public enum KanalMetrics {
     /// Channel logo tiles.
     public static let logoAspect: CGFloat = 1.0
 
+    /// Wider panels keep TV actions on one row without changing touch layouts.
+    public static var playbackPanelWidth: CGFloat {
+        #if os(tvOS)
+        760
+        #else
+        420
+        #endif
+    }
+
     /// Minimum hit target. 44pt on touch, larger on TV where focus needs room.
     #if os(tvOS)
     public static let minTarget: CGFloat = 64

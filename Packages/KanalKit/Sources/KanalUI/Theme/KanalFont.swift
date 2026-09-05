@@ -9,25 +9,49 @@ public enum KanalFont {
 
     /// Hero headline. Condensed black, tight tracking.
     public static func display(_ size: CGFloat) -> Font {
+        // Semantic styles follow Dynamic Type; TV retains its distance-sized type.
+        #if os(tvOS)
         .system(size: size, weight: .black).width(.condensed)
+        #else
+        .system(.largeTitle, design: .default, weight: .black).width(.condensed)
+        #endif
     }
+
+    // TV minima apply only to supporting text. Explicit display/section sizes
+    // above the minimum retain their hierarchy; spacing is scaled separately.
 
     /// Section headers: "Continue watching", "Favourite channels".
     public static func section(_ size: CGFloat = 20) -> Font {
-        .system(size: size, weight: .bold)
+        #if os(tvOS)
+        .system(size: max(size, 28), weight: .bold)
+        #else
+        .system(.headline, design: .default, weight: .bold)
+        #endif
     }
 
     /// Buttons and nav items — condensed heavy, uppercase at call sites.
     public static func label(_ size: CGFloat = 15) -> Font {
-        .system(size: size, weight: .heavy).width(.condensed)
+        #if os(tvOS)
+        .system(size: max(size, 26), weight: .heavy).width(.condensed)
+        #else
+        .system(.headline, design: .default, weight: .heavy).width(.condensed)
+        #endif
     }
 
     public static func body(_ size: CGFloat = 15) -> Font {
-        .system(size: size, weight: .regular)
+        #if os(tvOS)
+        .system(size: max(size, 22), weight: .regular)
+        #else
+        .system(.body, design: .default, weight: .regular)
+        #endif
     }
 
     public static func caption(_ size: CGFloat = 12) -> Font {
-        .system(size: size, weight: .semibold)
+        #if os(tvOS)
+        .system(size: max(size, 22), weight: .semibold)
+        #else
+        .system(.caption, design: .default, weight: .semibold)
+        #endif
     }
 }
 

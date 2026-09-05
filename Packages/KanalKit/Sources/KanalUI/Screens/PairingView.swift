@@ -10,12 +10,33 @@ public struct PairingView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var host: PairingHost?
+    @State private var isImporting = false
+    @State private var importError: String?
+    private let onClose: (() -> Void)?
+    private let showsHeader: Bool
+    private let showsClose: Bool
 
-    public init() {}
+    public init(
+        onClose: (() -> Void)? = nil,
+        showsHeader: Bool = true,
+        showsClose: Bool = true
+    ) {
+        self.onClose = onClose
+        self.showsHeader = showsHeader
+        self.showsClose = showsClose
+    }
 
     public var body: some View {
-        VStack(spacing: KanalMetrics.xl) {
-            VStack(alignment: .leading, spacing: KanalMetrics.md) {
+        VStack(spacing: KanalMetrics.lg) {
+            if showsClose {
+                HStack {
+                    Spacer()
+                    Button(String(UIStrings.pairingClose)) { exit() }
+                        .buttonStyle(KanalSecondaryButtonStyle(size: 22))
+                        .accessibilityIdentifier("pairing.close")
+                }
+            }
+            if showsHeader { VStack(alignment: .leading, spacing: KanalMetrics.md) {
                 Text(UIStrings.appName)
                     .kanalLabel(14)
                     .foregroundStyle(KanalColor.accentSolid)
@@ -24,33 +45,46 @@ public struct PairingView: View {
                     .foregroundStyle(KanalColor.primaryText)
                     .fixedSize(horizontal: false, vertical: true)
                 Text(UIStrings.pairingBody)
-                    .font(KanalFont.body(KanalMetrics.scale * 14))
+                    .font(KanalFont.body(22))
                     .foregroundStyle(KanalColor.secondaryText)
                     .fixedSize(horizontal: false, vertical: true)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            }.frame(maxWidth: .infinity, alignment: .leading) }
 
             HStack(spacing: KanalMetrics.xl) {
                 codePanel
                 statusPanel
             }
         }
-        .padding(KanalMetrics.xxl)
+        .padding(showsHeader ? KanalMetrics.xxl : KanalMetrics.lg)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(KanalColor.background)
         .task {
-            let host = PairingHost { sources in
-                Task { @MainActor in
-                    for source in sources { await model.add(source) }
+            let host = PairingHost { payload in
+                isImporting = true
+                importError = nil
+                do {
+                    try await model.receivePairing(payload)
+                    isImporting = false
+                    return true
+                } catch {
+                    importError = error.localizedDescription
+                    isImporting = false
+                    return false
                 }
             }
             self.host = host
             host.start()
         }
         .onDisappear { host?.stop() }
-        .onChange(of: statusIsReceived) { _, received in
-            if received { dismiss() }
+        #if os(tvOS)
+        .onExitCommand {
+            if showsClose || onClose != nil { exit() }
         }
+        #endif
+    }
+
+    private func exit() {
+        if let onClose { onClose() } else { dismiss() }
     }
 
     @ViewBuilder
@@ -74,31 +108,32 @@ public struct PairingView: View {
 
     private var statusPanel: some View {
         VStack(alignment: .leading, spacing: KanalMetrics.md) {
-            switch host?.state ?? .idle {
-            case .idle, .waiting:
-                Label(String(UIStrings.pairingWaiting), systemImage: "iphone.radiowaves.left.and.right")
-            case .receiving:
+            if isImporting {
                 Label(String(UIStrings.pairingReceiving), systemImage: "arrow.down.circle")
-            case .received(let count):
-                Label(String(UIStrings.playlistCount(count)), systemImage: "checkmark.circle.fill")
-            case .failed(let message):
-                Label(message, systemImage: "exclamationmark.triangle.fill")
+            } else if let importError {
+                Label(importError, systemImage: "exclamationmark.triangle.fill")
+            } else {
+                switch host?.state ?? .idle {
+                case .idle, .waiting:
+                    Label(String(UIStrings.pairingWaiting), systemImage: "iphone.radiowaves.left.and.right")
+                case .receiving:
+                    Label(String(UIStrings.pairingReceiving), systemImage: "arrow.down.circle")
+                case .received(let count):
+                    Label(String(UIStrings.playlistCount(count)), systemImage: "checkmark.circle.fill")
+                case .failed(let message):
+                    Label(message, systemImage: "exclamationmark.triangle.fill")
+                }
             }
 
             Divider().overlay(KanalColor.separator)
 
             Text(UIStrings.pairingPrivacy)
-                .font(KanalFont.body(KanalMetrics.scale * 12))
+                .font(KanalFont.body(22))
                 .foregroundStyle(KanalColor.tertiaryText)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .font(KanalFont.body(KanalMetrics.scale * 14))
+        .font(KanalFont.body(22))
         .foregroundStyle(KanalColor.secondaryText)
         .frame(maxWidth: KanalMetrics.scale * 280, alignment: .leading)
-    }
-
-    private var statusIsReceived: Bool {
-        if case .received = host?.state { return true }
-        return false
     }
 }

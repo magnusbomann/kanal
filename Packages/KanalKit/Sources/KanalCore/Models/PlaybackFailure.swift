@@ -19,6 +19,44 @@ public enum PlaybackFailure: Equatable, Sendable {
     /// Anything else, with whatever the system said.
     case other(String)
 
+    /// Whether another decoder has a meaningful chance of opening the stream.
+    ///
+    /// Authentication and connectivity failures affect every engine, so a
+    /// second attempt would only make the viewer wait for the same answer.
+    /// Container, byte-range and otherwise unclassified media failures are
+    /// different: VLC may be able to play the exact stream AVFoundation
+    /// rejected, and that handoff should happen without asking the viewer to
+    /// know why.
+    public var shouldTryAlternativeEngine: Bool {
+        switch self {
+        case .unsupportedContainer, .serverNotStreamable, .other:
+            true
+        case .rejected, .offline:
+            false
+        }
+    }
+
+    /// Whether this could be the provider refusing a connection it has not
+    /// finished releasing, rather than a stream that is actually broken.
+    ///
+    /// Panels sell a fixed number of simultaneous connections — the measured
+    /// test account allows exactly one — and a request made while the previous
+    /// stream is still counted comes back as a redirect to something that is
+    /// not media, or as an outright refusal. Both are indistinguishable from a
+    /// dead feed at the point AVFoundation reports them, and the difference
+    /// only shows up by asking the same feed again a moment later.
+    ///
+    /// A container the player has never supported is excluded: no amount of
+    /// waiting turns Matroska into something AVFoundation opens.
+    public var mayBeConnectionLimit: Bool {
+        switch self {
+        case .rejected, .serverNotStreamable, .other:
+            true
+        case .unsupportedContainer, .offline:
+            false
+        }
+    }
+
     /// - Parameter error: nil when the stream simply never became ready, which
     ///   is how an unplayable container most often behaves.
     public init(error: (any Error)?, url: URL) {

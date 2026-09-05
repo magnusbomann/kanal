@@ -28,6 +28,12 @@ enum LaunchOptions {
         value(for: "-kanal-play-movie").flatMap(Int.init)
     }
 
+    /// `-kanal-play-channel 0` puts the nth channel on, for verifying live
+    /// playback and anything drawn over it.
+    static var autoplayChannelIndex: Int? {
+        value(for: "-kanal-play-channel").flatMap(Int.init)
+    }
+
     /// `-kanal-open-series 0` opens the nth show's detail screen.
     static var openSeriesIndex: Int? {
         value(for: "-kanal-open-series").flatMap(Int.init)
@@ -36,6 +42,18 @@ enum LaunchOptions {
     /// `-kanal-details 0` opens the detail screen for the nth film.
     static var detailsMovieIndex: Int? {
         value(for: "-kanal-details").flatMap(Int.init)
+    }
+
+    /// `-kanal-paywall` opens the Pluss screen on launch, with sample prices
+    /// so it can be looked at without an App Store behind it.
+    static var opensPaywall: Bool {
+        ProcessInfo.processInfo.arguments.contains("-kanal-paywall")
+    }
+
+    /// `-kanal-reset-nudge` forgets how many streams have been watched, so a
+    /// UI test meets the same app a fresh install does.
+    static var resetsNudge: Bool {
+        ProcessInfo.processInfo.arguments.contains("-kanal-reset-nudge")
     }
 
     /// `-kanal-source <url>` loads a playlist directly, so a UI test can reach
@@ -55,7 +73,10 @@ enum LaunchOptions {
     static var startTab: String? { nil }
     static var liveMode: String? { nil }
     static var opensSettings: Bool { false }
+    static var opensPaywall: Bool { false }
+    static var resetsNudge: Bool { false }
     static var autoplayMovieIndex: Int? { nil }
+    static var autoplayChannelIndex: Int? { nil }
     static var openSeriesIndex: Int? { nil }
     static var detailsMovieIndex: Int? { nil }
     static var seededSource: URL? { nil }

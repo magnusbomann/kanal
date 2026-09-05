@@ -10,6 +10,13 @@ public extension Library {
 
     /// The show an episode belongs to.
     func seriesGroup(containing episode: MediaItem) -> SeriesGroup? {
+        // Xtream's series listing and series-info response do not always use
+        // the same display name. The numeric provider id is the relationship;
+        // the name is only the label shown to a person.
+        if let providerID = episode.providerSeriesID,
+           let group = series.first(where: { $0.providerSeriesID == providerID }) {
+            return group
+        }
         guard let key = episode.seriesKey else { return nil }
         return series.first { $0.id == key }
     }

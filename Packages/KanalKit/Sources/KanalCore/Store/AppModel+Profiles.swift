@@ -24,17 +24,18 @@ public extension AppModel {
     /// watching: their favourites, their history, their library.
     func activate(_ profile: Profile) async {
         guard profiles.contains(where: { $0.id == profile.id }) else { return }
-
-        // Set first, so the pending save from the outgoing profile — and the
-        // one this assignment triggers — both land in the right file.
-        await flushWatchState()
+        profileSelectionGeneration &+= 1
+        let generation = profileSelectionGeneration
+        await flushPendingWatchState()
+        let restored = await storage.load(WatchState.self, from: profile.watchStateFileName)
+            ?? WatchState()
+        guard generation == profileSelectionGeneration,
+              profiles.contains(where: { $0.id == profile.id }) else { return }
         activeProfileID = profile.id
-        watchState = await storage.load(
-            WatchState.self, from: profile.watchStateFileName
-        ) ?? WatchState()
+        watchState = restored
 
         isChoosingProfile = false
-        applyPolicy()
+        applyPolicy(resetDiscovery: true)
         scheduleVerification()
     }
 
@@ -72,12 +73,17 @@ public extension AppModel {
     /// tightened a limit should not have to leave the screen to see it take.
     func updateProfile(_ profile: Profile) async {
         guard let index = profiles.firstIndex(where: { $0.id == profile.id }) else { return }
+        let previous = profiles[index]
         profiles[index] = profile
         await persistProfiles()
-        if profile.id == activeProfileID {
-            applyPolicy()
-            scheduleVerification()
-        }
+        guard profile.id == activeProfileID else { return }
+        // Only when the edit changed what may be seen. Re-filtering four
+        // hundred thousand entries and restarting the rating sweep is right
+        // for a tightened age limit and absurd for a renamed avatar or a
+        // change of audio language.
+        guard previous.narrows(differentlyThan: profile) else { return }
+        applyPolicy(resetDiscovery: true)
+        scheduleVerification()
     }
 
     /// Removes a profile, and their history with it.
@@ -89,8 +95,12 @@ public extension AppModel {
         profiles.removeAll { $0.id == profile.id }
         await storage.remove(profile.watchStateFileName)
         await persistProfiles()
-        if activeProfileID == profile.id, let next = profiles.first {
-            await activate(next)
+        if activeProfileID == profile.id {
+            profileSelectionGeneration &+= 1
+            activeProfileID = nil
+            isChoosingProfile = true
+            watchState = WatchState()
+            applyPolicy(resetDiscovery: true)
         }
     }
 
@@ -127,7 +137,7 @@ public extension AppModel {
     func setParentRating(_ rating: MaturityRating, for item: MediaItem) async {
         await ratingService.setParentRating(rating, forKey: RatingKey.of(item))
         ratings = await ratingService.current
-        applyPolicy()
+        applyPolicy(resetDiscovery: true)
     }
 
     // MARK: - Setting up a code
@@ -150,18 +160,22 @@ public extension AppModel {
         if !library.isEmpty {
             ratings = await ratingService.seedProviderMarkers(from: library.items)
         }
-        applyPolicy()
+        applyPolicy(resetDiscovery: true)
         scheduleVerification()
     }
 
     /// Recomputes the visible library from the catalogue.
-    func applyPolicy() {
+    func applyPolicy(resetDiscovery: Bool = false) {
         // Nobody has chosen yet — the picker is up and no library is on screen.
         // Filtering four hundred thousand entries down to the nothing a
         // non-existent profile may see is work with no reader.
         guard activeProfile != nil else {
             library = .empty
             withheldCount = 0
+            rebuildFavoriteContent()
+            rebuildHomeIndex()
+            rebuildHomeContent()
+            scheduleDiscoveryMatching(reset: true)
             return
         }
         let policy = policy
@@ -172,7 +186,14 @@ public extension AppModel {
             library = policy.apply(to: catalogue)
             withheldCount = max(catalogue.items.count - library.items.count, 0)
         }
-        scheduleDiscoveryMatching()
+        rebuildFavoriteContent()
+        rebuildHomeIndex()
+        rebuildHomeContent()
+        // Before matching, because the rows themselves change when the person
+        // watching does — a child is asked about on their own terms rather
+        // than handed the grown-up list with the unsuitable parts removed.
+        refreshDiscoveryForAudience()
+        scheduleDiscoveryMatching(reset: resetDiscovery)
     }
 
     /// Whether an entry is playable by the person watching.
@@ -182,7 +203,7 @@ public extension AppModel {
     /// player an entry that was never on screen, and the player is the last
     /// place to catch that.
     func canPlay(_ item: MediaItem) -> Bool {
-        policy.allows(item)
+        item.streamURL.scheme != "kanal-history" && policy.allows(item)
     }
 
     // MARK: - Verification
@@ -199,6 +220,10 @@ public extension AppModel {
 
         let policy = policy
         let catalogue = catalogue
+        // What the recommendation rows are about to ask for. Verifying those
+        // first is the difference between a child's Home filling in minutes
+        // and filling in days — see `DiscoveryVerificationOrder`.
+        let shelves = discoveryShelves
 
         verificationTask = Task { @MainActor [ratingService] in
             // Let the first screen draw; nothing here is urgent.
@@ -217,7 +242,9 @@ public extension AppModel {
             // provider sent — four hundred thousand of them — and each one
             // normalises a title, which is exactly the kind of work that turns
             // into dropped frames if done where the scrolling happens.
-            var outstanding = await Self.pool(policy: policy, catalogue: catalogue)
+            var outstanding = await Self.pool(
+                policy: policy, catalogue: catalogue, wanted: shelves
+            )
             guard !Task.isCancelled else { return }
             self.ratingsPending = outstanding.count
 
@@ -227,7 +254,7 @@ public extension AppModel {
 
                 if progress.changed {
                     self.ratings = await ratingService.snapshot
-                    self.applyPolicy()
+                    self.applyPolicy(resetDiscovery: true)
                 }
                 self.ratingsPending = progress.remaining
                 guard progress.remaining > 0 else { return }
@@ -250,9 +277,15 @@ public extension AppModel {
         }
     }
 
-    private static func pool(policy: ContentPolicy, catalogue: Library) async -> [MediaItem] {
+    private static func pool(
+        policy: ContentPolicy,
+        catalogue: Library,
+        wanted shelves: [DiscoveryShelf]
+    ) async -> [MediaItem] {
         await Task.detached(priority: .utility) {
-            policy.awaitingRating(in: catalogue)
+            let outstanding = policy.awaitingRating(in: catalogue)
+            let ranking = DiscoveryVerificationOrder.ranking(for: shelves)
+            return DiscoveryVerificationOrder.prioritised(outstanding, by: ranking)
         }.value
     }
 
@@ -260,6 +293,7 @@ public extension AppModel {
 
     func persistProfiles() async {
         await storage.save(profiles, to: AppModel.profilesFile)
+        scheduleHouseholdSync()
     }
 
     private func flushWatchState() async {

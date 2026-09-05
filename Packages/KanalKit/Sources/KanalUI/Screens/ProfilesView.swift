@@ -25,20 +25,40 @@ public struct ProfilesView: View {
         .navigationTitle(Text(UIStrings.profiles))
         .kanalPlainListBackground()
         .background(KanalColor.background)
+        #if os(tvOS)
+        .fullScreenCover(item: $editing) { draft in
+            NavigationStack { ProfileEditorView(draft: draft) }
+        }
+        .fullScreenCover(isPresented: $settingCode) {
+            setCodeView
+        }
+        .fullScreenCover(isPresented: $confirmingRemoval) {
+            removeCodeView
+        }
+        #else
         .sheet(item: $editing) { draft in
             NavigationStack { ProfileEditorView(draft: draft) }
         }
         .sheet(isPresented: $settingCode) {
-            ParentalCodeView(purpose: .set) { code in
-                model.setParentalCode(code)
-            }
+            setCodeView
         }
         .sheet(isPresented: $confirmingRemoval) {
-            ParentalCodeView(purpose: .unlock) { entered in
-                guard model.parentalCode.matches(entered) else { return false }
-                model.setParentalCode(nil)
-                return true
-            }
+            removeCodeView
+        }
+        #endif
+    }
+
+    private var setCodeView: some View {
+        ParentalCodeView(purpose: .set) { code in
+            model.setParentalCode(code)
+        }
+    }
+
+    private var removeCodeView: some View {
+        ParentalCodeView(purpose: .unlock) { entered in
+            guard model.parentalCode.matches(entered) else { return false }
+            model.setParentalCode(nil)
+            return true
         }
     }
 

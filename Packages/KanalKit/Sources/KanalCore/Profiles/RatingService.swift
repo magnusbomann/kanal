@@ -78,6 +78,16 @@ public actor RatingService {
         return index
     }
 
+    /// Merges a provider-marker snapshot that was prepared without mutating
+    /// this actor. AppModel calls this only after the corresponding source has
+    /// actually committed, so a superseded validation cannot leak ratings.
+    func merge(_ snapshot: RatingIndex) -> RatingIndex {
+        for (key, rating) in snapshot.entries {
+            index.record(rating, for: key)
+        }
+        return index
+    }
+
     // MARK: - Boards
 
     /// How far through the pool this pass got.

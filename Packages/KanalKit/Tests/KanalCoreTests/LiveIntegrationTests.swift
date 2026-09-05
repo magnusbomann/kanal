@@ -343,3 +343,82 @@ struct LiveRatingTests {
         return RatingService.verdict(from: boards, home: "NO")?.rating
     }
 }
+
+/// What a child's Home is actually offered.
+///
+/// The bug this guards against is silent and looks like nothing: TMDB's
+/// trending list is a grown-up's, so every one of a child's rows fell below
+/// the minimum match count, collapsed, and was replaced by the catalogue in
+/// the provider's own order. Nobody sees an error — a parent just sees random
+/// films where their child's should be.
+///
+///     KANAL_LIVE_TESTS=1 TMDB_API_KEY=… swift test --filter LiveChildDiscovery
+@Suite(
+    "Live child discovery",
+    .enabled(if: ProcessInfo.processInfo.environment["KANAL_LIVE_TESTS"] == "1"
+             && ProcessInfo.processInfo.environment["TMDB_API_KEY"]?.isEmpty == false)
+)
+struct LiveChildDiscoveryTests {
+
+    private static var apiKey: String {
+        ProcessInfo.processInfo.environment["TMDB_API_KEY"] ?? ""
+    }
+
+    private static func shelves(for audience: DiscoveryAudience) async -> [DiscoveryShelf] {
+        let service = DiscoveryService(
+            apiKey: apiKey,
+            configuration: .init(region: "NO", language: "nb-NO", serviceLimit: 4),
+            storage: KanalStorage(
+                directory: FileManager.default.temporaryDirectory
+                    .appending(path: "kanal-discovery-\(UUID().uuidString)")
+            )
+        )
+        await service.use(audience)
+        return await service.refresh()
+    }
+
+    /// Every ceiling, because the strictest is where a row runs out of titles
+    /// first — and the strictest profile belongs to the youngest child.
+    @Test("Both editorial rows come back filled", arguments: MaturityRating.childOptions)
+    func editorialRowsFill(ceiling: MaturityRating) async throws {
+        let shelves = await Self.shelves(for: .children(ceiling))
+        for kind in [MediaKind.movie, .series] {
+            for source in ["trending", "new"] {
+                let shelf = shelves.first { $0.id == "\(source).\(kind.rawValue)" }
+                let found = try #require(shelf, "no \(source) \(kind.rawValue) row at \(ceiling.badge)")
+                // TMDB returns twenty; the row needs four of them to survive
+                // matching against one provider's catalogue, so an answer with
+                // any less than most of the page is already in trouble.
+                #expect(found.titles.count >= 15, "\(found.id) at \(ceiling.badge)")
+            }
+        }
+    }
+
+    /// The row a parent looks for by name.
+    @Test("Disney leads a child's service rows")
+    func disneyLeads() async throws {
+        let shelves = await Self.shelves(for: .children(.nine))
+        let services = shelves.compactMap { shelf -> String? in
+            if case .service(_, let name) = shelf.source { name } else { nil }
+        }
+        let first = try #require(services.first, "no service rows came back")
+        #expect(first.localizedCaseInsensitiveContains("Disney"), "led with \(first)")
+    }
+
+    /// The contrast that makes the point: asked the grown-up way, a child's
+    /// row is mostly unusable. This is the measurement the fix came from, and
+    /// it is worth failing if TMDB ever changes it.
+    @Test("A grown-up's trending list is not a child's")
+    func grownUpListIsDifferent() async throws {
+        let child = await Self.shelves(for: .children(.nine))
+        let everyone = await Self.shelves(for: .everyone)
+
+        let childFilms = child.first { $0.id == "trending.\(MediaKind.movie.rawValue)" }
+        let adultFilms = everyone.first { $0.id == "trending.\(MediaKind.movie.rawValue)" }
+        let childIDs = Set(try #require(childFilms).titles.map(\.id))
+        let adultIDs = Set(try #require(adultFilms).titles.map(\.id))
+
+        #expect(childIDs.intersection(adultIDs).count < childIDs.count / 2,
+                "the two audiences were offered nearly the same films")
+    }
+}

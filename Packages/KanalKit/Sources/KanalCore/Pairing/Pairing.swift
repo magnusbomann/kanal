@@ -20,11 +20,16 @@ public enum Pairing {
         public var key: String
         /// Short human code, for when a camera is not available.
         public var code: String
+        /// Direct LAN fallback when a router suppresses Bonjour discovery.
+        public var host: String?
+        public var port: UInt16?
 
-        public init(serviceName: String, key: String, code: String) {
+        public init(serviceName: String, key: String, code: String, host: String? = nil, port: UInt16? = nil) {
             self.serviceName = serviceName
             self.key = key
             self.code = code
+            self.host = host
+            self.port = port
         }
 
         /// Encoded into the QR image, and parsed back on the phone.
@@ -37,6 +42,10 @@ public enum Pairing {
                 URLQueryItem(name: "k", value: key),
                 URLQueryItem(name: "c", value: code),
             ]
+            if let host, let port {
+                components.queryItems?.append(URLQueryItem(name: "h", value: host))
+                components.queryItems?.append(URLQueryItem(name: "p", value: String(port)))
+            }
             return components.url
         }
 
@@ -51,7 +60,10 @@ public enum Pairing {
             guard let name = lookup["n"], let key = lookup["k"], let code = lookup["c"] else {
                 return nil
             }
-            self.init(serviceName: name, key: key, code: code)
+            guard !name.isEmpty, name.utf8.count <= 63,
+                  Data(base64Encoded: key)?.count == 32 else { return nil }
+            self.init(serviceName: name, key: key, code: code,
+                      host: lookup["h"], port: lookup["p"].flatMap(UInt16.init))
         }
 
         /// A fresh invitation, with a key that lives only as long as the screen.
@@ -67,7 +79,8 @@ public enum Pairing {
         }
 
         public var symmetricKey: SymmetricKey? {
-            Data(base64Encoded: key).map { SymmetricKey(data: $0) }
+            guard let data = Data(base64Encoded: key), data.count == 32 else { return nil }
+            return SymmetricKey(data: data)
         }
     }
 
@@ -75,10 +88,31 @@ public enum Pairing {
     public struct Payload: Codable, Sendable {
         public var sources: [PlaylistSource]
         public var sentAt: Date
+        /// Profiles and viewing state travel with the encrypted handoff, so
+        /// setup never depends on iCloud or cross-platform Keychain delivery.
+        public var household: HouseholdSnapshot?
+        public var activeSourceID: UUID?
+        public var localPlaylists: [String: String]?
 
-        public init(sources: [PlaylistSource], sentAt: Date = .now) {
+        public init(sources: [PlaylistSource], sentAt: Date = .now,
+                    household: HouseholdSnapshot? = nil, activeSourceID: UUID? = nil,
+                    localPlaylists: [String: String]? = nil) {
             self.sources = sources
             self.sentAt = sentAt
+            self.household = household
+            self.activeSourceID = activeSourceID
+            self.localPlaylists = localPlaylists
+        }
+    }
+
+    /// A receipt is sent only after the TV has accepted and imported the
+    /// sources. A successful socket write alone is not a successful handoff.
+    public struct Receipt: Codable, Sendable, Equatable {
+        public var imported: Bool
+        public var sourceCount: Int
+        public init(imported: Bool, sourceCount: Int) {
+            self.imported = imported
+            self.sourceCount = sourceCount
         }
     }
 
@@ -88,6 +122,7 @@ public enum Pairing {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         let plaintext = try encoder.encode(payload)
+        guard plaintext.count + 28 <= 4_000_000 else { throw SyncError.payloadTooLarge }
         return try ChaChaPoly.seal(plaintext, using: key).combined
     }
 
@@ -97,6 +132,16 @@ public enum Pairing {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         return try decoder.decode(Payload.self, from: plaintext)
+    }
+
+    public static func seal(_ receipt: Receipt, with key: SymmetricKey) throws -> Data {
+        try ChaChaPoly.seal(JSONEncoder().encode(receipt), using: key).combined
+    }
+
+    public static func openReceipt(_ data: Data, with key: SymmetricKey) throws -> Receipt {
+        try JSONDecoder().decode(Receipt.self, from: ChaChaPoly.open(
+            ChaChaPoly.SealedBox(combined: data), using: key
+        ))
     }
 
     /// Length-prefixed framing: one message per connection, but the length

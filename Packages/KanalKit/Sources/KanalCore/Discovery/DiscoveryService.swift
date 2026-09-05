@@ -23,7 +23,7 @@ public actor DiscoveryService {
         public init(
             region: String = Locale.current.region?.identifier ?? "US",
             language: String = PreferredLanguages.primaryTag(),
-            serviceLimit: Int = 5
+            serviceLimit: Int = 6
         ) {
             self.region = region
             self.language = language
@@ -37,7 +37,19 @@ public actor DiscoveryService {
     private let storage: KanalStorage
 
     private var shelves: [DiscoveryShelf] = []
-    private static let cacheFile = "discovery.json"
+    /// Who the current `shelves` were fetched for. Swapped by `use(_:)`.
+    private var audience: DiscoveryAudience = .everyone
+    // v2 guarantees subscription-only service rows and curated provider ids;
+    // do not keep a pre-v2 rental-store cache alive for another 24 hours.
+    /// Discovery titles are localized by TMDB. A single global cache would
+    /// leave Norwegian titles on screen after switching the app to Spanish.
+    private var cacheFile: String {
+        let scope = "\(configuration.language)-\(configuration.region)-\(audience.cacheScope)"
+            .lowercased()
+            .replacingOccurrences(of: "_", with: "-")
+            .filter { $0.isLetter || $0.isNumber || $0 == "-" }
+        return "discovery-v3-\(scope).json"
+    }
     /// A weekly list does not need refreshing more than daily.
     private static let maximumAge: TimeInterval = 24 * 3600
 
@@ -58,14 +70,32 @@ public actor DiscoveryService {
     public var cached: [DiscoveryShelf] { shelves }
 
     public func loadCache() async {
-        shelves = await storage.load([DiscoveryShelf].self, from: Self.cacheFile) ?? []
+        shelves = await storage.load([DiscoveryShelf].self, from: cacheFile) ?? []
+    }
+
+    /// Points the service at one audience and loads whatever was cached for
+    /// them. Returns those rows so a caller can show something immediately
+    /// rather than waiting on the network.
+    ///
+    /// Each audience keeps its own cache file. Sharing one would mean a
+    /// household that switches from a grown-up to a child sees the grown-up's
+    /// recommendations until the daily refresh comes round.
+    @discardableResult
+    public func use(_ audience: DiscoveryAudience) async -> [DiscoveryShelf] {
+        guard audience != self.audience else { return shelves }
+        self.audience = audience
+        await loadCache()
+        return shelves
     }
 
     /// Refreshes if the cache is old. Returns whatever is current either way.
     @discardableResult
     public func refreshIfStale() async -> [DiscoveryShelf] {
-        let newest = shelves.map(\.fetchedAt).max()
-        if let newest, Date.now.timeIntervalSince(newest) < Self.maximumAge {
+        // A partially refreshed row keeps its older timestamp so the next app
+        // start retries it instead of treating one successful request as a
+        // fresh cache for every service.
+        let oldest = shelves.map(\.fetchedAt).min()
+        if let oldest, Date.now.timeIntervalSince(oldest) < Self.maximumAge {
             return shelves
         }
         return await refresh()
@@ -75,23 +105,46 @@ public actor DiscoveryService {
     public func refresh() async -> [DiscoveryShelf] {
         guard isAvailable else { return shelves }
 
-        var built: [DiscoveryShelf] = []
-        for kind in [MediaKind.movie, .series] {
-            if let trending = await fetchTrending(kind: kind) { built.append(trending) }
-            if let fresh = await fetchNewReleases(kind: kind) { built.append(fresh) }
+        // Provider discovery and the four editorial rows can travel together.
+        // Once the provider ids arrive, their film/show requests travel
+        // together too. Stable order is restored from the request indices.
+        async let servicesRequest = fetchServices()
+        let baseRows = await fetchBaseShelves()
+        let services = await servicesRequest
+        let serviceRows = await fetchServiceShelves(services)
+        let refreshed = baseRows + serviceRows
+        guard !refreshed.isEmpty else { return shelves }
+
+        let baseIDs = [
+            "trending.\(MediaKind.movie.rawValue)",
+            "new.\(MediaKind.movie.rawValue)",
+            "trending.\(MediaKind.series.rawValue)",
+            "new.\(MediaKind.series.rawValue)",
+        ]
+        var requestedIDs = baseIDs
+        for service in services {
+            requestedIDs.append("service.\(service.id).\(MediaKind.movie.rawValue)")
+            requestedIDs.append("service.\(service.id).\(MediaKind.series.rawValue)")
+        }
+        // If the provider-list request itself failed, retain the previous
+        // service rows rather than interpreting a network error as removal.
+        if services.isEmpty {
+            requestedIDs.append(contentsOf: shelves.compactMap { shelf in
+                if case .service = shelf.source { shelf.id } else { nil }
+            })
         }
 
-        // Streaming services, most prominent in this country first.
-        for service in await fetchServices().prefix(configuration.serviceLimit) {
-            for kind in [MediaKind.movie, .series] {
-                if let shelf = await fetchService(service, kind: kind) { built.append(shelf) }
-            }
+        let old = Dictionary(uniqueKeysWithValues: shelves.map { ($0.id, $0) })
+        let new = Dictionary(uniqueKeysWithValues: refreshed.map { ($0.id, $0) })
+        var seen = Set<String>()
+        let merged = requestedIDs.compactMap { id -> DiscoveryShelf? in
+            guard seen.insert(id).inserted else { return nil }
+            return new[id] ?? old[id]
         }
-
-        guard !built.isEmpty else { return shelves }
-        shelves = built
-        await storage.save(built, to: Self.cacheFile)
-        return built
+        guard !merged.isEmpty else { return shelves }
+        shelves = merged
+        await storage.save(merged, to: cacheFile)
+        return merged
     }
 
     // MARK: - Requests
@@ -101,21 +154,104 @@ public actor DiscoveryService {
         let name: String
     }
 
+    private func fetchBaseShelves() async -> [DiscoveryShelf] {
+        await withTaskGroup(of: (Int, DiscoveryShelf?).self) { group in
+            group.addTask { [self] in (0, await fetchTrending(kind: .movie)) }
+            group.addTask { [self] in (1, await fetchNewReleases(kind: .movie)) }
+            group.addTask { [self] in (2, await fetchTrending(kind: .series)) }
+            group.addTask { [self] in (3, await fetchNewReleases(kind: .series)) }
+
+            var rows: [(Int, DiscoveryShelf)] = []
+            for await (order, shelf) in group {
+                if let shelf { rows.append((order, shelf)) }
+            }
+            return rows.sorted { $0.0 < $1.0 }.map(\.1)
+        }
+    }
+
+    private func fetchServiceShelves(_ services: [Service]) async -> [DiscoveryShelf] {
+        await withTaskGroup(of: (Int, DiscoveryShelf?).self) { group in
+            for (serviceIndex, service) in services.enumerated() {
+                group.addTask { [self] in
+                    (serviceIndex * 2, await fetchService(service, kind: .movie))
+                }
+                group.addTask { [self] in
+                    (serviceIndex * 2 + 1, await fetchService(service, kind: .series))
+                }
+            }
+
+            var rows: [(Int, DiscoveryShelf)] = []
+            for await (order, shelf) in group {
+                if let shelf { rows.append((order, shelf)) }
+            }
+            return rows.sorted { $0.0 < $1.0 }.map(\.1)
+        }
+    }
+
+    /// What the world is watching — or, for a child, what the world's children
+    /// are watching.
+    ///
+    /// TMDB's `trending` endpoint takes no filters at all, so an audience with
+    /// a ceiling cannot use it: the list comes back as whatever is popular
+    /// this week, and on a real catalogue not one of those twenty films was
+    /// rated for a nine-year-old. `discover` sorted by popularity is the same
+    /// question with the audience attached, and it fills the row.
     private func fetchTrending(kind: MediaKind) async -> DiscoveryShelf? {
-        let path = kind == .series ? "trending/tv/week" : "trending/movie/week"
-        guard let titles = await fetchTitles(path: path, query: [], isSeries: kind == .series),
-              !titles.isEmpty
-        else { return nil }
+        let isSeries = kind == .series
+        let titles: [DiscoveryTitle]?
+
+        if audience.isChildren {
+            titles = await fetchTitles(
+                path: isSeries ? "discover/tv" : "discover/movie",
+                query: audienceQuery(isSeries: isSeries) + [
+                    URLQueryItem(name: "sort_by", value: "popularity.desc"),
+                    URLQueryItem(name: "vote_count.gte", value: "20"),
+                ],
+                isSeries: isSeries
+            )
+        } else {
+            titles = await fetchTitles(
+                path: isSeries ? "trending/tv/week" : "trending/movie/week",
+                query: [],
+                isSeries: isSeries
+            )
+        }
+
+        guard let titles, !titles.isEmpty else { return nil }
         return DiscoveryShelf(
             id: "trending.\(kind.rawValue)", source: .trending, kind: kind, titles: titles
         )
+    }
+
+    /// The genre and certification terms this audience adds to a `discover`
+    /// request. Empty for a grown-up, so their rows are exactly as before.
+    private func audienceQuery(isSeries: Bool) -> [URLQueryItem] {
+        var query: [URLQueryItem] = []
+        if let genres = isSeries ? audience.seriesGenres : audience.movieGenres {
+            query.append(URLQueryItem(name: "with_genres", value: genres))
+        }
+        // TMDB offers no certification filter for shows; theirs is carried by
+        // the audience genre and enforced afterwards by `ContentPolicy`.
+        if !isSeries, let ceiling = audience.movieCertification {
+            query.append(URLQueryItem(name: "certification_country", value: ceiling.country))
+            query.append(URLQueryItem(name: "certification.lte", value: ceiling.code))
+        }
+        return query
     }
 
     /// Released in the last few months, ordered by how much attention they got.
     private func fetchNewReleases(kind: MediaKind) async -> DiscoveryShelf? {
         let isSeries = kind == .series
         let path = isSeries ? "discover/tv" : "discover/movie"
-        let since = Date.now.addingTimeInterval(-120 * 24 * 3600)
+        // A year for children, four months for everyone else. "New" means
+        // something different to the two: blockbusters turn over every few
+        // weeks, children's films do not, and there are far fewer of them.
+        // Measured on a real catalogue, the four-month window left the
+        // strictest profiles two matching films — half of what the row needs
+        // to appear at all — while a year gave the row enough to live and
+        // doubled it for a nine-year-old.
+        let window: TimeInterval = audience.isChildren ? 365 : 120
+        let since = Date.now.addingTimeInterval(-window * 24 * 3600)
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.timeZone = .gmt
@@ -123,10 +259,16 @@ public actor DiscoveryService {
         let dateKey = isSeries ? "first_air_date.gte" : "primary_release_date.gte"
         guard let titles = await fetchTitles(
             path: path,
-            query: [
+            query: audienceQuery(isSeries: isSeries) + [
                 URLQueryItem(name: dateKey, value: formatter.string(from: since)),
                 URLQueryItem(name: "sort_by", value: "popularity.desc"),
-                URLQueryItem(name: "vote_count.gte", value: "20"),
+                // Children's films clear a twenty-vote bar far less often than
+                // the week's blockbusters, and a well-known cartoon with
+                // fifteen votes is still a better suggestion than the panel's
+                // own ordering.
+                URLQueryItem(
+                    name: "vote_count.gte", value: audience.isChildren ? "5" : "20"
+                ),
             ],
             isSeries: isSeries
         ), !titles.isEmpty else { return nil }
@@ -145,7 +287,7 @@ public actor DiscoveryService {
         else { return [] }
 
         // Display priority is TMDB's own ordering of what matters in a country.
-        return rows
+        let ranked = rows
             .compactMap { row -> (Service, Int)? in
                 guard let id = row["provider_id"] as? Int,
                       let name = row["provider_name"] as? String
@@ -158,15 +300,63 @@ public actor DiscoveryService {
             }
             .sorted { $0.1 < $1.1 }
             .map(\.0)
+        return Self.curatedServices(
+            ranked, limit: configuration.serviceLimit, leadingWith: audience.preferredServices
+        )
+    }
+
+    /// Keeps the services people recognise without losing the local ordering
+    /// TMDB supplies for the viewer's country. Apple TV+ is deliberately
+    /// matched by TMDB's stable provider id as well as its subscription name:
+    /// some regions now display id 350 simply as "Apple TV". Provider id 2 is
+    /// the similarly named rental store and must remain in regional order.
+    static func curatedServices(
+        _ ranked: [Service],
+        limit: Int,
+        leadingWith leading: [String] = []
+    ) -> [Service] {
+        guard limit > 0 else { return [] }
+        // Whoever the audience asked for comes before the general ordering —
+        // for a child that is Disney, which a parent looks for by name and
+        // which carried more of this catalogue than Netflix did.
+        let audiencePreferences: [(Service) -> Bool] = leading.map { wanted in
+            { $0.name.localizedCaseInsensitiveContains(wanted) }
+        }
+        let preferred: [(Service) -> Bool] = audiencePreferences + [
+            { $0.name.localizedCaseInsensitiveContains("Netflix") },
+            {
+                let name = $0.name.lowercased()
+                return name == "max" || name.contains("hbo max")
+            },
+            {
+                let name = $0.name.lowercased()
+                return $0.id == 350
+                    || name.contains("apple tv+")
+                    || name.contains("apple tv plus")
+            },
+        ]
+
+        var result: [Service] = []
+        var seen = Set<Int>()
+        for matches in preferred {
+            if let service = ranked.first(where: matches), seen.insert(service.id).inserted {
+                result.append(service)
+            }
+        }
+        for service in ranked where seen.insert(service.id).inserted {
+            result.append(service)
+        }
+        return Array(result.prefix(limit))
     }
 
     private func fetchService(_ service: Service, kind: MediaKind) async -> DiscoveryShelf? {
         let isSeries = kind == .series
         guard let titles = await fetchTitles(
             path: isSeries ? "discover/tv" : "discover/movie",
-            query: [
+            query: audienceQuery(isSeries: isSeries) + [
                 URLQueryItem(name: "watch_region", value: configuration.region),
                 URLQueryItem(name: "with_watch_providers", value: String(service.id)),
+                URLQueryItem(name: "with_watch_monetization_types", value: "flatrate"),
                 URLQueryItem(name: "sort_by", value: "popularity.desc"),
             ],
             isSeries: isSeries

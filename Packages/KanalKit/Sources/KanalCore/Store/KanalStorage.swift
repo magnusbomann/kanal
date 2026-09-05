@@ -60,12 +60,39 @@ public actor KanalStorage {
     }
 
     public func save(_ value: some Encodable, to name: String) {
-        let url = directory.appending(path: name)
-        guard let data = try? encoder.encode(value) else { return }
-        try? data.write(to: url, options: .atomic)
+        try? saveVerified(value, to: name)
+    }
+
+    /// Setup must not acknowledge success when durable storage failed.
+    public func saveVerified(_ value: some Encodable, to name: String) throws {
+        let data = try encoder.encode(value)
+        try data.write(to: directory.appending(path: name), options: .atomic)
     }
 
     public func remove(_ name: String) {
         try? FileManager.default.removeItem(at: directory.appending(path: name))
+    }
+
+    // MARK: - Imported playlists
+
+    /// Keeps pasted playlist text in Application Support rather than in the
+    /// reclaimable catalogue cache.
+    ///
+    /// The source stores this returned URL, so a pasted playlist follows the
+    /// exact same loading path as an imported file on every later launch.
+    func saveImportedPlaylist(_ text: String, for sourceID: UUID) throws -> URL {
+        let url = directory.appending(path: Self.importedPlaylistFileName(for: sourceID))
+        try Data(text.utf8).write(to: url, options: .atomic)
+        return url
+    }
+
+    func removeImportedPlaylist(for sourceID: UUID) {
+        try? FileManager.default.removeItem(
+            at: directory.appending(path: Self.importedPlaylistFileName(for: sourceID))
+        )
+    }
+
+    static func importedPlaylistFileName(for sourceID: UUID) -> String {
+        "playlist-\(sourceID.uuidString).m3u"
     }
 }
