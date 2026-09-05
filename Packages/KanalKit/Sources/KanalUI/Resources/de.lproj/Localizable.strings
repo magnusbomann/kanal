@@ -291,6 +291,17 @@
 "sources.hint" = "Ihr Anbieter bietet diesen Kanal auf mehreren Sendern an, und nicht alle funktionieren. Kanal versucht sie abwechselnd und erinnert sich an den, der abgespielt wurde.";
 "sources.lastWorked" = "Letzte Zeit gespielt";
 "sources.title" = "ANDERE QUELLEN";
+"stream.choose" = "Stream auswählen";
+"stream.done" = "Fertig";
+"stream.lock" = "Diesen Stream festlegen";
+"stream.lock.body" = "Der Kanal verbindet sich erneut mit deiner Auswahl, ohne den Stream zu wechseln. Bei einer neuen Auswahl wird diese festgelegt.";
+"stream.locked" = "Festgelegt";
+"stream.playing" = "Wird abgespielt";
+"stream.selected" = "Ausgewählt";
+"stream.stopped" = "Kanal konnte nicht gestartet werden";
+"stream.stopped.body" = "Die automatische Suche wurde beendet. Versuche diesen Stream erneut oder wähle einen aus der Liste.";
+"stream.waiting" = "Warten auf Netzwerk";
+"stream.waiting.body" = "Dein Stream bleibt ausgewählt. Die Wiedergabe wird fortgesetzt, sobald die Verbindung wieder verfügbar ist.";
 "support.intro" = "Teilen Sie dies, wenn Ihnen jemand bei Kanal hilft. Es beschreibt, was fehlgeschlagen ist, ohne zu verraten, was Sie ansehen.";
 "support.privacy" = "Links, Benutzernamen, Passwörter, Profilnamen, Titel und Anzeigengeschichte sind niemals enthalten.";
 "support.report.label" = "Was wird geteilt werden";

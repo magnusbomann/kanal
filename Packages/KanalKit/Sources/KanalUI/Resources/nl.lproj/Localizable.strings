@@ -291,6 +291,17 @@
 "sources.hint" = "Uw provider draagt dit kanaal op verschillende streams, en niet alle werken. Kanal probeert ze om de beurt en onthoudt degene die speelde.";
 "sources.lastWorked" = "Gespeld vorige keer";
 "sources.title" = "ANDERE SOORCES";
+"stream.choose" = "Stream kiezen";
+"stream.done" = "Gereed";
+"stream.lock" = "Deze stream vastzetten";
+"stream.lock.body" = "Het kanaal maakt opnieuw verbinding met je keuze zonder van stream te wisselen. Als je een andere stream kiest, wordt die vastgezet.";
+"stream.locked" = "Vastgezet";
+"stream.playing" = "Wordt afgespeeld";
+"stream.selected" = "Geselecteerd";
+"stream.stopped" = "Kan kanaal niet starten";
+"stream.stopped.body" = "Automatisch zoeken is gestopt. Probeer deze stream opnieuw of kies er een uit de lijst.";
+"stream.waiting" = "Wachten op netwerk";
+"stream.waiting.body" = "Je stream blijft geselecteerd. Het afspelen gaat verder zodra de verbinding terug is.";
 "support.intro" = "Deel dit wanneer iemand je helpt met Kanal. Het beschrijft wat is misgegaan zonder te onthullen wat je bekijkt.";
 "support.privacy" = "Links, gebruikersnamen, wachtwoorden, profielnamen, titels en kijkgeschiedenis zijn nooit inbegrepen.";
 "support.report.label" = "Wat zal worden gedeeld";

@@ -291,6 +291,17 @@
 "sources.hint" = "Su proveedor ofrece este canal en varias transmisiones y no todas funcionan. Kanal los prueba por turno y recuerda el que jugó.";
 "sources.lastWorked" = "Jugado la última vez";
 "sources.title" = "OTRAS FUENTES";
+"stream.choose" = "Elegir transmisión";
+"stream.done" = "Listo";
+"stream.lock" = "Fijar esta transmisión";
+"stream.lock.body" = "El canal se reconectará a tu elección sin cambiar de transmisión. Al elegir otra, se fijará la nueva.";
+"stream.locked" = "Fijada";
+"stream.playing" = "Reproduciendo";
+"stream.selected" = "Seleccionada";
+"stream.stopped" = "No se pudo iniciar el canal";
+"stream.stopped.body" = "La búsqueda automática se ha detenido. Reintenta esta transmisión o elige una de la lista.";
+"stream.waiting" = "Esperando la red";
+"stream.waiting.body" = "Se mantiene tu transmisión. La reproducción continuará cuando vuelva la conexión.";
 "support.intro" = "Comparte esto cuando alguien te esté ayudando con Kanal. Describe lo que falló sin exponer lo que ves.";
 "support.privacy" = "Nunca se incluyen enlaces, nombres de usuario, contraseñas, nombres de perfil, títulos e historial de reproducciones.";
 "support.report.label" = "que sera compartido";

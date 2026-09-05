@@ -291,6 +291,17 @@
 "sources.hint" = "Il tuo provider trasmette questo canale su diversi canali, e non tutti funzionano. Kanal li prova a turno e ricorda quello che ha suonato.";
 "sources.lastWorked" = "Giocato l'ultima volta";
 "sources.title" = "ALTRE FONTE";
+"stream.choose" = "Scegli flusso";
+"stream.done" = "Fine";
+"stream.lock" = "Blocca su questo flusso";
+"stream.lock.body" = "Il canale si riconnetterà alla tua scelta senza cambiare flusso. Scegliendo un altro flusso, il blocco verrà spostato.";
+"stream.locked" = "Bloccato";
+"stream.playing" = "In riproduzione";
+"stream.selected" = "Selezionato";
+"stream.stopped" = "Impossibile avviare il canale";
+"stream.stopped.body" = "La ricerca automatica è terminata. Riprova questo flusso o scegline uno dalla lista.";
+"stream.waiting" = "In attesa della rete";
+"stream.waiting.body" = "Il flusso viene mantenuto. La riproduzione riprende al ritorno della connessione.";
 "support.intro" = "Condividi questo quando qualcuno ti sta aiutando con Kanal. Descrive cosa è fallito senza esporre ciò che guardi.";
 "support.privacy" = "Link, nomi utente, password, nomi dei profili, titoli e cronologia di visualizzazione non sono mai inclusi.";
 "support.report.label" = "Cosa verrà condiviso";

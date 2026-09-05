@@ -12,6 +12,18 @@ import Foundation
 /// finds nothing, then falls back to the key. That failure is invisible in
 /// English and total in every other language.
 public enum UIStrings {
+    public static let streamPlaying = text("stream.playing", "The active stream")
+    public static let streamChoose = text("stream.choose", "Live stream selection and recovery")
+    public static let streamLock = text("stream.lock", "Live stream selection and recovery")
+    public static let streamLockBody = text("stream.lock.body", "Live stream selection and recovery")
+    public static let streamLocked = text("stream.locked", "Live stream selection and recovery")
+    public static let streamSelected = text("stream.selected", "Live stream selection and recovery")
+    public static let streamWaiting = text("stream.waiting", "Live stream selection and recovery")
+    public static let streamWaitingBody = text("stream.waiting.body", "Live stream selection and recovery")
+    public static let streamSearchStopped = text("stream.stopped", "Live stream selection and recovery")
+    public static let streamSearchStoppedBody = text("stream.stopped.body", "Live stream selection and recovery")
+    public static let streamDone = text("stream.done", "Live stream selection and recovery")
+
 
     private static var bundle: LocalizedStringResource.BundleDescription {
         .atURL(Bundle.module.bundleURL)

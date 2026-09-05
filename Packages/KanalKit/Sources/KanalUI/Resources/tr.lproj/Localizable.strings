@@ -291,6 +291,17 @@
 "sources.hint" = "Satıcınız bu kanalı birkaç akışta taşır ve bunların hepsi çalışmaz. Kanal onları sırayla denir ve oynanan olanı hatırlar.";
 "sources.lastWorked" = "Geçen sefer oynandı";
 "sources.title" = "DIĞER KAYNAKLAR";
+"stream.choose" = "Yayın seç";
+"stream.done" = "Bitti";
+"stream.lock" = "Bu yayına kilitle";
+"stream.lock.body" = "Kanal, yayını değiştirmeden seçiminize yeniden bağlanır. Başka bir yayın seçerseniz kilit ona taşınır.";
+"stream.locked" = "Kilitli";
+"stream.playing" = "Şimdi oynatılıyor";
+"stream.selected" = "Seçili";
+"stream.stopped" = "Kanal başlatılamadı";
+"stream.stopped.body" = "Otomatik arama durduruldu. Bu yayını yeniden deneyin veya listeden bir yayın seçin.";
+"stream.waiting" = "Ağ bekleniyor";
+"stream.waiting.body" = "Yayın seçiminiz korunur. Bağlantı geri geldiğinde oynatma devam eder.";
 "support.intro" = "Birisi size Kanal ile yardımcı olduğunda bunu paylaşın. İzlediğiniz şeyi ortaya koymadan neyin başarısız olduğunu açıklar.";
 "support.privacy" = "Bağlantılar, kullanıcı adları, şifreler, profil isimleri, başlıklar ve izleme geçmişi asla dahil edilmez.";
 "support.report.label" = "Ne paylaşılacak";

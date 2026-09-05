@@ -291,6 +291,17 @@
 "sources.hint" = "Din leverantör sänds denna kanal på flera kanaler, och inte alla fungerar. Kanal försöker dem i tur och ordning och kommer ihåg den som spelades.";
 "sources.lastWorked" = "Spelades senast";
 "sources.title" = "ANDRA KÄLLOR";
+"stream.choose" = "Välj ström";
+"stream.done" = "Klart";
+"stream.lock" = "Lås till denna ström";
+"stream.lock.body" = "Kanalen återansluter till ditt val utan att byta ström. Väljer du en annan ström flyttas låset.";
+"stream.locked" = "Låst";
+"stream.playing" = "Spelas nu";
+"stream.selected" = "Vald";
+"stream.stopped" = "Kunde inte starta kanalen";
+"stream.stopped.body" = "Automatisk sökning har stoppats. Försök igen eller välj en ström i listan.";
+"stream.waiting" = "Väntar på nätverk";
+"stream.waiting.body" = "Din ström behålls. Uppspelningen fortsätter när anslutningen är tillbaka.";
 "support.intro" = "Dela detta när någon hjälper dig med Kanal. Det beskriver vad som misslyckades utan att avslöja vad du tittar på.";
 "support.privacy" = "Länkar, användarnamn, lösenord, profilsnamn, titlar och tittarhistorik ingår aldrig.";
 "support.report.label" = "Vad kommer att delas";

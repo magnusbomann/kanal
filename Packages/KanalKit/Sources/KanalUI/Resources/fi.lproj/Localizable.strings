@@ -291,6 +291,17 @@
 "sources.hint" = "Palveluntarjoajasi kuljettaa tätä kanavaa useissa puroissa, eivätkä kaikki ne toimivat. Kanal yrittää niitä vuorotellen ja muistaa sen, joka soitti.";
 "sources.lastWorked" = "Viimeksi soitettu";
 "sources.title" = "MUUT LÄHTEET";
+"stream.choose" = "Valitse suoratoisto";
+"stream.done" = "Valmis";
+"stream.lock" = "Lukitse tähän suoratoistoon";
+"stream.lock.body" = "Kanava yhdistää uudelleen valitsemaasi suoratoistoon vaihtamatta sitä. Toisen suoratoiston valitseminen siirtää lukituksen.";
+"stream.locked" = "Lukittu";
+"stream.playing" = "Toistetaan nyt";
+"stream.selected" = "Valittu";
+"stream.stopped" = "Kanavaa ei voitu käynnistää";
+"stream.stopped.body" = "Automaattinen haku on päättynyt. Yritä uudelleen tai valitse suoratoisto luettelosta.";
+"stream.waiting" = "Odotetaan verkkoa";
+"stream.waiting.body" = "Valittu suoratoisto säilytetään. Toisto jatkuu, kun yhteys palautuu.";
 "support.intro" = "Jaa tämä, kun joku auttaa Kanalin kanssa. Se kuvaa epäonnistumista paljastamatta näkemääsi.";
 "support.privacy" = "Linkit, käyttäjätunnukset, salasanat, profiilin nimet, otsikot ja katsella historia eivät koskaan sisälly.";
 "support.report.label" = "Mitä jaetaan";

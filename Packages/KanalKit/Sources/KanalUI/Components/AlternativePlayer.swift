@@ -17,6 +17,8 @@ public struct AlternativePlayerRequest {
     /// Shown in the chrome, which the engine draws itself so both paths match.
     public let title: String
     public let subtitle: String?
+    /// Optional notification from decoders that report readiness separately.
+    public let onReady: @MainActor () -> Void
     /// Called as playback advances, so watch progress still gets recorded.
     public let onProgress: @MainActor (TimeInterval, TimeInterval) -> Void
     public let onFailure: @MainActor (String) -> Void
@@ -30,6 +32,7 @@ public struct AlternativePlayerRequest {
         startAt: TimeInterval?,
         title: String,
         subtitle: String?,
+        onReady: @escaping @MainActor () -> Void = {},
         onProgress: @escaping @MainActor (TimeInterval, TimeInterval) -> Void,
         onFailure: @escaping @MainActor (String) -> Void,
         onClose: @escaping @MainActor () -> Void
@@ -39,6 +42,7 @@ public struct AlternativePlayerRequest {
         self.startAt = startAt
         self.title = title
         self.subtitle = subtitle
+        self.onReady = onReady
         self.onProgress = onProgress
         self.onFailure = onFailure
         self.onClose = onClose

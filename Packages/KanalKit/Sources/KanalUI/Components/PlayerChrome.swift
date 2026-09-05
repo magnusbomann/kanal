@@ -14,6 +14,7 @@ public struct PlayerChrome: View {
     public let subtitle: String?
     public let onClose: () -> Void
     /// Supplied only by the engine that can offer them.
+    public var sourceAccessory: AnyView?
     public var trailingAccessory: AnyView?
 
     @State private var isVisible = true
@@ -25,12 +26,14 @@ public struct PlayerChrome: View {
         controller: any PlaybackControlling,
         title: String,
         subtitle: String? = nil,
+        sourceAccessory: AnyView? = nil,
         trailingAccessory: AnyView? = nil,
         onClose: @escaping () -> Void
     ) {
         self.controller = controller
         self.title = title
         self.subtitle = subtitle
+        self.sourceAccessory = sourceAccessory
         self.trailingAccessory = trailingAccessory
         self.onClose = onClose
     }
@@ -136,6 +139,8 @@ public struct PlayerChrome: View {
                 .accessibilityIdentifier("player.tracks")
                 .accessibilityLabel(Text(UIStrings.audioAndSubtitles))
             }
+
+            if let sourceAccessory { sourceAccessory }
 
             if let trailingAccessory {
                 trailingAccessory.frame(width: 40, height: 40)

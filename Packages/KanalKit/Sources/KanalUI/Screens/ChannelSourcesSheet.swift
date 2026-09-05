@@ -33,6 +33,9 @@ public struct ChannelSourcesSheet: View {
                 LazyVStack(spacing: KanalMetrics.sm) {
                     ForEach(Array(group.variants.enumerated()), id: \.element.id) { index, variant in
                         Button {
+                            if model.watchState.lockedVariants[group.id] != nil {
+                                model.lockVariant(variant.id, forGroup: group.id)
+                            }
                             navigator.play(variant, from: group)
                             dismiss()
                         } label: {

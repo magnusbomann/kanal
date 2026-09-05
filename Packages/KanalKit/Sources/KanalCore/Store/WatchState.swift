@@ -42,6 +42,9 @@ public struct WatchState: Codable, Sendable {
     /// not repeat yesterday's failures.
     public var workingVariants: [String: String] = [:]
 
+    /// Explicit user choice; independent of the last successful stream.
+    public var lockedVariants: [String: String] = [:]
+
     public init() {}
 
     /// Decoded field by field so that adding one cannot make an existing
@@ -57,6 +60,9 @@ public struct WatchState: Codable, Sendable {
             [String: WatchProgress].self, forKey: .progress
         ) ?? [:]
         recentIDs = try container.decodeIfPresent([String].self, forKey: .recentIDs) ?? []
+        lockedVariants = try container.decodeIfPresent(
+            [String: String].self, forKey: .lockedVariants
+        ) ?? [:]
         workingVariants = try container.decodeIfPresent(
             [String: String].self, forKey: .workingVariants
         ) ?? [:]

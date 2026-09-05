@@ -1383,6 +1383,11 @@ public extension AppModel {
         }
     }
 
+    /// Pins an explicit source independently of successful playback history.
+    func lockVariant(_ variantID: String?, forGroup groupID: String) {
+        watchState.lockedVariants[groupID] = variantID
+    }
+
     /// Remembers which of a channel's stream variants actually played, so the
     /// next attempt starts with the one that worked rather than the first one
     /// the provider happened to list.

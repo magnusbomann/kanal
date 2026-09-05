@@ -76,6 +76,14 @@ public struct PlayerView: View {
     }
 
     public var body: some View {
+        if item.kind == .liveTV {
+            LiveChannelPlayer(plan: plan)
+        } else {
+            recordedBody
+        }
+    }
+
+    private var recordedBody: some View {
         ZStack {
             Color.black.ignoresSafeArea()
 

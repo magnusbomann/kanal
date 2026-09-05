@@ -291,6 +291,17 @@
 "sources.hint" = "Din udbyder sender denne kanal på flere kanaler, og ikke alle fungerer. Kanal prøver dem efter hinanden og husker den, der spillede.";
 "sources.lastWorked" = "Spillet sidst";
 "sources.title" = "ANDRE KILDER";
+"stream.choose" = "Vælg stream";
+"stream.done" = "Færdig";
+"stream.lock" = "Lås til denne stream";
+"stream.lock.body" = "Kanalen forbinder igen til dit valg uden at skifte stream. Vælger du en anden stream, flyttes låsen.";
+"stream.locked" = "Låst";
+"stream.playing" = "Afspilles nu";
+"stream.selected" = "Valgt";
+"stream.stopped" = "Kunne ikke starte kanalen";
+"stream.stopped.body" = "Automatisk søgning er stoppet. Prøv igen, eller vælg en stream fra listen.";
+"stream.waiting" = "Venter på netværk";
+"stream.waiting.body" = "Din stream beholdes. Afspilningen fortsætter, når forbindelsen er tilbage.";
 "support.intro" = "Del dette, når nogen hjælper dig med Kanal. Det beskriver, hvad der mislykkedes, uden at afsløre, hvad du ser.";
 "support.privacy" = "Links, brugernavne, adgangskoder, profildnavne, titler og seerhistorik er aldrig inkluderet.";
 "support.report.label" = "Hvad vil blive delt";

@@ -291,6 +291,17 @@
 "sources.hint" = "Votre fournisseur diffuse cette chaîne sur plusieurs flux, et tous ne fonctionnent pas. Kanal les essaie à tour de rôle et se souvient de celui qui a joué.";
 "sources.lastWorked" = "Joué la dernière fois";
 "sources.title" = "AUTRES SOURCES";
+"stream.choose" = "Choisir un flux";
+"stream.done" = "Terminé";
+"stream.lock" = "Verrouiller ce flux";
+"stream.lock.body" = "La chaîne se reconnectera à votre choix sans changer de flux. Choisir un autre flux déplace le verrouillage.";
+"stream.locked" = "Verrouillé";
+"stream.playing" = "En cours de lecture";
+"stream.selected" = "Sélectionné";
+"stream.stopped" = "Impossible de démarrer la chaîne";
+"stream.stopped.body" = "La recherche automatique est terminée. Réessayez ce flux ou choisissez-en un dans la liste.";
+"stream.waiting" = "En attente du réseau";
+"stream.waiting.body" = "Votre flux est conservé. La lecture reprend au retour de la connexion.";
 "support.intro" = "Partagez ceci lorsque quelqu'un vous aide avec Kanal. Il décrit ce qui a échoué sans exposer ce que vous regardez.";
 "support.privacy" = "Les liens, noms d'utilisateur, mots de passe, noms de profil, titres et historique de surveillance ne sont jamais inclus.";
 "support.report.label" = "Ce qui sera partagé";

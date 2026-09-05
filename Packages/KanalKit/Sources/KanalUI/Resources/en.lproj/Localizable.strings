@@ -291,6 +291,17 @@
 "sources.hint" = "Your provider carries this channel on several streams, and not all of them work. Kanal tries them in turn and remembers the one that played.";
 "sources.lastWorked" = "Played last time";
 "sources.title" = "OTHER SOURCES";
+"stream.choose" = "Choose stream";
+"stream.done" = "Done";
+"stream.lock" = "Lock to this stream";
+"stream.lock.body" = "The channel will reconnect to your choice without switching streams. Choosing another stream moves the lock.";
+"stream.locked" = "Locked";
+"stream.playing" = "Playing now";
+"stream.selected" = "Selected";
+"stream.stopped" = "Could not start the channel";
+"stream.stopped.body" = "Automatic search has stopped. Retry this stream or choose one from the list.";
+"stream.waiting" = "Waiting for network";
+"stream.waiting.body" = "Your stream is kept. Playback resumes when the connection returns.";
 "support.intro" = "Share this when someone is helping you with Kanal. It describes what failed without exposing what you watch.";
 "support.privacy" = "Links, usernames, passwords, profile names, titles and watch history are never included.";
 "support.report.label" = "What will be shared";

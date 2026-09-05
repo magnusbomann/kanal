@@ -291,6 +291,17 @@
 "sources.hint" = "Twój dostawca nosi ten kanał na kilku strumieniach, a nie wszystkie z nich działają. Kanal próbuje ich z kolei i pamięta ten, który grał.";
 "sources.lastWorked" = "Ostatnio grał";
 "sources.title" = "INNE SOURCES";
+"stream.choose" = "Wybierz strumień";
+"stream.done" = "Gotowe";
+"stream.lock" = "Zablokuj ten strumień";
+"stream.lock.body" = "Kanał ponownie połączy się z wybranym strumieniem bez jego zmiany. Wybranie innego strumienia przenosi blokadę.";
+"stream.locked" = "Zablokowany";
+"stream.playing" = "Teraz odtwarzane";
+"stream.selected" = "Wybrany";
+"stream.stopped" = "Nie udało się uruchomić kanału";
+"stream.stopped.body" = "Automatyczne wyszukiwanie zostało zatrzymane. Spróbuj ponownie lub wybierz strumień z listy.";
+"stream.waiting" = "Oczekiwanie na sieć";
+"stream.waiting.body" = "Twój strumień zostaje zachowany. Odtwarzanie zostanie wznowione po przywróceniu połączenia.";
 "support.intro" = "Podziel się tym, kiedy ktoś pomaga ci z Kanal. Opisuje to, co zawiodło bez ujawniania tego, co oglądasz.";
 "support.privacy" = "Linki, nazwy użytkowników, hasła, nazwy profilu, tytuły i historia oglądania nigdy nie są zawarte.";
 "support.report.label" = "Co będzie dzielone";
