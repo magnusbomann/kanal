@@ -90,6 +90,18 @@ public struct MediaItem: Identifiable, Codable, Sendable, Hashable {
         self.qualityTag = qualityTag
     }
 
+    /// The same entry, played from somewhere else — in practice a downloaded
+    /// file on this device.
+    ///
+    /// The id is deliberately unchanged: watch progress, favourites and the
+    /// Continue watching row are all keyed by it, and a film watched offline is
+    /// the same film.
+    public func playing(from url: URL) -> MediaItem {
+        var copy = self
+        copy.streamURL = url
+        return copy
+    }
+
     /// Key used to fold episodes of the same show together.
     public var seriesKey: String? {
         guard kind == .series, let seriesName else { return nil }

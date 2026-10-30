@@ -302,6 +302,18 @@ public enum CoreStrings {
     public static let purchaseUnavailable = resource(
         "purchase.unavailable", "Shown when the selected App Store product could not be loaded"
     )
+
+    // MARK: - Downloads
+
+    public static let downloadFileMissing = resource(
+        "download.error.missing", "Shown when a downloaded file is no longer on the device"
+    )
+    public static let downloadRefused = resource(
+        "download.error.refused", "Shown when the provider refused the download"
+    )
+    public static let downloadTooSmall = resource(
+        "download.error.tooSmall", "Shown when what arrived was too small to be a film"
+    )
 }
 
 public extension LocalizedStringResource {

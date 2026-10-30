@@ -3,6 +3,9 @@
 "category.other" = "annan";
 "detect.empty" = "Klistra in en spellista-länk för att komma igång.";
 "detect.unusable" = "Det här ser inte ut som en länk som Kanal kan öppna.";
+"download.error.missing" = "Filen finns inte längre på den här enheten";
+"download.error.refused" = "Din tv-tjänst avvisade nedladdningen";
+"download.error.tooSmall" = "Det som kom var ingen video";
 "error.badResponse" = "Servern svarade, men inte på ett sätt som Kanal förstår.";
 "error.emptyPlaylist" = "TV-tjänsten anslöt, men den innehöll inga kanaler.";
 "error.expired" = "Detta abonnemang har löpt ut.";

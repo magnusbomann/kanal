@@ -223,6 +223,27 @@ public struct PlayerChrome: View {
             }
             Spacer(minLength: 0)
 
+            trailingControls
+        }
+        .padding(.horizontal, KanalMetrics.md)
+        .padding(.top, KanalMetrics.sm)
+        #if os(tvOS)
+        // A section of its own, so "up" from the transport lands in this row
+        // wherever it is pressed — the play button sits under the title, not
+        // under anything focusable.
+        .focusSection()
+        #endif
+    }
+
+    /// The buttons in the top right corner.
+    ///
+    /// On tvOS the focus engine only moves to what lies roughly in the
+    /// direction pressed. These sit far off to the right with nothing below
+    /// them, and as plain siblings of the close button they could not be
+    /// reached from the remote at all. A focus section makes the cluster one
+    /// target, reachable from anywhere to its left or below.
+    private var trailingControls: some View {
+        HStack(alignment: .top, spacing: KanalMetrics.md) {
             // One button, no list. The provider's names for its feeds say
             // which category an entry was filed under, not what the picture
             // looks like, so a menu of them asks the viewer to choose on
@@ -272,8 +293,9 @@ public struct PlayerChrome: View {
                 trailingAccessory.frame(width: 40, height: 40)
             }
         }
-        .padding(.horizontal, KanalMetrics.md)
-        .padding(.top, KanalMetrics.sm)
+        #if os(tvOS)
+        .focusSection()
+        #endif
     }
 
     /// Titles run long and the row is shared with buttons, so the text gets

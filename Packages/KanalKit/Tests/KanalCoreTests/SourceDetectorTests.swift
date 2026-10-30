@@ -75,6 +75,21 @@ struct SourceDetectorTests {
         #expect(text.hasPrefix("#EXTM3U"))
     }
 
+    /// What a Norwegian keyboard made of a typed link in the simulator.
+    @Test("Rejects a link mangled by the keyboard")
+    func mangledLink() {
+        for input in ["httpØ--fomo.reØ80-get.php", "httpØ--fomo.reØ80-get.php_usernaméabc"] {
+            guard case .unrecognized = SourceDetector.detect(input) else {
+                Issue.record("accepted \(input)")
+                continue
+            }
+        }
+        guard case .complete = SourceDetector.detect("192.168.1.20:8080/get.php?username=a&password=b") else {
+            Issue.record("rejected an IP address")
+            return
+        }
+    }
+
     @Test("Rejects input that is not a link")
     func garbage() {
         guard case .unrecognized = SourceDetector.detect("hello there") else {

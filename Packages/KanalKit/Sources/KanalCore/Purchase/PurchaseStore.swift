@@ -27,6 +27,8 @@ public final class PurchaseStore {
     /// Non-nil while a purchase sheet is up, so one tap cannot start two.
     public private(set) var purchasing: KanalProduct?
     public private(set) var isRestoring = false
+    /// StoreKit is waiting for approval (for example Ask to Buy).
+    public private(set) var isPending = false
     /// Set when the store itself failed. A cancelled purchase is not an error
     /// and never lands here.
     public private(set) var failure: String?
@@ -87,6 +89,7 @@ public final class PurchaseStore {
             break
         }
         isPro = entitled
+        if entitled { isPending = false }
     }
 
     // MARK: Products
@@ -95,6 +98,9 @@ public final class PurchaseStore {
         // `offers` rather than `products`: a paywall opened twice must not
         // refetch, and in a debug run it must not overwrite seeded prices.
         guard offers.isEmpty, !isLoadingProducts else { return }
+        #if DEBUG
+        if isShowingSampleOffers { return }
+        #endif
         isLoadingProducts = true
         productLoadFailed = false
         defer { isLoadingProducts = false }
@@ -105,6 +111,7 @@ public final class PurchaseStore {
                 (order.firstIndex(of: $0.id) ?? .max) < (order.firstIndex(of: $1.id) ?? .max)
             }
             await rebuildOffers()
+            productLoadFailed = offers.isEmpty
         } catch {
             // Not surfaced as a failure banner. An offline paywall showing its
             // own copy without prices is better than an error where the
@@ -165,7 +172,7 @@ public final class PurchaseStore {
     /// itself rather than watching a flag.
     @discardableResult
     public func purchase(_ kanalProduct: KanalProduct) async -> Bool {
-        guard purchasing == nil, !isRestoring else { return false }
+        guard purchasing == nil, !isRestoring, !isPending else { return false }
         guard let product = product(for: kanalProduct) else {
             failure = CoreStrings.purchaseUnavailable.resolved
             return false
@@ -189,6 +196,7 @@ public final class PurchaseStore {
                 await persistNudge()
                 return isPro
             case .pending:
+                isPending = true
                 // Ask to Buy. Nothing has failed and nothing has been bought;
                 // `Transaction.updates` will bring the answer whenever it comes.
                 return false
@@ -290,16 +298,36 @@ public final class PurchaseStore {
 
     /// Prices with no App Store behind them, so the paywall can be opened and
     /// looked at in a plain simulator run. `-kanal-paywall` turns it on.
+    private var isShowingSampleOffers = false
+
     public func seedSampleOffers() {
-        guard offers.isEmpty else { return }
+        isShowingSampleOffers = true
+        products = []
+        let args = ProcessInfo.processInfo.arguments
+        if args.contains("-kanal-paywall-unavailable") {
+            offers = []
+            productLoadFailed = true
+            return
+        }
+        if args.contains("-kanal-paywall-loading") {
+            offers = []
+            isLoadingProducts = true
+            return
+        }
+        isPending = args.contains("-kanal-paywall-pending")
+        let hasTrial = !args.contains("-kanal-paywall-no-trial")
+        let trialFormatter = DateComponentsFormatter()
+        trialFormatter.unitsStyle = .full
+        trialFormatter.allowedUnits = [.day]
+        let trialText = trialFormatter.string(from: DateComponents(day: 7))
         offers = [
-            PlanOffer(product: .monthly, displayPrice: "kr 39,00", trial: nil),
             PlanOffer(
                 product: .yearly,
                 displayPrice: "kr 249,00",
-                trial: "7 dager",
+                trial: hasTrial ? trialText : nil,
                 savingsPercent: 47
             ),
+            PlanOffer(product: .monthly, displayPrice: "kr 39,00", trial: nil),
             PlanOffer(product: .lifetime, displayPrice: "kr 599,00", trial: nil),
         ]
     }

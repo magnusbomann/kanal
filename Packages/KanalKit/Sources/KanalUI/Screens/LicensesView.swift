@@ -60,6 +60,12 @@ public struct LicensesView: View {
                 sourceURL: URL(string: "https://code.videolan.org/videolan/VLCKit")
             ),
             Component(
+                name: "FFmpeg",
+                purpose: UIStrings.creditFFmpegPurpose,
+                license: "LGPL v2.1 or later",
+                sourceURL: URL(string: "https://ffmpeg.org")
+            ),
+            Component(
                 name: "Wikidata",
                 purpose: UIStrings.creditWikidataPurpose,
                 license: "CC0 1.0",

@@ -3,6 +3,9 @@
 "category.other" = "Inne";
 "detect.empty" = "Wklej link do listy odtwarzania, aby rozpocząć.";
 "detect.unusable" = "To nie wygląda na połączenie Kanal.";
+"download.error.missing" = "Tego pliku nie ma już na tym urządzeniu";
+"download.error.refused" = "Twoja usługa TV odrzuciła pobieranie";
+"download.error.tooSmall" = "To, co przyszło, nie było filmem";
 "error.badResponse" = "Serwer odpowiedział, ale nie w sposób Kanal rozumie.";
 "error.emptyPlaylist" = "Telewizor się połączył, ale nie zawierał kanałów.";
 "error.expired" = "Ta prenumerata wygasła.";

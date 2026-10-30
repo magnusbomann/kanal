@@ -86,5 +86,24 @@
 	<string>$(TMDB_API_KEY)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<!-- Mirroring hands the television to the app as its own scene, which
+		     is how films played by VLC reach an Apple TV. See ExternalDisplay. -->
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleExternalDisplayNonInteractive</key>
+			<array>
+				<dict>
+					<key>UISceneConfigurationName</key>
+					<string>External Display</string>
+					<key>UISceneDelegateClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).ExternalDisplaySceneDelegate</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
 </dict>
 </plist>

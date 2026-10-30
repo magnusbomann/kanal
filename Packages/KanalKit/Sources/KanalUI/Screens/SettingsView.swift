@@ -10,6 +10,7 @@ public struct SettingsView: View {
     @Environment(AppModel.self) private var model
     @Environment(PurchaseStore.self) private var purchases
     @Environment(Navigator.self) private var navigator: Navigator?
+    @Environment(DownloadStore.self) private var downloads: DownloadStore?
     @Environment(\.dismiss) private var dismiss
     @State private var isAddingSource = false
     @State private var renaming: PlaylistSource?
@@ -299,6 +300,10 @@ public struct SettingsView: View {
                     #if !os(tvOS)
                     .swipeActions {
                         Button(String(UIStrings.remove), role: .destructive) {
+                            // Files belonging to a service that is gone are
+                            // unplayable and invisible; without this they would
+                            // sit on the disk with nothing left to delete them.
+                            downloads?.removeAll(forSource: source.id)
                             Task { await model.remove(source) }
                         }
                     }
@@ -331,6 +336,20 @@ public struct SettingsView: View {
 
     private var librarySection: some View {
         Section(String(UIStrings.sectionLibrary)) {
+            // The second way in. The first is the button on Home, which is
+            // where someone looks when they are already looking at a shelf they
+            // want to change.
+            Button {
+                dismiss()
+                navigator?.push(.library(section: .downloads))
+            } label: {
+                Label {
+                    Text(UIStrings.libraryOpen)
+                } icon: {
+                    Image(systemName: "square.stack.3d.up.fill")
+                        .foregroundStyle(KanalColor.accentSolid)
+                }
+            }
             LabeledContent(String(UIStrings.labelChannels), value: model.library.channels.count.formatted())
             LabeledContent(String(UIStrings.labelFilms), value: model.library.movies.count.formatted())
             LabeledContent(String(UIStrings.labelSeries), value: model.library.series.count.formatted())

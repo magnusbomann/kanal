@@ -1,5 +1,8 @@
 import KanalCore
 import SwiftUI
+#if os(iOS)
+import UIKit
+#endif
 
 /// The app shell.
 ///
@@ -11,6 +14,7 @@ public struct RootView: View {
     @State private var model = AppModel()
     @State private var navigator = Navigator()
     @State private var purchases = PurchaseStore()
+    @State private var downloads = DownloadStore()
     /// The offer, presented here and nowhere else. Both routes to it — the
     /// interstitial after a stream closes, and a tap on the watermark — end in
     /// this one flag, so two of them can never be up at once.
@@ -36,10 +40,29 @@ public struct RootView: View {
             .environment(model)
             .environment(navigator)
             .environment(purchases)
+            .environment(downloads)
             .tint(KanalColor.accentSolid)
             // Wired once, so every screen that plays a film gets its other
-            // listings as fallbacks without knowing they exist.
-            .onAppear { navigator.alternatives = { [weak model] in model?.playbackPlan(for: $0) } }
+            // listings as fallbacks without knowing they exist — and so a title
+            // already on this device is played from the disk wherever it was
+            // tapped, rather than only from the library screen.
+            .onAppear {
+                navigator.alternatives = { [weak model, weak downloads] item in
+                    if let model,
+                       let file = downloads?.playableFile(for: item, sourceID: model.activeSourceID) {
+                        let local = item.playing(from: file)
+                        return PlaybackPlan(item: local, candidates: [file], owners: [item.id])
+                    }
+                    return model?.playbackPlan(for: item)
+                }
+            }
+            .task { await downloads.start() }
+            // The provider allows one connection at a time. A download running
+            // underneath a film does not slow it down — it takes the slot, and
+            // the film stops.
+            .onChange(of: navigator.playing != nil) { _, isPlaying in
+                downloads.setPlaybackActive(isPlaying)
+            }
             .onChange(of: model.activeProfileID) { previous, current in
                 guard previous != nil, previous != current else { return }
                 navigator.resetContentNavigation()
@@ -49,14 +72,19 @@ public struct RootView: View {
                 navigator.resetContentNavigation()
             }
             .task {
-                await purchases.start()
                 #if DEBUG
-                if LaunchOptions.resetsNudge {
-                    await purchases.resetNudge()
-                }
                 if LaunchOptions.opensPaywall {
                     purchases.seedSampleOffers()
                     isShowingPro = true
+                } else {
+                    await purchases.start()
+                }
+                #else
+                await purchases.start()
+                #endif
+                #if DEBUG
+                if LaunchOptions.resetsNudge {
+                    await purchases.resetNudge()
                 }
                 #endif
             }
@@ -70,7 +98,19 @@ public struct RootView: View {
                     // Flush any debounced watch-state write before iOS/tvOS
                     // suspends the process. The player also checkpoints its
                     // current position; this covers changes made elsewhere.
+                    #if os(iOS)
+                    // Without an assertion iOS may suspend us between the local
+                    // save and the iCloud write, and the other device resumes
+                    // from an older position.
+                    let assertion = UIApplication.shared.beginBackgroundTask()
+                    Task {
+                        await model.flushPendingWatchState()
+                        UIApplication.shared.endBackgroundTask(assertion)
+                    }
+                    #else
                     Task { await model.flushPendingWatchState() }
+                    #endif
+                    Task { await downloads.flush() }
                     return
                 }
                 guard phase == .active, model.phase != .starting else { return }
@@ -78,7 +118,12 @@ public struct RootView: View {
             }
             .task {
                 #if DEBUG
-                if let seeded = LaunchOptions.seededSource {
+                if let panel = LaunchOptions.seededXtream {
+                    try? await model.add(PlaylistSource(
+                        kind: .xtream, name: "Test", portalURL: panel.portal,
+                        username: panel.username, password: panel.password
+                    ))
+                } else if let seeded = LaunchOptions.seededSource {
                     try? await model.add(PlaylistSource(
                         kind: .m3u, name: "Test", playlistURL: seeded
                     ))
@@ -89,6 +134,10 @@ public struct RootView: View {
                 await model.start()
                 #endif
                 #if DEBUG
+                if let wanted = LaunchOptions.autoplayItemID,
+                   let item = model.library.items.first(where: { $0.id == wanted }) {
+                    navigator.play(item)
+                }
                 if let index = LaunchOptions.autoplayMovieIndex,
                    model.library.movies.indices.contains(index) {
                     navigator.play(model.library.movies[index])
@@ -239,6 +288,25 @@ public struct MainTabView: View {
         }
         #if os(iOS)
         .tabBarMinimizeBehavior(.onScrollDown)
+        // Posters scrolled straight under the clock and battery with nothing
+        // behind them. A short fade into the page colour keeps the status bar
+        // legible without a hard bar across the artwork.
+        .overlay(alignment: .top) {
+            GeometryReader { proxy in
+                VStack(spacing: 0) {
+                    KanalColor.background
+                        .frame(height: proxy.safeAreaInsets.top)
+                    LinearGradient(
+                        colors: [KanalColor.background, KanalColor.background.opacity(0)],
+                        startPoint: .top, endPoint: .bottom
+                    )
+                    .frame(height: KanalMetrics.lg)
+                }
+                .ignoresSafeArea(edges: .top)
+            }
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+        }
         #endif
         // Presented here rather than beside the player's full-screen cover:
         // two modals on one view is not something SwiftUI presents reliably.
@@ -292,6 +360,8 @@ struct RouteView: View {
             MovieLibraryView()
         case .allSeries:
             SeriesLibraryView()
+        case .library(let section):
+            MyLibraryView(section: section)
         case .category(kind: .liveTV, name: let name):
             ChannelsView(initialCategory: name)
         case .category(kind: .movie, name: let name):

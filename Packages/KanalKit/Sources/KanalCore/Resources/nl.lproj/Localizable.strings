@@ -3,6 +3,9 @@
 "category.other" = "ander";
 "detect.empty" = "Plak een playlist-link om aan de slag te gaan.";
 "detect.unusable" = "Dat ziet er niet uit als een link die Kanal kan openen.";
+"download.error.missing" = "Het bestand staat niet meer op dit apparaat";
+"download.error.refused" = "Je tv-dienst weigerde de download";
+"download.error.tooSmall" = "Wat binnenkwam was geen video";
 "error.badResponse" = "Die server antwoordde, maar niet op een manier die Kanal begrijpt.";
 "error.emptyPlaylist" = "De tv-service was verbonden, maar er zaten geen kanalen in.";
 "error.expired" = "Dit abonnement is verlopen.";

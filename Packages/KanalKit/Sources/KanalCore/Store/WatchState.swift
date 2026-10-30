@@ -103,6 +103,35 @@ public struct WatchState: Codable, Sendable, Equatable {
         }
     }
 
+    /// Forgets one thing entirely: its position, its snapshot and its place in
+    /// the history.
+    ///
+    /// Deliberately not "mark as finished". Someone removing a title from
+    /// Continue watching is saying they are done with it, and a finished
+    /// position would quietly bring the next episode forward instead.
+    public mutating func forget(_ itemID: String) {
+        progress[itemID] = nil
+        recentItems[itemID] = nil
+        recentIDs.removeAll { $0 == itemID }
+    }
+
+    public mutating func forgetChannel(_ groupID: String) {
+        recentChannelGroupIDs.removeAll { $0 == groupID }
+    }
+
+    /// Clears watch history. Favourites are untouched: they are a list someone
+    /// built on purpose, and history is a list the app built for them.
+    public mutating func clearHistory() {
+        progress = [:]
+        recentIDs = []
+        recentItems = [:]
+        recentChannelGroupIDs = []
+    }
+
+    public mutating func clearFavorites() {
+        favoriteIDs = []
+    }
+
     public mutating func toggleFavorite(_ id: String) {
         if favoriteIDs.contains(id) { favoriteIDs.remove(id) } else { favoriteIDs.insert(id) }
     }

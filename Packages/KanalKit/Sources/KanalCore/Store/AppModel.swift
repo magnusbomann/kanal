@@ -36,7 +36,12 @@ public final class AppModel {
     ///
     /// Only the profile machinery reads this. Every screen reads `library`, so
     /// a screen that forgets about age limits cannot exist.
-    public internal(set) var catalogue: Library = .empty
+    public internal(set) var catalogue: Library = .empty {
+        didSet { catalogueRevision &+= 1 }
+    }
+    /// Bumped on every catalogue change, so a narrowing computed off the main
+    /// actor can tell whether it still describes the catalogue it was cut from.
+    @ObservationIgnored var catalogueRevision: UInt64 = 0
     /// What the person watching right now is allowed to see.
     public internal(set) var library: Library = .empty
     public internal(set) var profiles: [Profile] = [] {
@@ -1191,11 +1196,19 @@ public final class AppModel {
 
     /// Capture the owner and value together before suspending. Used when a
     /// playback checkpoint or background transition cannot wait for debounce.
+    ///
+    /// Also publishes to iCloud at once. The debounced sync is a sleeping task,
+    /// and a suspended app never wakes it: closing the player and pocketing the
+    /// phone would otherwise leave the TV resuming from the last 15-second
+    /// checkpoint, or from nothing.
     public func flushPendingWatchState() async {
         watchStateSaveTask?.cancel()
         let snapshot = watchState
         let file = activeProfile?.watchStateFileName ?? WatchState.fileName
         await storage.save(snapshot, to: file)
+        guard !isApplyingHousehold, !isReceivingPairing, phase != .starting else { return }
+        householdSyncTask?.cancel()
+        await syncNow()
     }
 
     /// Pulls the newest private iCloud household and then publishes this
@@ -1221,7 +1234,7 @@ public final class AppModel {
                 // Keychain reads. No partially prepared merge reaches the UI.
                 while true {
                     let revision = householdRevision
-                    let local = await makeHouseholdSnapshot()
+                    let local = Self.withoutUnusedOwner(await makeHouseholdSnapshot(), joining: remote)
                     guard revision == householdRevision else { continue }
                     var candidate = householdReplica
                     candidate.observe(local: local)
@@ -1252,6 +1265,28 @@ public final class AppModel {
                 break
             }
         } while syncRequestedAgain
+    }
+
+    /// A reinstall, or a second device set up by hand, creates a fresh "Me"
+    /// before it has heard from iCloud. Merged by id, that left two profiles
+    /// called "Me" — seen on Apple TV. When the household already has a grown
+    /// up and this device's only profile is that untouched default, it steps
+    /// aside and the household's own owner is kept.
+    nonisolated static func withoutUnusedOwner(
+        _ local: HouseholdSnapshot, joining remote: HouseholdSnapshot?
+    ) -> HouseholdSnapshot {
+        guard let remote, local.profiles.count == 1, let owner = local.profiles.first,
+              owner.name == String(localized: CoreStrings.profileDefaultOwnerName),
+              owner.maturity == .adult,
+              !remote.profiles.contains(where: { $0.id == owner.id }),
+              remote.profiles.contains(where: { $0.maturity == .adult })
+        else { return local }
+        let state = local.watchStates[owner.id.uuidString] ?? WatchState()
+        guard state.favoriteIDs.isEmpty, state.progress.isEmpty, state.recentIDs.isEmpty else { return local }
+        var trimmed = local
+        trimmed.profiles = []
+        trimmed.watchStates[owner.id.uuidString] = nil
+        return trimmed
     }
 
     func scheduleHouseholdSync() {
@@ -1751,6 +1786,44 @@ public extension AppModel {
 
     func toggleFavorite(_ id: String) {
         watchState.toggleFavorite(id)
+    }
+
+    // MARK: - Taking things off the screen
+    //
+    // Everything the app puts on Home, it must also be possible to take off.
+    // Continue watching in particular: a film someone abandoned ten minutes in
+    // sits at the top of the first screen for months, and "I don't want to see
+    // this any more" is not a request the app can answer with a refresh.
+
+    func removeFavorite(_ id: String) {
+        watchState.favoriteIDs.remove(id)
+    }
+
+    func clearFavorites() {
+        watchState.clearFavorites()
+    }
+
+    /// Removes one title from Continue watching, whichever key its progress was
+    /// written under — an id that changed between playlist refreshes has both.
+    func forgetProgress(for item: MediaItem) {
+        let key = historyKey(for: item.id)
+        if let previous = progressHistoryAliases[key] {
+            watchState.forget(previous)
+        }
+        watchState.forget(key)
+        watchState.forget(item.id)
+    }
+
+    func forgetChannel(_ group: ChannelGroup) {
+        watchState.forgetChannel(historyKey(for: group.id))
+        watchState.forgetChannel(group.id)
+    }
+
+    /// Clears Continue watching, Next episode and the recent channels together:
+    /// they are three views of one history, and clearing only the visible one
+    /// would bring the rest back on the next launch.
+    func clearWatchHistory() {
+        watchState.clearHistory()
     }
 
     func record(item: MediaItem, position: TimeInterval, duration: TimeInterval) {

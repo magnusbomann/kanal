@@ -29,6 +29,46 @@ struct ChannelGroupTests {
         #expect(group.hasAlternatives == false)
     }
 
+    /// Measured on a real panel: Norway's and Denmark's "TV 2" share the
+    /// name exactly. Folded together, the guide mixed both schedules.
+    @Test("The same name in two countries stays two channels")
+    func sameNameTwoCountries() {
+        let library = Library(items: [
+            Self.channel("TV 2", url: "http://p.tv/no/m3u8", category: "Norway"),
+            Self.channel("TV 2", url: "http://p.tv/dk/m3u8", category: "Denmark"),
+        ])
+        #expect(library.channelGroups.count == 2)
+        #expect(library.channelGroups.allSatisfy { $0.variants.count == 1 })
+    }
+
+    /// Measured on a real panel, beside a plain "NRK1".
+    @Test("A low-bandwidth feed is a fallback, not a second channel")
+    func lowBandwidthFoldsIn() throws {
+        let library = Library(items: [
+            Self.channel("NRK1 Lav Internett hastighet", url: "http://p.tv/low/m3u8", category: "Norway"),
+            Self.channel("NRK1", url: "http://p.tv/hd/m3u8", category: "Norway"),
+        ])
+        let group = try #require(library.channelGroups.first)
+        #expect(library.channelGroups.count == 1)
+        #expect(group.name == "NRK1")
+        #expect(group.primary.streamURL.absoluteString == "http://p.tv/hd/m3u8")
+    }
+
+    /// Splitting by country must not cost sport its feeds: a listing under
+    /// no country joins the country most listings came from.
+    @Test("Countryless listings stay with the dominant country")
+    func countrylessJoinsDominant() throws {
+        let library = Library(items: [
+            Self.channel("V sport 1", url: "http://p.tv/a/m3u8", category: "Norway"),
+            Self.channel("V sport 1", url: "http://p.tv/b/m3u8", category: "Norway Sport"),
+            Self.channel("V sport 1", url: "http://p.tv/c/m3u8", category: "Premier League"),
+            Self.channel("V sport 1", url: "http://p.tv/d/m3u8", category: "Sweden"),
+        ])
+        #expect(library.channelGroups.count == 2)
+        let norway = try #require(library.channelGroups.first { $0.categories.contains("Norway") })
+        #expect(norway.variants.count == 3)
+    }
+
     /// The case that matters: different streams for the same channel. Losing
     /// these would throw away feeds that work when the first one does not.
     @Test("Different streams are kept as alternatives")

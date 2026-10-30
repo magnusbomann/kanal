@@ -3,6 +3,9 @@
 "category.other" = "anderer";
 "detect.empty" = "Kopieren Sie einen Link zu einer Wiedergabeliste, um mit dem Starten zu beginnen.";
 "detect.unusable" = "Das sieht nicht aus wie ein Link, den Kanal öffnen kann.";
+"download.error.missing" = "Die Datei ist nicht mehr auf diesem Gerät";
+"download.error.refused" = "Dein TV-Dienst hat den Download abgelehnt";
+"download.error.tooSmall" = "Was ankam, war kein Video";
 "error.badResponse" = "Dieser Server antwortete, aber nicht auf eine Weise, die Kanal versteht.";
 "error.emptyPlaylist" = "Der Fernsehsender wurde angeschlossen, aber er enthielt keine Kanäle.";
 "error.expired" = "Dieses Abonnement ist abgelaufen.";

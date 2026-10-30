@@ -3,6 +3,9 @@
 "category.other" = "diğer";
 "detect.empty" = "Başlamak için bir çalma listesi bağlantısını yapıştırın.";
 "detect.unusable" = "Bu, Kanal'nin açabileceği bir bağlantı gibi görünmüyor.";
+"download.error.missing" = "Dosya artık bu cihazda değil";
+"download.error.refused" = "TV servisiniz indirmeyi reddetti";
+"download.error.tooSmall" = "Gelen şey bir video değildi";
 "error.badResponse" = "O sunucu cevap verdi, ancak Kanal'nin anlayacağı bir şekilde değil.";
 "error.emptyPlaylist" = "TV servisi bağlandı, ancak hiçbir kanal içermiyordu.";
 "error.expired" = "Bu abonelik sona erdi.";

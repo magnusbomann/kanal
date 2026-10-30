@@ -24,6 +24,15 @@ public enum Route: Hashable {
     case favoriteChannels
     case allMovies
     case allSeries
+    /// Downloads, favourites and watch history — the things this household put
+    /// there itself, as opposed to what the provider sent.
+    case library(section: LibrarySection)
+}
+
+/// Which part of My library to open on. Mirrors `MyLibraryView.Section` in a
+/// form the navigation path can carry.
+public enum LibrarySection: Hashable, Sendable {
+    case downloads, favourites, continueWatching
 }
 
 /// What is currently playing full screen, if anything.

@@ -3,6 +3,9 @@
 "category.other" = "Otro";
 "detect.empty" = "Pegue el enlace de una lista de reproducción para comenzar.";
 "detect.unusable" = "No parece un enlace que Kanal pueda abrir.";
+"download.error.missing" = "El archivo ya no está en este dispositivo";
+"download.error.refused" = "Tu servicio de TV rechazó la descarga";
+"download.error.tooSmall" = "Lo que llegó no era un vídeo";
 "error.badResponse" = "Ese servidor respondió, pero no de una manera que Kanal entienda.";
 "error.emptyPlaylist" = "El servicio de TV se conectó, pero no contenía canales.";
 "error.expired" = "Esta suscripción ha caducado.";

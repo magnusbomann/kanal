@@ -62,6 +62,19 @@ enum LaunchOptions {
         value(for: "-kanal-source").flatMap(URL.init(string:))
     }
 
+    /// `-kanal-play-id movie-204927` starts one specific title by its id.
+    static var autoplayItemID: String? { value(for: "-kanal-play-id") }
+
+    /// `-kanal-xtream <portal> <user> <pass>` loads a panel directly, so the
+    /// staged Xtream path can be driven without typing on a TV remote.
+    static var seededXtream: (portal: URL, username: String, password: String)? {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard let index = arguments.firstIndex(of: "-kanal-xtream"), index + 3 < arguments.count,
+              let portal = URL(string: arguments[index + 1])
+        else { return nil }
+        return (portal, arguments[index + 2], arguments[index + 3])
+    }
+
     private static func value(for flag: String) -> String? {
         let arguments = ProcessInfo.processInfo.arguments
         guard let index = arguments.firstIndex(of: flag),
@@ -80,5 +93,7 @@ enum LaunchOptions {
     static var openSeriesIndex: Int? { nil }
     static var detailsMovieIndex: Int? { nil }
     static var seededSource: URL? { nil }
+    static var seededXtream: (portal: URL, username: String, password: String)? { nil }
+    static var autoplayItemID: String? { nil }
     #endif
 }

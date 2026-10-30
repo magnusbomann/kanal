@@ -18,6 +18,10 @@ public enum UIStrings {
     public static let pairingClose = text("pairing.close", "Close the QR setup panel")
     public static let pairingShowQR = text("pairing.showQR", "Return to phone setup")
     public static let pairingManualTitle = text("pairing.manual.title", "Manual setup action")
+    public static let pairingManualHeading = text(
+        "pairing.manual.heading",
+        "Heading over the Apple TV's type-it-yourself option, beside the QR code. The button below it says 'Enter manually'."
+    )
     public static let pairingManualBody = text("pairing.manual.body", "Explains manual TV setup")
     public static let guideReturnToNow = text("guide.returnToNow", "Return to the current programmes")
 
@@ -223,12 +227,12 @@ public enum UIStrings {
     public static let shelfNewReleases = text(
         "shelf.newReleases", "Row of recently released titles"
     )
-    public static func shelfOnService(_ name: String) -> LocalizedStringResource {
-        LocalizedStringResource(
-            "shelf.onService \(name)", bundle: bundle,
-            comment: "Row of what is popular on a streaming service. The placeholder is a service name such as Netflix."
-        )
-    }
+    /// Names no streaming service: their marks are theirs, and a row titled
+    /// after one reads as an endorsement App Review may question.
+    public static let shelfEveryoneWatching = text(
+        "shelf.everyoneWatching",
+        "Row of titles popular across the big streaming services right now, filtered to what the viewer's provider carries. Deliberately names no service."
+    )
 
     // MARK: - Counts
     //
@@ -356,6 +360,44 @@ public enum UIStrings {
             comment: "Which stream of how many is playing. Spoken, not shown."
         )
     }
+
+    // MARK: - Opening a stream
+
+    public static let playbackStageConnecting = text(
+        "playback.stage.connecting", "Shown while the player is opening the stream"
+    )
+    public static let playbackStageBuffering = text(
+        "playback.stage.buffering", "Shown while the opened stream fills its buffer"
+    )
+    public static let playbackStageSlow = text(
+        "playback.stage.slow", "Shown when a stream is taking unusually long to start"
+    )
+    public static let playbackStageSlowDetail = text(
+        "playback.stage.slow.detail", "Explains that a slow stream is still being waited for"
+    )
+    public static func playbackStageSwitching(
+        _ number: Int, _ total: Int
+    ) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "playback.stage.switching \(number) \(total)", bundle: bundle,
+            comment: "Shown while a stalled feed is replaced by the next one"
+        )
+    }
+    public static let playbackStageSwitchingDetail = text(
+        "playback.stage.switching.detail", "Explains that another feed of the same title is being tried"
+    )
+    public static let playbackTimeoutTitle = text(
+        "playback.timeout.title", "Error title when no feed of a title ever started playing"
+    )
+    public static let playbackTimeoutBody = text(
+        "playback.timeout.body", "Explains that every known feed was tried without success"
+    )
+    public static let playbackPlaceholderTitle = text(
+        "playback.placeholder.title", "Shown when the provider sends its own 'channel offline' clip instead of the live feed"
+    )
+    public static let playbackPlaceholderBody = text(
+        "playback.placeholder.body", "Explains that the TV service reports the channel as down, and the likely cause when every channel does it"
+    )
 
     // MARK: - Detail screen
 
@@ -609,6 +651,9 @@ public enum UIStrings {
         "licenses.relink",
         "The LGPL notice: states the viewer's right to obtain and substitute their own build of the library"
     )
+    public static let creditFFmpegPurpose = text(
+        "credit.ffmpeg.purpose", "What FFmpeg does inside Kanal: makes films AirPlay-able"
+    )
     public static let creditVLCPurpose = text(
         "credit.vlc.purpose", "What VLC does inside Kanal"
     )
@@ -795,7 +840,135 @@ public enum UIStrings {
         "blocked.message", "Tells the viewer to ask a grown-up"
     )
 
+    // MARK: - My library
+
+    public static let libraryTitle = text(
+        "mylibrary.title", "Title of the screen holding downloads, favourites and watch history"
+    )
+    public static let libraryOpen = text(
+        "mylibrary.open", "Button and settings row that opens My library"
+    )
+    public static let librarySectionDownloads = text(
+        "mylibrary.section.downloads", "Segment showing titles kept on the device"
+    )
+    public static let librarySectionFavourites = text(
+        "mylibrary.section.favourites", "Segment showing everything marked as a favourite"
+    )
+    public static let librarySectionContinue = text(
+        "mylibrary.section.continue", "Segment showing part-watched titles and recent channels"
+    )
+    public static let libraryClearConfirm = text(
+        "mylibrary.clear.confirm", "Warning above a clear-everything action"
+    )
+    public static let libraryEditDone = text(
+        "mylibrary.edit.done", "Leaves the mode where rows can be deleted"
+    )
+    public static let libraryEdit = text(
+        "mylibrary.edit", "Enters the mode where rows can be deleted"
+    )
+
+    // MARK: - Downloads
+
+    public static let downloadAction = text(
+        "download.action", "Starts keeping a film or episode on the device"
+    )
+    public static let downloadRemove = text(
+        "download.remove", "Deletes a downloaded file from the device"
+    )
+    public static let downloadCancel = text(
+        "download.cancel", "Stops a download that has not finished"
+    )
+    public static let downloadRetry = text(
+        "download.retry", "Starts a failed download over"
+    )
+    public static let downloadWaiting = text(
+        "download.waiting", "Status: queued behind another download"
+    )
+    public static let downloadRunning = text(
+        "download.running", "Status: currently downloading"
+    )
+    public static let downloadDone = text(
+        "download.done", "Status: the file is on the device"
+    )
+    public static let downloadFailedTitle = text(
+        "download.failed", "Status: the download did not finish"
+    )
+    public static let downloadHeld = text(
+        "download.held", "Status: downloads stand aside while something is playing"
+    )
+    public static let downloadsEmptyTitle = text(
+        "downloads.empty.title", "Nothing has been downloaded yet"
+    )
+    public static let downloadsEmptyBody = text(
+        "downloads.empty.body", "Explains what downloading is for"
+    )
+    public static let downloadsRemoveAll = text(
+        "downloads.removeAll", "Deletes every downloaded file"
+    )
+    public static let downloadsTelevisionNote = text(
+        "downloads.tvNote",
+        "Explains that Apple TV keeps downloads only while it has room for them"
+    )
+    public static func downloadsStorage(_ size: String) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "downloads.storage \(size)", bundle: bundle,
+            comment: "How much space downloads take. The placeholder is a formatted size, e.g. \"2.4 GB\"."
+        )
+    }
+    public static let downloadedBadge = text(
+        "badge.downloaded", "Accessibility label marking a title as available offline"
+    )
+
+    // MARK: - Removing things from Home
+
+    public static let historyRemove = text(
+        "history.remove", "Takes one title off the Continue watching row"
+    )
+    public static let historyClear = text(
+        "history.clear", "Empties the whole watch history"
+    )
+    public static let recentChannelRemove = text(
+        "history.removeChannel", "Takes one channel off the recently watched row"
+    )
+    public static let favouritesClearAll = text(
+        "favourites.clearAll", "Removes every favourite at once"
+    )
+    public static let favouritesEmptyTitle = text(
+        "favourites.empty.title", "Nothing has been marked as a favourite"
+    )
+    public static let favouritesEmptyBody = text(
+        "favourites.empty.body", "Explains how to add a favourite"
+    )
+    public static let continueEmptyTitle = text(
+        "continue.empty.title", "Nothing has been left part-watched"
+    )
+    public static let continueEmptyBody = text(
+        "continue.empty.body", "Explains what appears in Continue watching"
+    )
+
     // MARK: - Kanal Pluss
+
+    public static let proValueTitle = text("pro.value.title", "Main benefit of upgrading; a calm viewing experience")
+    public static let proNoReminders = text("pro.noReminders", "Paid benefit: removes Kanal upgrade prompts, not provider advertising")
+    public static let proAllDevices = text("pro.allDevices", "One purchase works on the customer's Apple devices")
+    public static let proContentNotice = text("pro.contentNotice", "Kanal sells player features; no channels or content are included")
+    public static let proChoosePlan = text("pro.choosePlan", "Heading for plan selection")
+    public static let proSavingsDetail = text("pro.savingsDetail", "Explains the baseline used to calculate annual savings")
+    public static let proPending = text("pro.pending", "A StoreKit purchase is awaiting approval; it has not failed")
+    public static let proAppStorePayment = text("pro.appStorePayment", "Payment is handled securely by the App Store")
+    public static let proContinueFree = text("pro.continueFree", "Dismisses the paywall and keeps the free app")
+    public static func proTrialBilling(_ trial: String, _ price: String, _ period: String) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "pro.trialBilling \(trial) \(price) \(period)", bundle: bundle,
+            comment: "Trial length, then full billing price and period. For example: 7 days free, then $29.99 per year."
+        )
+    }
+    public static func proBilling(_ price: String, _ period: String) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "pro.billing \(price) \(period)", bundle: bundle,
+            comment: "Full price and billing period repeated beside the purchase button"
+        )
+    }
 
     public static let proHeadlineTop = text(
         "pro.headline.top", "First line of the paywall headline. The brand name, in capitals."

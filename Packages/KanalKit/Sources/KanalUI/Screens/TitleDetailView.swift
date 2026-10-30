@@ -208,6 +208,9 @@ public struct TitleDetailView: View {
                 .frame(minWidth: 260)
             }
             .buttonStyle(KanalSecondaryButtonStyle(size: 16))
+
+            DownloadButton(item: playableItem)
+                .frame(minWidth: 260)
         }
     }
     #endif
@@ -217,10 +220,15 @@ public struct TitleDetailView: View {
     @ViewBuilder
     private var backdrop: some View {
         ZStack(alignment: .bottom) {
-            detailArtwork
-            .aspectRatio(KanalMetrics.backdropAspect, contentMode: .fill)
-            .frame(maxWidth: .infinity)
-            .clipped()
+            // A ScrollView proposes no height, so `.fill` on the artwork alone
+            // let a portrait poster grow far past the screen and sit behind
+            // the title and buttons. A fixed 16:9 box decides the size; the
+            // artwork only fills it.
+            Color.clear
+                .aspectRatio(KanalMetrics.backdropAspect, contentMode: .fit)
+                .frame(maxWidth: .infinity)
+                .overlay { detailArtwork }
+                .clipped()
 
             // The image has to hand over to the page without a seam.
             LinearGradient(
@@ -301,6 +309,13 @@ public struct TitleDetailView: View {
                 }
                 .buttonStyle(KanalSecondaryButtonStyle(fullWidth: true, size: 13))
             }
+
+            // On its own row: sharing one with the favourite button left both
+            // labels wrapping onto three lines in Norwegian.
+            //
+            // For a show this downloads the episode Play would start, so the
+            // two buttons always mean the same episode.
+            DownloadButton(item: playableItem)
         }
     }
 
@@ -414,6 +429,9 @@ public struct TitleDetailView: View {
                 ) {
                     navigator.play(episode)
                     dismiss()
+                }
+                .contextMenu {
+                    DownloadButton(item: episode, style: .menu)
                 }
             }
         }

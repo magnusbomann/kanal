@@ -3,6 +3,9 @@
 "category.other" = "Other";
 "detect.empty" = "استلموا رابطاً من القائمة للبدء";
 "detect.unusable" = "هذا لا يبدو وكأنه رابط Kanal يمكن فتحه.";
+"download.error.missing" = "لم يعد الملف موجودًا على هذا الجهاز";
+"download.error.refused" = "رفضت خدمة التلفزيون التنزيل";
+"download.error.tooSmall" = "ما وصل لم يكن مقطع فيديو";
 "error.badResponse" = "ذلك الخادم أجاب لكن ليس بطريقة يفهمها Kanal";
 "error.emptyPlaylist" = "الخدمة التلفزيونية متصلة لكنها لا تحتوي على قنوات";
 "error.expired" = "وقد انتهت مدة الاشتراك.";

@@ -3,6 +3,9 @@
 "category.other" = "Muut";
 "detect.empty" = "Liitä soittolistalinkki aloittaaksesi.";
 "detect.unusable" = "Tuo ei näytä linkiltä, jonka Kanal voi avata.";
+"download.error.missing" = "Tiedostoa ei ole enää tässä laitteessa";
+"download.error.refused" = "TV-palvelusi hylkäsi latauksen";
+"download.error.tooSmall" = "Saapunut tiedosto ei ollut video";
 "error.badResponse" = "Se palvelin vastasi, mutta ei tavalla, jolla Kanal ymmärtää.";
 "error.emptyPlaylist" = "TV-palvelussa ei ollut kanavia.";
 "error.expired" = "Tilaus on päättynyt.";

@@ -16,6 +16,16 @@ public enum PlaybackFailure: Equatable, Sendable {
     case rejected
     /// Nothing reached us.
     case offline
+    /// The feed was accepted but never produced a picture. Distinct from every
+    /// other case here because nothing failed: a panel can hold a connection
+    /// open indefinitely, which is silence rather than an error.
+    case timedOut
+    /// The provider's own "this channel is offline" clip, served in place of
+    /// the live feed — measured on a real panel as a ten-second playlist that
+    /// ends, often while the account's one connection is still counted. It
+    /// plays perfectly, which is why it has to be named: otherwise it is
+    /// taken for success and the next feed is never tried.
+    case providerPlaceholder
     /// Anything else, with whatever the system said.
     case other(String)
 
@@ -31,7 +41,7 @@ public enum PlaybackFailure: Equatable, Sendable {
         switch self {
         case .unsupportedContainer, .serverNotStreamable, .other:
             true
-        case .rejected, .offline:
+        case .rejected, .offline, .timedOut, .providerPlaceholder:
             false
         }
     }
@@ -50,7 +60,9 @@ public enum PlaybackFailure: Equatable, Sendable {
     /// waiting turns Matroska into something AVFoundation opens.
     public var mayBeConnectionLimit: Bool {
         switch self {
-        case .rejected, .serverNotStreamable, .other:
+        // Silence is the shape a spent connection allowance most often takes:
+        // the panel accepts the socket and then sends nothing at all.
+        case .rejected, .serverNotStreamable, .other, .timedOut, .providerPlaceholder:
             true
         case .unsupportedContainer, .offline:
             false

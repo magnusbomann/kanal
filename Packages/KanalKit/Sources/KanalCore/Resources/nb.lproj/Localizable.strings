@@ -3,6 +3,9 @@
 "category.other" = "Annet";
 "detect.empty" = "Lim inn en spillelistelenke for å komme i gang.";
 "detect.unusable" = "Dette ser ikke ut som en lenke Kanal kan åpne.";
+"download.error.missing" = "Filen ligger ikke lenger på denne enheten";
+"download.error.refused" = "TV-tjenesten din avviste nedlastingen";
+"download.error.tooSmall" = "Det som kom var ikke en video";
 "error.badResponse" = "Serveren svarte, men ikke på en måte Kanal forstår.";
 "error.emptyPlaylist" = "TV-tjenesten ble koblet til, men inneholdt ingen kanaler.";
 "error.expired" = "Dette abonnementet har utløpt.";

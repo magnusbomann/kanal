@@ -118,6 +118,133 @@ git repo — treat it as a separate deliverable (see `Site/README.md`).
 
 ## Session log
 
+### 2026-10-30 — Pre-release walkthrough on iPhone and Apple TV simulators
+
+- **Who:** Claude (Opus 5.5), with Magnus.
+- **Goal:** Walk the app on both simulators against the real test panel and
+  find bugs worth fixing before release.
+- **Did:** Fixed two bugs. (1) iPhone detail page: the artwork used
+  `.aspectRatio(.fill)` inside a ScrollView, so a portrait poster (no
+  backdrop) grew past the screen and sat behind title/buttons/text. Now a
+  fixed 16:9 box the artwork fills (`TitleDetailView.backdrop`). (2) Channel
+  grouping folded Norway's and Denmark's "TV 2" (and SE/DK "TV3") — same
+  exact name on the panel — into one channel, so the guide interleaved both
+  schedules and failover could land on the Danish feed. `ChannelNaming.
+  countryScopedKeys` now splits a name only when its listings sit under two
+  different countries; countryless categories join the dominant country so
+  sport keeps its feeds. Two tests added in `ChannelGroupTests`.
+- **Verified:** `swift test` — 437 tests in 84 suites passed. iOS and tvOS
+  simulator builds; detail page checked on Besettelse and The Dark Knight;
+  iPhone guide now shows only the Norwegian TV 2 schedule.
+- **Follow-up, same day (Magnus: "fiks alle"):** Fixed the rest. Intro copy
+  ("gjør bare kanalene du har, hyggelige å se på"). `SourceDetector` now
+  requires a plausible ASCII host (dotted name with letter TLD, IPv4,
+  localhost, IPv6) so keyboard-mangled links are unrecognized. Service rows
+  ("Populært på Netflix/HBO Max/Apple TV") merged round-robin into one
+  brand-free row, "Det alle ser på" (`DiscoveryMerge`), on Home, Films and
+  Series; `shelf.onService` key removed. Low-bandwidth names ("NRK1 Lav
+  Internett hastighet") fold into their channel and rank last. New
+  `PlaybackFailure.providerPlaceholder`: a live item whose AVPlayerItem turns
+  ready with a finite length under 2 min is the panel's offline clip; it
+  advances to the next feed (one patient connection retry first) and is not
+  handed to VLC. `AppModel.withoutUnusedOwner` drops an untouched default
+  owner before merging a remote household that already has an adult.
+  Status-bar fade over the tab view on iOS. tvOS manual-setup heading now
+  asks "Ingen iPhone for hånden?" instead of repeating the button.
+- **Verified (follow-up):** `swift test` — 442 tests in 85 suites passed.
+  iOS + tvOS simulator builds. On iPhone: NRK1 Lav gone from the list, "Det
+  alle ser på" row shown, status bar clean when scrolled.
+- **Left open / for next agent:** Placeholder detection covers AVFoundation
+  only; a live stream that goes straight to VLC would still play the clip.
+  The placeholder path was not seen end-to-end: the test account allows one
+  connection and every probe returned the clip. Duplicate-owner fix is unit
+  tested, not tested against real iCloud. tvOS guide keeps its reserved
+  220pt detail panel by design. Not walked: Pluss paywall, parental code,
+  VOD playback, search. The KanalUI.xcstrings file was re-serialised by
+  Python (same JSON content, committed `": "` style, keys sorted).
+- **Commits:** none — left for Magnus to review with the other uncommitted work.
+
+### 2026-10-30 — AirPlay for MKV films, smoother child profiles, TV focus
+
+- **Request:** Child profile switch stuttered on Apple TV; audio/subtitle button in
+  the top-right of the TV player was unreachable with the remote; iPhone could not
+  AirPlay. Magnus chose the on-phone repackaging route for AirPlay ("must not be
+  fragile, must not break existing playback").
+- **Profiles:** a restricted profile's library (filter + full re-sort of ~400k
+  entries) is now cut off the main actor, in `activate` and in each rating batch
+  (`AppModel+Profiles.swift`, `catalogueRevision` guards against a stale cut).
+- **TV focus:** `PlayerChrome` top bar and its trailing cluster are focus sections.
+- **AirPlay:** `Remux/kanal_remux.c` + minimal FFmpeg 7.1.1 (LGPL, 2.8 MB) built
+  by `Scripts/build-ffmpeg.sh` into `Vendor/KanalFFmpeg.xcframework` (gitignored;
+  run once after cloning, builds in ~/Library/Caches because configure breaks on
+  the space in "IPTV "). Exports only `kanal_remux_run`, so no clash with VLCKit's
+  FFmpeg. MKV → HLS fMP4: video copied (H.264/HEVC only, hvc1-tagged), AAC/AC-3/
+  E-AC-3 copied, anything else (DTS…) → AAC. `App/iOS/AirPlayRelay.swift` serves it
+  over LAN (token path, 404 elsewhere) to an AVPlayer. The VLC controller switches
+  only on a route change to an AirPlay receiver, for non-live films; any failure,
+  a dropped provider mid-film, or a receiver that takes no picture (HomePod)
+  hands the film back to VLC at the same position. Screen mirroring path
+  (`ExternalDisplay`) kept as well.
+- **Verified:** remuxer against synthetic MKVs (H.264+AAC, HEVC+B-frames+AC-3 5.1,
+  H.264+2×DTS with language pick), from file and over HTTP with Range seeks;
+  AVFoundation plays all outputs; Swift server/session tested on macOS end to end.
+  iOS + tvOS build; 435 package tests pass; localization check passes.
+- **Not verified:** a real provider film (fomo.re returned the same 4.4 MB
+  10-second MPEG-TS placeholder for every VOD URL to this Mac during the session),
+  and nothing on a real iPhone/Apple TV/AirPlay receiver. Subtitles are not
+  carried over AirPlay.
+
+### 2026-09-06 — Downloads, and a library you can take things out of
+
+- **Who:** Claude (Opus 5), with Magnus.
+- **Goal:** Download films and episodes for offline viewing on iPhone and Apple
+  TV, give them a library of their own, and make favourites, downloads and
+  Continue watching removable — long press on iPhone, as when rearranging apps.
+- **Did:** New `DownloadStore` in Core (background `URLSession`, one download at
+  a time, held back entirely while something is playing — the account allows one
+  connection, so a download underneath a film takes the slot rather than merely
+  slowing it). Records keep a whole `MediaItem`, so a file survives the provider
+  rewriting its catalogue; files are saved as `.mkv` when the url says nothing,
+  which is both what the panel serves and what routes them to VLC. An HTTP error
+  or a file under 64 KB is a failure, not a film. Playback of a downloaded title
+  is wired once, in `RootView`'s `alternatives` closure, so every screen that can
+  play something plays the local file without knowing it exists. New
+  `MyLibraryView` (Downloads · Favourites · Continue watching) reachable from a
+  Home header button and from Settings — Home itself gets no downloads shelf, at
+  Magnus's call: it is a nice-to-have, and Home belongs to what people want most
+  nights — with per-row delete (swipe on iPhone,
+  long press everywhere) and a clear-all at the foot of each section. Context
+  menus added on Home: remove from Continue watching, remove a recent channel,
+  download. `WatchState.forget/clearHistory/clearFavorites` and the matching
+  `AppModel` methods do the removing, resolving the source-scoped history key and
+  its alias so a film cannot come back after a playlist refresh changed its id.
+  Deleting a TV service now deletes its downloads. 35 new strings, all 14
+  languages.
+- **Verified:** `swift test` — 435 tests in 84 suites, including 10 new ones for
+  download bookkeeping and forgetting; `Scripts/check-localization.py` passed
+  (484 keys). Signed generic iOS Simulator and tvOS Simulator Debug builds
+  succeeded. On an iPhone 17 simulator in Norwegian, against a local M3U served
+  from `127.0.0.1`: downloaded a title from the detail screen, saw it appear in
+  the "På denne enheten" shelf and in My library with its real poster and size,
+  saw it survive a relaunch, and opened it — playback started from the local
+  file. Home was re-checked after the downloads shelf was removed. NOT verified: a real provider download (no credentials in that session,
+  so the "film" was 3 MB of random bytes — the machinery is real, the content was
+  not); anything on tvOS beyond compiling, since the simulator cannot be driven
+  with a remote from here; a download that spans app suspension.
+- **Left open / for next agent:** Downloads are free rather than a Pluss feature,
+  following the rule that only household features are gated — worth a second
+  opinion from Magnus, since offline viewing is the kind of thing people pay for.
+  A download of a title a child profile may not watch is still blocked at the
+  player, but appears in the grown-up's library list; that is correct today
+  because My library sits behind the same code as Settings, but it is worth a
+  test. tvOS keeps downloads in Caches because there is nowhere durable — the
+  screen says so, but nobody has watched the system reclaim one.
+- **Shipped:** `./Scripts/upload-testflight.sh both` — build `202609060839`,
+  version 1.0, iPhone/iPad and Apple TV. Both archives passed the iCloud
+  entitlement check and uploaded successfully.
+- **Commits:** none — left uncommitted for Magnus to review, alongside the
+  pre-existing uncommitted paywall changes.
+
 ### 2026-09-05 — Repair Apple TV QR bootstrap and ship both TestFlight apps
 
 - **Request:** Fix QR discovery, missing profiles and empty TV content; upload iOS and tvOS to TestFlight. Deployment explicitly authorized in the conversation.

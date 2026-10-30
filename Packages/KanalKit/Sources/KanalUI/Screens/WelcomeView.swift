@@ -111,7 +111,10 @@ public struct WelcomeView: View {
 
     private var manualSetup: some View {
         VStack(alignment: .leading, spacing: KanalMetrics.md) {
-            Text(UIStrings.pairingManualTitle)
+            // The button below already says "Enter manually"; the heading asks
+            // the question it answers instead of repeating it.
+            Text(showPairing && replacementSource == nil
+                 ? UIStrings.pairingManualHeading : UIStrings.pairingManualTitle)
                 .kanalLabel(26)
                 .foregroundStyle(KanalColor.primaryText)
             Text(UIStrings.pairingManualBody)

@@ -3,6 +3,9 @@
 "category.other" = "en anden";
 "detect.empty" = "Indsæt et link til en spilleliste for at komme i gang.";
 "detect.unusable" = "Det ser ikke ud til at være en link, som Kanal kan åbne.";
+"download.error.missing" = "Filen findes ikke længere på denne enhed";
+"download.error.refused" = "Din tv-tjeneste afviste overførslen";
+"download.error.tooSmall" = "Det, der kom, var ikke en video";
 "error.badResponse" = "Den server svarede, men ikke på en måde, som Kanal forstår.";
 "error.emptyPlaylist" = "Tv-tjenesten blev oprettet, men der var ingen kanaler.";
 "error.expired" = "Dette abonnement er udløbet.";

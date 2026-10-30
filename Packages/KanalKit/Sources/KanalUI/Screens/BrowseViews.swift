@@ -247,10 +247,13 @@ public struct MoviesView: View {
                     )
                 }
 
-                ForEach(browse.movieServiceShelves) { entry in
+                let everyoneWatching = DiscoveryMerge.roundRobin(
+                    browse.movieServiceShelves.map(\.items), id: \.id
+                )
+                if !everyoneWatching.isEmpty {
                     movieShelf(
-                        title: serviceTitle(entry.shelf),
-                        movies: entry.items
+                        title: String(UIStrings.shelfEveryoneWatching),
+                        movies: everyoneWatching
                     )
                 }
 
@@ -307,6 +310,7 @@ public struct MoviesView: View {
                 }
                 .contextMenu {
                     FavoriteButton(id: movie.id)
+                    DownloadButton(item: movie, style: .menu)
                 }
             }
         }
@@ -320,12 +324,6 @@ public struct MoviesView: View {
             .padding(.bottom, -KanalMetrics.md)
     }
 
-    private func serviceTitle(_ shelf: DiscoveryShelf) -> String {
-        guard case .service(_, let name) = shelf.source else {
-            return String(UIStrings.shelfFeaturedMovies)
-        }
-        return String(UIStrings.shelfOnService(name))
-    }
 
     private var posterWidth: CGFloat {
         #if os(tvOS)
@@ -458,11 +456,15 @@ public struct SeriesView: View {
                     )
                 }
 
-                ForEach(browse.seriesServiceShelves) { entry in
-                    let groups = entry.items.compactMap(model.seriesGroup(for:))
-                    if !groups.isEmpty {
-                        seriesShelf(title: serviceTitle(entry.shelf), groups: groups)
-                    }
+                let everyoneWatching = DiscoveryMerge.roundRobin(
+                    browse.seriesServiceShelves.map { $0.items.compactMap(model.seriesGroup(for:)) },
+                    id: \.id
+                )
+                if !everyoneWatching.isEmpty {
+                    seriesShelf(
+                        title: String(UIStrings.shelfEveryoneWatching),
+                        groups: everyoneWatching
+                    )
                 }
 
                 if !browse.seriesCategories.isEmpty {
@@ -540,12 +542,6 @@ public struct SeriesView: View {
             .padding(.bottom, -KanalMetrics.md)
     }
 
-    private func serviceTitle(_ shelf: DiscoveryShelf) -> String {
-        guard case .service(_, let name) = shelf.source else {
-            return String(UIStrings.shelfFeaturedSeries)
-        }
-        return String(UIStrings.shelfOnService(name))
-    }
 
     private var posterWidth: CGFloat {
         #if os(tvOS)
@@ -621,6 +617,7 @@ struct MovieLibraryView: View {
                 }
                 .contextMenu {
                     FavoriteButton(id: movie.id)
+                    DownloadButton(item: movie, style: .menu)
                 }
             }
             .id(request)

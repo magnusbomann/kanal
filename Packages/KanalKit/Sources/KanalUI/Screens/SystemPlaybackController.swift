@@ -73,6 +73,13 @@ public final class SystemPlaybackController: PlaybackControlling {
         failure = nil
         sourceCount = plan.variantCount
         configureAudioSession()
+        #if os(iOS)
+        // AirPlay proper rather than a mirrored picture, also while the phone
+        // is mirroring: the app owns the mirrored screen (see the iOS app's
+        // ExternalDisplay), and leaving this off would draw nothing there.
+        player.allowsExternalPlayback = true
+        player.usesExternalPlaybackWhileExternalScreenIsActive = true
+        #endif
         open(candidate: 0, settling: false)
     }
 
@@ -314,10 +321,12 @@ public final class SystemPlaybackController: PlaybackControlling {
     /// also serve, so any failure on one just means the guess was wrong. Only
     /// the provider's own url comes last, and only its failure is worth
     /// reporting.
-    private func advance(after error: (any Error)?, url: URL) {
+    private func advance(
+        after error: (any Error)?, url: URL, because known: PlaybackFailure? = nil
+    ) {
         guard let plan else { return }
         timeout?.cancel()
-        let reason = PlaybackFailure(error: error, url: url)
+        let reason = known ?? PlaybackFailure(error: error, url: url)
 
         // A refusal moments after letting go of another stream is most often
         // the provider still counting the connection we just closed, not a
@@ -362,6 +371,14 @@ public final class SystemPlaybackController: PlaybackControlling {
         )
     }
 
+    /// A finite length under two minutes. A real live playlist reports an
+    /// indefinite one; the measured offline clip was a single ten-second
+    /// segment.
+    static func isPlaceholderLength(_ duration: CMTime) -> Bool {
+        let seconds = duration.seconds
+        return duration.isNumeric && seconds.isFinite && seconds > 0 && seconds < 120
+    }
+
     /// Long enough for the panel to stop counting the stream just released.
     private static let connectionRetryDelay: Duration = .seconds(3)
     /// One retry per candidate, so a genuinely dead feed still gets abandoned.
@@ -387,6 +404,12 @@ public final class SystemPlaybackController: PlaybackControlling {
                 switch item.status {
                 case .failed: self.advance(after: item.error, url: url)
                 case .readyToPlay:
+                    // Live television never ends. A live channel that arrives
+                    // as a short recording is the panel's offline clip.
+                    if self.plan?.item.kind == .liveTV, Self.isPlaceholderLength(item.duration) {
+                        self.advance(after: nil, url: url, because: .providerPlaceholder)
+                        return
+                    }
                     self.timeout?.cancel()
                     self.failure = nil
                     self.isSwitchingSource = false

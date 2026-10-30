@@ -114,8 +114,24 @@ public enum SourceDetector {
         if !text.lowercased().hasPrefix("http://"), !text.lowercased().hasPrefix("https://") {
             text = "http://" + text
         }
-        guard let url = URL(string: text), url.host() != nil else { return nil }
+        guard let url = URL(string: text), let host = url.host(), isPlausibleHost(host) else { return nil }
         return url
+    }
+
+    /// `URL(string:)` accepts almost anything once "http://" is in front, so a
+    /// link mangled by a keyboard ("httpØ--fomo.reØ80-get.php") arrived as a
+    /// host and was greeted with "This looks right". A real host is a dotted
+    /// name, an IP address or localhost. Provider hosts are ASCII; an
+    /// internationalised name still works typed as its punycode.
+    static func isPlausibleHost(_ host: String) -> Bool {
+        if host.lowercased() == "localhost" || host.hasPrefix("[") { return true }
+        let labels = host.split(separator: ".", omittingEmptySubsequences: false)
+        guard labels.count >= 2, let last = labels.last else { return false }
+        let ascii = labels.allSatisfy { label in
+            !label.isEmpty && label.allSatisfy { $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "-") }
+        }
+        let isIPv4 = labels.count == 4 && labels.allSatisfy { $0.allSatisfy(\.isNumber) }
+        return ascii && (isIPv4 || last.allSatisfy(\.isLetter))
     }
 
     static func portalRoot(of url: URL) -> URL {

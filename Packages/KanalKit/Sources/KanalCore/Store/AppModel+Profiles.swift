@@ -29,13 +29,24 @@ public extension AppModel {
         await flushPendingWatchState()
         let restored = await storage.load(WatchState.self, from: profile.watchStateFileName)
             ?? WatchState()
+        // A restricted profile's library is a filter and a full re-sort of
+        // the catalogue. On Apple TV that froze the picker for seconds when
+        // done on the main actor, so it is cut here, before the switch, while
+        // the picker is still the only thing on screen.
+        let revision = catalogueRevision
+        let narrowed = await Self.narrow(
+            catalogue, with: ContentPolicy(profile: profile, ratings: ratings)
+        )
         guard generation == profileSelectionGeneration,
               profiles.contains(where: { $0.id == profile.id }) else { return }
         activeProfileID = profile.id
         watchState = restored
 
         isChoosingProfile = false
-        applyPolicy(resetDiscovery: true)
+        applyPolicy(
+            resetDiscovery: true,
+            narrowed: revision == catalogueRevision ? narrowed : nil
+        )
         scheduleVerification()
     }
 
@@ -165,7 +176,18 @@ public extension AppModel {
     }
 
     /// Recomputes the visible library from the catalogue.
-    func applyPolicy(resetDiscovery: Bool = false) {
+    /// The library a policy allows, built off the main actor. `nil` for an
+    /// unrestricted policy, which sees the catalogue as it is.
+    nonisolated static func narrow(_ catalogue: Library, with policy: ContentPolicy) async -> Library? {
+        guard !policy.isUnrestricted else { return nil }
+        return await Task.detached(priority: .userInitiated) {
+            policy.apply(to: catalogue)
+        }.value
+    }
+
+    /// `narrowed`, when given, is `policy.apply(to: catalogue)` already
+    /// computed for the current policy and catalogue.
+    func applyPolicy(resetDiscovery: Bool = false, narrowed: Library? = nil) {
         // Nobody has chosen yet — the picker is up and no library is on screen.
         // Filtering four hundred thousand entries down to the nothing a
         // non-existent profile may see is work with no reader.
@@ -183,7 +205,7 @@ public extension AppModel {
             library = catalogue
             withheldCount = 0
         } else {
-            library = policy.apply(to: catalogue)
+            library = narrowed ?? policy.apply(to: catalogue)
             withheldCount = max(catalogue.items.count - library.items.count, 0)
         }
         rebuildFavoriteContent()
@@ -254,7 +276,15 @@ public extension AppModel {
 
                 if progress.changed {
                     self.ratings = await ratingService.snapshot
-                    self.applyPolicy(resetDiscovery: true)
+                    // Off the main actor, for the same reason as `activate`:
+                    // this repeats every batch, and each pass on the main
+                    // actor was a visible stall while a child scrolled.
+                    let revision = self.catalogueRevision
+                    let profile = self.activeProfile
+                    let narrowed = await Self.narrow(self.catalogue, with: self.policy)
+                    guard !Task.isCancelled else { return }
+                    let current = revision == self.catalogueRevision && profile == self.activeProfile
+                    self.applyPolicy(resetDiscovery: true, narrowed: current ? narrowed : nil)
                 }
                 self.ratingsPending = progress.remaining
                 guard progress.remaining > 0 else { return }

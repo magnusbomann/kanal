@@ -42,16 +42,41 @@ public struct HomeView: View {
                 }
 
                 if !model.continueWatching.isEmpty {
-                    Shelf(title: String(UIStrings.shelfContinueWatching), itemWidth: cardWidth(.backdrop)) {
+                    Shelf(
+                        title: String(UIStrings.shelfContinueWatching),
+                        itemWidth: cardWidth(.backdrop),
+                        onSeeAll: { navigator.push(.library(section: .continueWatching)) }
+                    ) {
                         ForEach(model.continueWatching) { item in
                             if let progress = model.progress(for: item) {
                                 ResumeCard(item: item, progress: progress) {
                                     navigator.play(item)
                                 }
+                                // The row the app builds for you is also the row
+                                // it must let you edit. A film abandoned ten
+                                // minutes in otherwise sits at the top of the
+                                // first screen for months.
+                                .contextMenu {
+                                    FavoriteButton(id: item.id)
+                                    DownloadButton(item: item, style: .menu)
+                                    Button(role: .destructive) {
+                                        model.forgetProgress(for: item)
+                                    } label: {
+                                        Label(
+                                            String(UIStrings.historyRemove),
+                                            systemImage: "minus.circle"
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                 }
+
+                // Downloads deliberately have no shelf here. Home is for what
+                // someone wants most nights — resume, a favourite, the channel
+                // they always put on — and a handful of files kept for a flight
+                // is not that. They live behind the library button instead.
 
                 if !model.nextEpisodes.isEmpty {
                     Shelf(title: String(UIStrings.shelfNextEpisode), itemWidth: cardWidth(.poster)) {
@@ -110,6 +135,17 @@ public struct HomeView: View {
                                     group,
                                     remembered: model.watchState.workingVariants[group.id]
                                 )
+                            }
+                            .contextMenu {
+                                FavoriteButton(id: group.primary.id)
+                                Button(role: .destructive) {
+                                    model.forgetChannel(group)
+                                } label: {
+                                    Label(
+                                        String(UIStrings.recentChannelRemove),
+                                        systemImage: "minus.circle"
+                                    )
+                                }
                             }
                         }
                     }
@@ -184,6 +220,7 @@ public struct HomeView: View {
                             }
                             .contextMenu {
                                 FavoriteButton(id: movie.id)
+                                DownloadButton(item: movie, style: .menu)
                             }
                         }
                     }
@@ -205,12 +242,17 @@ public struct HomeView: View {
                     }
                 }
 
-                ForEach(browse.homeServiceSpotlights) { spotlight in
+                // One row, not one per service: the picks are good, the
+                // service names are someone else's trademarks.
+                let everyoneWatching = DiscoveryMerge.roundRobin(
+                    browse.homeServiceSpotlights.map(\.items), id: \.id
+                )
+                if !everyoneWatching.isEmpty {
                     Shelf(
-                        title: String(UIStrings.shelfOnService(spotlight.serviceName)),
+                        title: String(UIStrings.shelfEveryoneWatching),
                         itemWidth: cardWidth(.poster)
                     ) {
-                        ForEach(spotlight.items) { item in
+                        ForEach(everyoneWatching) { item in
                             discoveryCard(item)
                         }
                     }
@@ -293,6 +335,17 @@ public struct HomeView: View {
                         .controlSize(.small)
                         .tint(KanalColor.tertiaryText)
                 }
+                Button {
+                    navigator.push(.library(section: .downloads))
+                } label: {
+                    Image(systemName: "square.stack.3d.up.fill")
+                        .font(.system(size: headerControlSize * 0.4, weight: .semibold))
+                        .foregroundStyle(KanalColor.secondaryText)
+                        .frame(width: headerControlSize, height: headerControlSize)
+                        .kanalGlassPill()
+                }
+                .buttonStyle(KanalCardButtonStyle())
+                .accessibilityLabel(Text(UIStrings.libraryOpen))
                 if let profile = model.activeProfile, model.profiles.count > 1 || profile.isRestricted {
                     // The way back to "who is watching?". Behind the code when
                     // a restricted profile is in use — that is the whole point

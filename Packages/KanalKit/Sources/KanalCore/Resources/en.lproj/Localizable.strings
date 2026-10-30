@@ -3,6 +3,9 @@
 "category.other" = "Other";
 "detect.empty" = "Paste a playlist link to get started.";
 "detect.unusable" = "That doesn't look like a link Kanal can open.";
+"download.error.missing" = "The file is no longer on this device";
+"download.error.refused" = "Your TV service refused the download";
+"download.error.tooSmall" = "What arrived was not a video";
 "error.badResponse" = "That server answered, but not in a way Kanal understands.";
 "error.emptyPlaylist" = "The TV service connected, but it contained no channels.";
 "error.expired" = "This subscription has expired.";

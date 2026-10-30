@@ -26,7 +26,9 @@ public struct PlayerView: View {
     public var item: MediaItem { plan.item }
     @State private var system = SystemPlaybackController()
     @State private var engine: PlaybackEngine = .system
-    @State private var alternativeError: String?
+    /// Set only when nothing more can be tried; until then a failed feed
+    /// escalates to the next candidate instead of becoming a screen.
+    @State private var alternativeError: PlaybackFailure?
     @State private var alternativeSnapshot: (position: TimeInterval, duration: TimeInterval) = (0, 0)
     @State private var handle: AlternativePlayerHandle?
     /// Prevents one failed system attempt from repeatedly rebuilding VLC as
@@ -47,6 +49,23 @@ public struct PlayerView: View {
     @State private var secondsUntilNext: Int?
     @State private var countdown: Task<Void, Never>?
     @State private var progressTask: Task<Void, Never>?
+    /// What to say while nothing is on screen yet.
+    @State private var stage: PlaybackStage = .connecting
+    /// Gives up on a feed that has neither started nor failed.
+    ///
+    /// Both engines can sit in "opening" indefinitely — a panel that accepts
+    /// the connection and then sends nothing produces no error to react to, so
+    /// without this the picture is a spinner that never resolves and never
+    /// explains itself.
+    @State private var watchdog: Task<Void, Never>?
+    /// Whether the wait has lasted long enough to be worth mentioning.
+    ///
+    /// Most streams open inside a few seconds. A card that appears and
+    /// disappears again in that window is noise, not reassurance — so nothing
+    /// is drawn over the picture until the wait stops being ordinary.
+    @State private var showsWaitingUI = false
+    @State private var stallVisible = false
+    @State private var stallTask: Task<Void, Never>?
     @State private var playbackSourceID: UUID?
     @State private var playbackProfileID: UUID?
 
@@ -132,15 +151,25 @@ public struct PlayerView: View {
             Color.black.ignoresSafeArea()
 
             if engine == .alternative, let handle {
+                // Pinned to the attempt, not to the surrounding layout. The
+                // surface tearing down is what stops the engine, so it must
+                // happen when a feed is actually replaced and never merely
+                // because a sibling — the chrome, the loading card — came or
+                // went.
                 handle.surface
+                    .id(alternativeAttempt)
                     .ignoresSafeArea()
                 if let alternativeError {
-                    errorOverlay(.other(alternativeError))
-                } else {
+                    errorOverlay(alternativeError)
+                } else if !isOpening {
+                    // Held back until there is a picture. A play button over a
+                    // black screen invites a press that does nothing, and sits
+                    // exactly where the loading card wants to be.
                     PlayerChrome(
                         controller: handle.controller,
                         title: item.title,
                         subtitle: subtitle,
+                        trailingAccessory: AnyView(AirPlayButton()),
                         watermark: watermark,
                         sourceControl: alternativeSourceControl,
                         onClose: closePlayback
@@ -156,7 +185,7 @@ public struct PlayerView: View {
                     if !canTryAlternative(after: failure) {
                         errorOverlay(failure)
                     }
-                } else {
+                } else if !isOpening {
                     PlayerChrome(
                         controller: system,
                         title: item.title,
@@ -167,6 +196,17 @@ public struct PlayerView: View {
                     )
                 }
             }
+            if showsLoadingScreen {
+                PlaybackLoadingView(
+                    item: item, subtitle: subtitle, stage: stage, onCancel: closePlayback
+                )
+                .transition(.opacity)
+            } else if showsStallPill {
+                PlaybackStallPill(stage: .buffering)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.top, KanalMetrics.xxl)
+            }
+
             if let next = pendingNext, let seconds = secondsUntilNext {
                 NextEpisodeOverlay(
                     episode: next,
@@ -182,7 +222,25 @@ public struct PlayerView: View {
                 .transition(.opacity)
             }
         }
+        #if os(tvOS)
+        // The chrome owns Menu once it is up; while it is held back, this does.
+        .onExitCommand { if isOpening { closePlayback() } }
+        #endif
         .task { startPlayback() }
+        .onChange(of: activeController.isBuffering) { _, buffering in
+            // Short hitches are part of streaming. Only a stall long enough to
+            // look like a stop earns a word about it.
+            stallTask?.cancel()
+            guard buffering, didPlay else {
+                stallVisible = false
+                return
+            }
+            stallTask = Task { @MainActor in
+                try? await Task.sleep(for: .seconds(2))
+                guard !Task.isCancelled else { return }
+                stallVisible = true
+            }
+        }
         // Track lists arrive after playback begins and can arrive more than
         // once, so this watches for them rather than running at start.
         .onChange(of: activeController.audioTracks) { _, _ in
@@ -200,6 +258,10 @@ public struct PlayerView: View {
             guard let failure, canTryAlternative(after: failure) else { return }
             startAlternativePlayback()
         }
+        .onChange(of: didPlay) { _, played in
+            guard played else { return }
+            watchdog?.cancel()
+        }
         .onChange(of: activeController.isPlaying) { wasPlaying, isPlaying in
             // A pause is an explicit checkpoint. This also covers a pause
             // issued by the system while the app is backgrounding.
@@ -213,6 +275,8 @@ public struct PlayerView: View {
         .onDisappear {
             countdown?.cancel()
             progressTask?.cancel()
+            watchdog?.cancel()
+            stallTask?.cancel()
             // Read before the engines are torn down: closing a stream that
             // never played is the one case that must not be asked for money.
             navigator?.lastPlaybackPlayed = didPlay
@@ -271,9 +335,12 @@ public struct PlayerView: View {
                 guard attempt == alternativeAttempt else { return }
                 let order = plan.alternativeCandidateIndices
                 if alternativeCandidatePosition + 1 < order.count {
+                    stage = .switchingSource(
+                        number: alternativeCandidatePosition + 2, count: order.count
+                    )
                     startAlternativePlayback(at: alternativeCandidatePosition + 1)
                 } else {
-                    alternativeError = message
+                    alternativeError = .other(message)
                 }
             },
             onClose: closePlayback
@@ -329,6 +396,85 @@ public struct PlayerView: View {
         model.progress(for: item).flatMap { $0.isWorthResuming ? $0.position : nil }
     }
 
+    // MARK: Waiting for a picture
+
+    /// How long a wait is allowed to pass unremarked. Measured against the
+    /// provider: an ordinary Matroska film opened in three to five seconds,
+    /// so anything still black at four is worth explaining.
+    private static let quietSeconds = 4
+    /// When a wait stops reading as normal and starts reading as broken.
+    private static let slowSeconds = 10
+    /// When a feed that has produced nothing is given up on. Long enough for a
+    /// large file on a slow line, short enough that nobody sits through it
+    /// twice wondering whether the remote is broken.
+    private static let firstFrameSeconds = 20
+
+    /// Narrates the wait, then acts on it.
+    ///
+    /// Every stage here is a statement about the same feed. The last one is
+    /// not: it stops waiting and moves to another, because a panel that holds
+    /// a connection open without sending anything will never produce the error
+    /// the rest of this screen is built to react to.
+    private func beginWatchdog(from initial: PlaybackStage = .connecting) {
+        watchdog?.cancel()
+        stage = initial
+        // A source switch is not a fresh start: whoever is watching has been
+        // waiting through the feed it replaced, and is owed the reason now.
+        if case .switchingSource = initial {} else { showsWaitingUI = false }
+        watchdog = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(Self.quietSeconds))
+            guard !Task.isCancelled, !didPlay else { return }
+            showsWaitingUI = true
+            if case .switchingSource = stage {} else { stage = .buffering }
+
+            try? await Task.sleep(for: .seconds(Self.slowSeconds - Self.quietSeconds))
+            guard !Task.isCancelled, !didPlay else { return }
+            stage = .slow
+
+            try? await Task.sleep(for: .seconds(Self.firstFrameSeconds - Self.slowSeconds))
+            guard !Task.isCancelled, !didPlay else { return }
+            abandonSilentFeed()
+        }
+    }
+
+    /// Moves to the next feed of the same title, or explains that there are no
+    /// more. Reached only from the watchdog: a feed that reports a real error
+    /// is already handled where that error arrives.
+    private func abandonSilentFeed() {
+        let order = plan.alternativeCandidateIndices
+        // The system engine has somewhere to escalate to even on its first
+        // silence: the whole point of carrying a second decoder.
+        if engine == .system, alternativePlayer != nil, !order.isEmpty {
+            stage = .switchingSource(number: 1, count: order.count)
+            startAlternativePlayback()
+            return
+        }
+        let next = alternativeCandidatePosition + 1
+        guard alternativePlayer != nil, order.indices.contains(next) else {
+            watchdog?.cancel()
+            alternativeError = .timedOut
+            return
+        }
+        stage = .switchingSource(number: next + 1, count: order.count)
+        startAlternativePlayback(at: next)
+    }
+
+    /// Whether the poster-and-status screen belongs over the picture.
+    ///
+    /// Only before the first frame. Once something has played, covering it
+    /// again would hide the very thing a viewer is waiting to see move — a
+    /// re-buffer gets the pill instead.
+    /// Between pressing play and the first frame, with nothing yet wrong.
+    private var isOpening: Bool {
+        alternativeError == nil && system.failure == nil && !didPlay
+    }
+
+    private var showsLoadingScreen: Bool { isOpening && showsWaitingUI }
+
+    private var showsStallPill: Bool {
+        alternativeError == nil && didPlay && stallVisible
+    }
+
     private func startPlayback() {
         playbackSourceID = model.activeSourceID
         playbackProfileID = model.activeProfileID
@@ -349,6 +495,7 @@ public struct PlayerView: View {
             return
         }
         hasTriedAlternative = false
+        beginWatchdog()
         system.start(plan: plan, resumingAt: resumePosition)
     }
 
@@ -371,6 +518,12 @@ public struct PlayerView: View {
         alternativeSnapshot = (0, 0)
         alternativeAttempt += 1
         let attempt = alternativeAttempt
+        // A deliberate source switch says so; a fresh start says "connecting".
+        if case .switchingSource = stage {
+            beginWatchdog(from: stage)
+        } else {
+            beginWatchdog()
+        }
         handle = alternativePlayer(alternativeRequest(
             for: attempt,
             candidateIndex: candidateIndex
@@ -388,8 +541,10 @@ public struct PlayerView: View {
     /// particular, a failed VLC fallback must not silently jump back to the
     /// same AVFoundation path that already rejected the stream.
     private func retryPlayback() {
+        alternativeError = nil
         switch engine {
         case .system:
+            beginWatchdog()
             system.retry()
         case .alternative:
             startAlternativePlayback()
@@ -465,6 +620,8 @@ public struct PlayerView: View {
         case .serverNotStreamable: "server.rack"
         case .rejected: "person.badge.key.fill"
         case .offline: "wifi.slash"
+        case .timedOut: "hourglass"
+        case .providerPlaceholder: "tv.slash"
         case .other: "exclamationmark.triangle.fill"
         }
     }
@@ -475,6 +632,8 @@ public struct PlayerView: View {
         case .serverNotStreamable: UIStrings.playbackServerTitle
         case .rejected: UIStrings.playbackRejectedTitle
         case .offline: UIStrings.playbackOfflineTitle
+        case .timedOut: UIStrings.playbackTimeoutTitle
+        case .providerPlaceholder: UIStrings.playbackPlaceholderTitle
         case .other: UIStrings.streamFailedTitle
         }
     }
@@ -486,6 +645,8 @@ public struct PlayerView: View {
         case .serverNotStreamable: String(UIStrings.playbackServerBody)
         case .rejected: String(UIStrings.playbackRejectedBody)
         case .offline: String(UIStrings.playbackOfflineBody)
+        case .timedOut: String(UIStrings.playbackTimeoutBody)
+        case .providerPlaceholder: String(UIStrings.playbackPlaceholderBody)
         case .other(let message): message
         }
     }

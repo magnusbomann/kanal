@@ -16,9 +16,9 @@ public enum KanalProduct: String, CaseIterable, Sendable, Identifiable {
     /// unit a television subscription is naturally measured in.
     public static let preferred = KanalProduct.yearly
 
-    /// Ordered as they appear on the paywall: cheapest commitment, best value,
-    /// then the one-off.
-    public static let displayOrder: [KanalProduct] = [.monthly, .yearly, .lifetime]
+    /// Put the selected annual plan first, followed by the flexible monthly
+    /// option and the one-time purchase. Remote focus starts on the selection.
+    public static let displayOrder: [KanalProduct] = [.yearly, .monthly, .lifetime]
 
     public var isSubscription: Bool { self != .lifetime }
 }

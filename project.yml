@@ -48,6 +48,10 @@ targets:
       - framework: Vendor/MobileVLCKit.xcframework
         embed: true
         codeSign: true
+      # Repackages films for AirPlay. Run Scripts/build-ffmpeg.sh once after cloning.
+      - framework: Vendor/KanalFFmpeg.xcframework
+        embed: true
+        codeSign: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.bomann.kanal
@@ -100,6 +104,19 @@ targets:
         TEST_TARGET_NAME: Kanal
         GENERATE_INFOPLIST_FILE: YES
 
+  KanalTVUITests:
+    type: bundle.ui-testing
+    platform: tvOS
+    sources:
+      - path: App/TVUITests
+    dependencies:
+      - target: KanalTV
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bomann.kanal.tvuitests
+        TEST_TARGET_NAME: KanalTV
+        GENERATE_INFOPLIST_FILE: YES
+
 schemes:
   Kanal:
     build:
@@ -119,6 +136,11 @@ schemes:
     build:
       targets:
         KanalTV: all
+        KanalTVUITests: [test]
+    test:
+      config: Debug
+      targets:
+        - KanalTVUITests
     run:
       config: Debug
       storeKitConfiguration: Config/Kanal.storekit
