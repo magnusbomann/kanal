@@ -37,10 +37,6 @@ public struct RootView: View {
         ZStack {
             content
         }
-            .environment(model)
-            .environment(navigator)
-            .environment(purchases)
-            .environment(downloads)
             .tint(KanalColor.accentSolid)
             // Wired once, so every screen that plays a film gets its other
             // listings as fallbacks without knowing they exist — and so a title
@@ -171,11 +167,12 @@ public struct RootView: View {
             }
             .sheet(isPresented: $presentsPairing) {
                 NavigationStack { HandoffView(invitation: pairingInvitation) }
+                    .kanalEnvironment(model, navigator, purchases, downloads)
             }
             #endif
             .sheet(isPresented: $isShowingPro) {
                 ProView()
-                    .environment(purchases)
+                    .kanalEnvironment(model, navigator, purchases, downloads)
             }
             .sheet(isPresented: $isRepairingSource) {
                 if let source = model.activeSource {
@@ -185,6 +182,7 @@ public struct RootView: View {
                             onSuccess: { isRepairingSource = false }
                         )
                     }
+                    .kanalEnvironment(model, navigator, purchases, downloads)
                 }
             }
             .fullScreenCoverCompat(item: Binding(
@@ -209,12 +207,15 @@ public struct RootView: View {
                 // would otherwise become playback.
                 if model.canPlay(request.item) {
                     PlayerView(plan: request.plan)
-                        .environment(model)
-                        .environment(purchases)
+                        .kanalEnvironment(model, navigator, purchases, downloads)
                 } else {
                     BlockedContentView { navigator.playing = nil }
+                        .kanalEnvironment(model, navigator, purchases, downloads)
                 }
             }
+            // Last, so every sheet above is inside it. Attached first, the
+            // sheets on this chain sat outside the environment they read.
+            .kanalEnvironment(model, navigator, purchases, downloads)
     }
 
     @ViewBuilder
@@ -262,7 +263,10 @@ public struct RootView: View {
 /// The tab shell. Liquid Glass handles the bar itself; the only thing worth
 /// customising is letting it shrink out of the way while you scroll.
 public struct MainTabView: View {
+    @Environment(AppModel.self) private var model
     @Environment(Navigator.self) private var navigator
+    @Environment(PurchaseStore.self) private var purchases: PurchaseStore?
+    @Environment(DownloadStore.self) private var downloads: DownloadStore?
 
     public init() {}
 
@@ -328,6 +332,9 @@ public struct MainTabView: View {
             // identity to the request keeps the new title from inheriting the
             // old one's loaded description and chosen season.
             .id(request.id)
+            // Handed over rather than inherited: the Mac build of the iPad
+            // app crashed opening a film, inside a sheet's environment lookup.
+            .kanalEnvironment(model, navigator, purchases, downloads)
     }
 
     @ViewBuilder
@@ -385,5 +392,18 @@ extension View {
         #else
         fullScreenCover(item: item, onDismiss: onDismiss, content: content)
         #endif
+    }
+}
+
+extension View {
+    /// The app's shared objects, for content presented in a new hierarchy.
+    func kanalEnvironment(
+        _ model: AppModel, _ navigator: Navigator,
+        _ purchases: PurchaseStore?, _ downloads: DownloadStore?
+    ) -> some View {
+        environment(model)
+            .environment(navigator)
+            .environment(purchases)
+            .environment(downloads)
     }
 }

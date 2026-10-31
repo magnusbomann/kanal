@@ -58,10 +58,12 @@ public struct TitleDetailView: View {
         #if os(tvOS)
         .fullScreenCover(item: $person, onDismiss: openPending) { member in
             PersonSheet(member: member) { chosen in pendingTitle = chosen }
+                .environment(model).environment(navigator)
         }
         #else
         .sheet(item: $person, onDismiss: openPending) { member in
             PersonSheet(member: member) { chosen in pendingTitle = chosen }
+                .environment(model).environment(navigator)
         }
         .presentationBackground(KanalColor.background)
         #endif
