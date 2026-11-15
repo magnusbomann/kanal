@@ -118,6 +118,158 @@ git repo — treat it as a separate deliverable (see `Site/README.md`).
 
 ## Session log
 
+### 2026-11-15 — Whole-app bug sweep before launch
+
+- **Who:** Claude (Fable 5.2), with Magnus. Four read-only review agents
+  (playback, state/sync/profiles, parsing/metadata/purchases, UI/app shells)
+  produced findings; each fix below was re-read against the code before it was
+  made, and the app was walked on an iPhone 17 Pro simulator.
+- **Goal:** Find and fix bugs across the whole app ahead of App Store launch.
+- **Did — things a viewer would have met:**
+  - **Norwegian plots were English.** TMDB files Norwegian under `no`; asked
+    for `nb-NO` (what an iPhone in Norwegian reports) it returns the title and
+    an empty plot, so the English fallback was shown. Measured on The Lion
+    King. `PreferredLanguages.tmdbTag` maps `nb`/`nn` → `no` for the client
+    and discovery; the metadata cache scope follows it, so plots cached in the
+    wrong language are set aside. Detail-page genres now go through
+    `CategoryLocalizer`.
+  - **Titles with a comma lost their first half** ("Monsters, Inc." → "Inc.",
+    "TV 2, Direkte" → "Direkte"): the M3U parser read from the last comma.
+  - **"Ant-Man" → "Man", "Non-Stop" → "Stop"**: a bare two/three-letter prefix
+    was stripped as a country marker. Bare markers must now be capitals, a real
+    region/language code, dash set off by a space, and leave a name behind.
+  - **"24x7", "FIBA 3x3", "1280x720" read as episodes** and took live channels
+    out of the channel list.
+  - **A guide with `start=""` crashed the app on every launch** (index into an
+    empty split in `XMLTVParser.date`).
+  - **`https://iptv-org.github.io/iptv/countries/no.m3u` was read as an Xtream
+    login** (user "countries", password "no.m3u") and setup failed.
+  - **A "+" in an Xtream password** was sent unencoded and read as a space.
+  - **One stray byte turned a UTF-8 playlist into Latin-1** (every æøå broken).
+  - **TMDB failures were cached as "no such title"** for the session, and a
+    yearless title's lookup blocked its own canonicalisation (shared key
+    namespace). Details cache no longer confuses movie/N with tv/N.
+  - **Xtream: an error page was read as an empty section**, emptying films or
+    series until the next refresh. Non-list answers are retried once; lists
+    keyed by position and stray `null` entries are accepted.
+  - **Gunzip reserved 12×/48×/192× the archive** for a guide; now a stream.
+  - **Purchases:** a subscriber in billing grace period was dropped to free by
+    a second expiry check; a pending purchase (declined Ask to Buy, abandoned
+    bank approval) locked the buy buttons until relaunch — the buttons still
+    wait while the offer is open, as `PaywallUITests` requires, and the wait
+    is forgotten when the offer is closed.
+- **Did — playback:**
+  - VLC now keeps the screen awake, and pauses when the app is backgrounded
+    (it used to play on behind the Home screen, holding the one connection).
+  - Apple TV: player controls never hid again after the first remote press
+    (`controlsEngaged` was never cleared); Menu did nothing on the error screen.
+  - A dropped stream no longer counts as the episode ending (VLC `.ended`
+    before 95 %) — it marked the episode watched and started the next.
+  - Closing a film while it was still opening could overwrite its resume
+    point with zero. The loading card now shows during the hand-off to VLC, a
+    700 ms settle precedes VLC after the system player lets go, the watchdog
+    stops under a terminal error, the next-episode countdown is cancelled by
+    playing again, and resuming live TV after a pause > 8 s no longer tears
+    down a working feed.
+  - **The free tier's offer never came after live TV.** The chrome's close
+    button goes straight to `PlayerView`, and the cover's `onDismiss` asked
+    "did anything play?" before `LiveChannelPlayer.onDisappear` had answered —
+    so every channel counted as one that never started (`pro-nudge.json`
+    stayed at 0 after four watched channels). A confirmed stream now reports
+    at once; films report at close. Found by `ProNudgeUITests`.
+- **Did — household, safety, privacy:**
+  - **A child profile saw every download** (title, poster, delete). Filtered
+    to what the profile's own rules allow.
+  - **A `kanal://pair` link sent the provider login and profiles unasked** to
+    whatever the link named. It now asks first, shows the code to check
+    against the television, and asks for the parental code when one is set.
+    The QR scanner no longer stops for good on the first non-Kanal QR.
+  - **Stream addresses out of item ids.** An M3U entry without `tvg-id` was
+    keyed `title|url`, and the url is often the login — so favourites and
+    history carried it to iCloud KVS and backups (LAUNCH_REVIEW #2 was only
+    half closed). Ids now carry an FNV-1a fingerprint of the address; saved
+    state is rewritten on reading (`MediaItem.scrubbedID`), sync records
+    naming an address are dropped, library cache version → 3.
+  - **Sync would have stopped for good within weeks**: every field of every
+    watched title had its own version record (~16 per title, never pruned).
+    History entries are versioned whole, positions age out with the history,
+    orphan records and old history tombstones are pruned, and the iCloud
+    payload is deflated (marker `KNZ1`; uncompressed payloads still read).
+    One unreadable history entry no longer empties a profile.
+  - Downloads are excluded from backups; a download finished while the app
+    was dead is no longer fetched a second time.
+  - The active TV service is remembered across launches. "Change TV service"
+    on the failure screen asks for the parental code. The code pad pauses
+    after five wrong entries (in memory only). The first import closing
+    between its two stages no longer marks the whole catalogue as new.
+- **Did — UI and submission:**
+  - Apple TV Settings: a service row is now a button with a long-press menu
+    (rename / change / remove) — it could not be switched to or removed.
+  - Settings → Upgrade presents the paywall from Settings itself, and on
+    Apple TV the focused upgrade row is no longer white text on white.
+  - Debug autoplay (`-kanal-play-movie` and friends) waits for the staged
+    import to deliver what it was asked for; every UI test that starts a film
+    had been finding an empty list.
+  - Terms/Privacy scroll on Apple TV (one focus stop per paragraph).
+  - Live tab has an empty state; "All films/series" keep their place when
+    returned to; the "searching more widely" pill cannot stick.
+  - **Privacy manifests** now declare UserDefaults (CA92.1), FileTimestamp
+    (C617.1) and DiskSpace (E174.1) for the bundled VLC/FFmpeg, which ship no
+    manifest — `nm -u` shows the symbols. Without them: ITMS-91053.
+  - Six new strings in all 14 languages (machine first pass, like the rest).
+- **Verified:** `swift test` — 470 tests in 89 suites pass (was 447/86; new:
+  `ProviderShapeTests`, `SyncSizeTests`, `IdentityWithoutAddressTests`, plus
+  cases in the parser, cleaner, detector and guide suites). iOS and tvOS
+  simulator Debug builds succeed. On the iPhone 17 Pro simulator, Norwegian:
+  onboarding; a seeded playlist; live HLS plays and closes; a dead channel
+  ends on the "could not start" panel; "TV 2, Direkte …" keeps its title; The
+  Lion King's detail page shows the Norwegian plot and genres; an MKV film
+  plays through VLC, closes, and shows its resume bar on Home.
+  Also seen: the `kanal://pair` confirmation (nothing sent until Send), the
+  paywall from Settings on iPhone and Apple TV, and on the Apple TV
+  simulator the service rows taking focus and switching service.
+  **UI tests:** all 11 `KanalUITests` pass — Paywall 6/6, PlayerControl 2/2,
+  ProNudge 2/2, Onboarding 1/1 — but not in one run: they need a playlist
+  served at `127.0.0.1:8733/films3.m3u` that is not in the repo (a playable
+  film and channel at index 0), the failure-close test needs a dead channel
+  (`TEST_RUNNER_KANAL_TEST_PLAYLIST`), and onboarding needs a simulator whose
+  Keychain has never held the app. `ProNudgeUITests` was updated: it now
+  watches each channel long enough to count (12 s rule) and taps the picture
+  to bring the hidden controls back; the dead-channel wait is 90 s. Seeded
+  launches (`-kanal-source`) now run `model.start()` first, so repeated
+  launches reuse one household instead of creating a new one each time.
+- **NOT verified:** nothing ran on hardware. Unseen: every Apple TV change
+  (Settings rows, long-press menu, legal scrolling, control hiding, Menu on
+  error), the pairing confirmation and scanner, the parental-code pause, the
+  Settings paywall sheet, VLC's idle-timer and background pause, StoreKit
+  grace period and pending states, real iCloud sync with the compressed
+  payload, and the provider-facing paths against the real panel.
+- **Behaviour changes to know about:**
+  - A device on this build writes a compressed sync payload that older
+    builds cannot read — update every device before judging sync.
+  - M3U (not Xtream) item ids changed. Favourites and history are migrated on
+    read; a film downloaded from an M3U source before this build still plays
+    from Library but is not recognised as downloaded on its detail page. The
+    library cache is rebuilt once.
+- **Left open / for next agent** (found, not fixed):
+  - Two Xtream shows with the same cleaned name but different years merge,
+    and only the first `series_id` is reachable (`Library.groupSeries`) —
+    ids are name-keyed across Home/next-episode, so this needs a migration.
+  - A transient Keychain failure sets `credentialMigrationFailure` and sync
+    stays off until relaunch.
+  - Pairing's 120 s host timeout does not scale with the number of services;
+    a pasted playlist over 3.5 MB cannot be handed off.
+  - Artwork is bare `AsyncImage` (no downsampling); the guide recomputes its
+    channel list per scroll frame; chips are 33 pt and Home's header buttons
+    38 pt tall; the support report ignores Dynamic Type.
+  - Several sheets (Settings, "Other sources", profile editor) are not handed
+    the shared objects explicitly, unlike the ones fixed in e99e5d6.
+  - The free watermark still draws over the "could not start" panel.
+  - Still Magnus's: accept the Program License Agreement (blocks TestFlight),
+    confirm `kanalplayer.com` terms/privacy resolve, human review of the
+    translations, a review recipe with an authorised test source.
+- **Commits:** none — left uncommitted for Magnus to review.
+
 ### 2026-11-15 — Mac search crash, and streams that never started
 
 - **Who:** Claude (Fable 5.2), with Magnus.

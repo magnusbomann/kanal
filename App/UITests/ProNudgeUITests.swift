@@ -40,7 +40,17 @@ final class ProNudgeUITests: XCTestCase {
             )
             // Give the stream a moment to actually reach the screen — a
             // playback that never started is deliberately never sold to.
-            RunLoop.current.run(until: Date().addingTimeInterval(4))
+            // A channel only counts as watched once it has played for twelve
+            // seconds (`LiveChannelSession.confirmAfter`) — long enough to
+            // tell a broadcast from the provider's ten-second "offline" clip. The
+            // wait also has to cover the seconds the stream takes to start.
+            RunLoop.current.run(until: Date().addingTimeInterval(24))
+            // The controls have hidden themselves by then. A tap on the
+            // picture brings them back, as it does for a person.
+            if !close.exists {
+                app.windows.firstMatch.tap()
+                XCTAssertTrue(close.waitForExistence(timeout: 5), "the controls did not come back")
+            }
             close.tap()
 
             if round < 4 {
@@ -64,7 +74,7 @@ final class ProNudgeUITests: XCTestCase {
     func testFailureCloseButtonUsesItsWholeVisibleArea() {
         let app = launch(resettingNudge: false)
         let close = app.buttons["player.failure.close"]
-        XCTAssertTrue(close.waitForExistence(timeout: 30))
+        XCTAssertTrue(close.waitForExistence(timeout: 90))
 
         close.coordinate(withNormalizedOffset: CGVector(dx: 0.12, dy: 0.5)).tap()
 
