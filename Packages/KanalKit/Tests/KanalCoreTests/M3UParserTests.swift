@@ -76,6 +76,28 @@ struct M3UParserTests {
         #expect(items[0].id != items[1].id)
     }
 
+    @Test("A comma in a title belongs to the title", arguments: [
+        (#"#EXTINF:-1 tvg-id="" group-title="Film",Monsters, Inc. (2001)"#, "Monsters, Inc. (2001)"),
+        (#"#EXTINF:-1 group-title="Norge",TV 2, Direkte "Nyheter""#, #"TV 2, Direkte "Nyheter""#),
+        (#"#EXTINF:-1 tvg-name="A, B" group-title="X, Y",Plain"#, "Plain"),
+        ("#EXTINF:-1,Lock, Stock and Two Smoking Barrels", "Lock, Stock and Two Smoking Barrels"),
+        // An unclosed quote leaves no comma outside one; the last comma stands in.
+        (#"#EXTINF:-1 tvg-name="12" TV",Fallback"#, "Fallback"),
+    ])
+    func commaInTitle(line: String, expected: String) {
+        #expect(M3UParser.displayName(in: line) == expected)
+    }
+
+    @Test("A tvg-id shared by thousands of entries still gives distinct ids, quickly")
+    func manySharedIDs() {
+        var text = "#EXTM3U\n"
+        for index in 0..<20_000 {
+            text += "#EXTINF:-1 tvg-id=\"none\",Channel \(index)\nhttp://a/\(index)\n"
+        }
+        let items = M3UParser().parse(text).items
+        #expect(Set(items.map(\.id)).count == 20_000)
+    }
+
     @Test("Skips entries with an unusable url")
     func badURL() {
         let text = """

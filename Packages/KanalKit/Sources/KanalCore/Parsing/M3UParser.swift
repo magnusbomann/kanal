@@ -32,6 +32,7 @@ public struct M3UParser: Sendable {
         var pendingDisplayName: String?
         var pendingGroupOverride: String?
         var seenIDs: Set<String> = []
+        var nextSuffixes: [String: Int] = [:]
 
         for rawLine in text.split(whereSeparator: \.isNewline) {
             let line = rawLine.trimmingCharacters(in: .whitespaces)
@@ -84,7 +85,8 @@ public struct M3UParser: Sendable {
                 preferred: pendingAttributes["tvg-id"],
                 url: url,
                 rawTitle: rawTitle,
-                seen: &seenIDs
+                seen: &seenIDs,
+                nextSuffix: &nextSuffixes
             )
 
             items.append(
@@ -168,19 +170,34 @@ public struct M3UParser: Sendable {
         return result
     }
 
-    /// The text after the last comma on an `#EXTINF` line.
+    /// The title on an `#EXTINF` line: everything after the comma that ends
+    /// the attributes.
+    ///
+    /// That is the *first* comma outside quotes, not the last — titles carry
+    /// commas of their own ("Monsters, Inc.", "TV 2, Direkte"), and reading
+    /// from the last one filed those as "Inc." and "Direkte". Only when a
+    /// provider leaves a quote unclosed, so that no comma is ever outside
+    /// one, does the last comma on the line stand in.
     static func displayName(in line: String) -> String? {
         var inQuotes = false
-        var lastCommaIndex: String.Index?
+        var separator: String.Index?
+        var lastComma: String.Index?
         var index = line.startIndex
         while index < line.endIndex {
             let character = line[index]
-            if character == "\"" { inQuotes.toggle() }
-            if character == ",", !inQuotes { lastCommaIndex = index }
+            if character == "\"" {
+                inQuotes.toggle()
+            } else if character == "," {
+                lastComma = index
+                if !inQuotes {
+                    separator = index
+                    break
+                }
+            }
             index = line.index(after: index)
         }
-        guard let lastCommaIndex else { return nil }
-        let name = String(line[line.index(after: lastCommaIndex)...])
+        guard let comma = separator ?? lastComma else { return nil }
+        let name = String(line[line.index(after: comma)...])
             .trimmingCharacters(in: .whitespaces)
         return name.isEmpty ? nil : name
     }
@@ -201,7 +218,8 @@ public struct M3UParser: Sendable {
         preferred: String?,
         url: URL,
         rawTitle: String,
-        seen: inout Set<String>
+        seen: inout Set<String>,
+        nextSuffix: inout [String: Int]
     ) -> String {
         let base: String
         if let preferred, !preferred.isEmpty {
@@ -211,11 +229,17 @@ public struct M3UParser: Sendable {
         }
         if seen.insert(base).inserted { return base }
 
-        var suffix = 2
+        // Resume from the last suffix handed out for this base. Counting up
+        // from 2 every time is quadratic, and panels do stamp one `tvg-id`
+        // on thousands of entries.
+        var suffix = nextSuffix[base] ?? 2
         while true {
             let candidate = "\(base)#\(suffix)"
-            if seen.insert(candidate).inserted { return candidate }
             suffix += 1
+            if seen.insert(candidate).inserted {
+                nextSuffix[base] = suffix
+                return candidate
+            }
         }
     }
 }

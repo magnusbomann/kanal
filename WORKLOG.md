@@ -165,20 +165,15 @@ git repo — treat it as a separate deliverable (see `Site/README.md`).
   reports are the search stack, which a film opened from search would also
   hit on the way back — likely the same bug, not proven. The provider was
   fast today, so the slow-evening failure was not reproduced live either.
-- **TestFlight: NOT uploaded.** `./Scripts/upload-testflight.sh both` archived
-  iOS as build 202611151930 (archive succeeded, iCloud entitlement verified)
-  and Apple refused the export with `403
-  FORBIDDEN.REQUIRED_AGREEMENTS_MISSING_OR_EXPIRED`. tvOS was not attempted.
-- **Left open / for next agent:** Magnus, as Account Holder, has to accept the
-  new Program License Agreement (developer.apple.com → Agreements, and
-  App Store Connect → Business). Then rerun `./Scripts/upload-testflight.sh`.
-  The same agreement blocks installing a development build on the Mac
-  ("PLA Update available"). After the TestFlight build installs,
+- **TestFlight:** uploaded as build 202611152022, iOS and tvOS, once Magnus
+  had accepted Apple's new agreement (four earlier attempts were refused with
+  `403 FORBIDDEN.REQUIRED_AGREEMENTS_MISSING_OR_EXPIRED`).
+- **Left open / for next agent:** After the TestFlight build installs,
   check on the Mac: search, play a film from search and close it, a live
   channel, an offline channel ("Discovery+ Extra 8"), and "Mad Max 2 4K
   (1981)" (dead on the provider today).
-- **Commits:** none — left uncommitted alongside the pre-existing download
-  work in the tree, for Magnus to review.
+- **Commits:** ee74a8c, which also carries the download and AirPlay work
+  that was already uncommitted in the tree.
 
 ### 2026-10-30 — Pre-release walkthrough on iPhone and Apple TV simulators
 
