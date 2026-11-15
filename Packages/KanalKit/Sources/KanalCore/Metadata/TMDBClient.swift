@@ -100,7 +100,7 @@ public struct TMDBClient: Sendable {
         guard let credential = Credential(apiKey) else { return nil }
         self.credential = credential
         self.session = session
-        self.language = language
+        self.language = PreferredLanguages.tmdbTag(language)
     }
 
     // MARK: - Search

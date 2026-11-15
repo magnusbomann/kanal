@@ -225,7 +225,7 @@ public struct M3UParser: Sendable {
         if let preferred, !preferred.isEmpty {
             base = preferred
         } else {
-            base = "\(rawTitle)|\(url.absoluteString)"
+            base = MediaItem.derivedID(rawTitle: rawTitle, stream: url.absoluteString)
         }
         if seen.insert(base).inserted { return base }
 

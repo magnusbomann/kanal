@@ -217,9 +217,27 @@ public actor LibraryLoader: LibraryLoading {
     }
 
     /// Playlists are usually UTF-8 but Latin-1 shows up often enough to matter.
-    private nonisolated func decodeText(_ data: Data) -> String {
+    nonisolated func decodeText(_ data: Data) -> String { Self.decodeText(data) }
+
+    static func decodeText(_ data: Data) -> String {
         if let text = String(data: data, encoding: .utf8) { return text }
-        if let text = String(data: data, encoding: .isoLatin1) { return text }
-        return String(decoding: data, as: UTF8.self)
+        // Strict UTF-8 is all or nothing: one stray byte in a 135 MB playlist
+        // — common where a panel stitches feeds together — used to send the
+        // whole file to Latin-1 and turn every æ, ø and å into "Ã¦". So decode
+        // leniently, and only believe Latin-1 when the bytes that failed
+        // outnumber the accented letters that did decode — Latin-1 text
+        // almost never forms a valid UTF-8 sequence by accident.
+        let lenient = String(decoding: data, as: UTF8.self)
+        var damaged = 0
+        var accented = 0
+        for scalar in lenient.unicodeScalars where scalar.value > 0x7F {
+            if scalar == "\u{FFFD}" { damaged += 1 } else { accented += 1 }
+        }
+        if damaged > accented,
+           let text = String(data: data, encoding: .windowsCP1252)
+            ?? String(data: data, encoding: .isoLatin1) {
+            return text
+        }
+        return lenient
     }
 }

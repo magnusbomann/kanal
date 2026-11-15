@@ -26,7 +26,7 @@ public actor DiscoveryService {
             serviceLimit: Int = 6
         ) {
             self.region = region
-            self.language = language
+            self.language = PreferredLanguages.tmdbTag(language)
             self.serviceLimit = serviceLimit
         }
     }

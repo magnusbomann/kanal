@@ -179,7 +179,7 @@ public struct TitleDetailView: View {
             }
 
             if let genres = details?.genres, !genres.isEmpty {
-                Text(genres.prefix(3).joined(separator: " · "))
+                Text(genres.prefix(3).map(CategoryLocalizer.display).joined(separator: " · "))
                     .font(KanalFont.body(20))
                     .foregroundStyle(KanalColor.secondaryText)
             } else if let category = item.category {
@@ -278,7 +278,7 @@ public struct TitleDetailView: View {
             }
 
             if let genres = details?.genres, !genres.isEmpty {
-                Text(genres.prefix(3).joined(separator: " · "))
+                Text(genres.prefix(3).map(CategoryLocalizer.display).joined(separator: " · "))
                     .font(KanalFont.body(13))
                     .foregroundStyle(KanalColor.secondaryText)
             } else if let category = item.category {

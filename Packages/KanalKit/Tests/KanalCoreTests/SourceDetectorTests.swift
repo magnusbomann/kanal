@@ -90,6 +90,48 @@ struct SourceDetectorTests {
         }
     }
 
+    @Test("A playlist file in a folder named like a panel is still a playlist", arguments: [
+        "https://iptv-org.github.io/iptv/countries/no.m3u",
+        "https://example.com/playlist/europe/norway/all.m3u8",
+    ])
+    func playlistFileUnderKeywordFolder(link: String) {
+        guard case .complete(let source) = SourceDetector.detect(link) else {
+            Issue.record("expected a complete source for \(link)")
+            return
+        }
+        #expect(source.kind == .m3u)
+        #expect(source.username == nil)
+    }
+
+    @Test("A plus sign in a password reaches the panel as a plus sign")
+    func plusInPassword() {
+        let client = XtreamClient(
+            portal: URL(string: "http://example.com:8080")!, username: "kari", password: "a+b c&d"
+        )
+        let query = URLComponents(url: client.m3uURL, resolvingAgainstBaseURL: false)?.percentEncodedQuery ?? ""
+        #expect(query.contains("password=a%2Bb%20c%26d"))
+    }
+
+    @Test("One stray byte does not turn a UTF-8 playlist into Latin-1")
+    func strayByte() {
+        var data = Data("#EXTINF:-1,Blåbærsyltetøy på NRK\n".utf8)
+        data.append(0xE5)
+        #expect(LibraryLoader.decodeText(data).contains("Blåbærsyltetøy på NRK"))
+    }
+
+    @Test("A playlist that really is Latin-1 is still read as Latin-1")
+    func latin1() {
+        let data = "#EXTINF:-1,Blåbærsyltetøy på NRK\n".data(using: .isoLatin1)!
+        #expect(LibraryLoader.decodeText(data).contains("Blåbærsyltetøy på NRK"))
+    }
+
+    @Test("Norwegian is asked of TMDB the way TMDB files it", arguments: [
+        ("nb-NO", "no-NO"), ("nn-NO", "no-NO"), ("nb", "no"), ("de-DE", "de-DE"), ("en-US", "en-US"), ("pt-BR", "pt-BR"),
+    ])
+    func tmdbLanguage(tag: String, expected: String) {
+        #expect(PreferredLanguages.tmdbTag(tag) == expected)
+    }
+
     @Test("Rejects input that is not a link")
     func garbage() {
         guard case .unrecognized = SourceDetector.detect("hello there") else {

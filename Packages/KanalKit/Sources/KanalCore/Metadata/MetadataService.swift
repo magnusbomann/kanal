@@ -61,7 +61,9 @@ public actor MetadataService {
         providers: [MetadataProvider]? = nil
     ) {
         self.storage = storage
-        self.cacheScope = language
+        // Scoped by the tag TMDB is actually asked in, which also sets aside
+        // what was cached while Norwegian was being asked for as "nb".
+        self.cacheScope = PreferredLanguages.tmdbTag(language)
             .lowercased()
             .replacingOccurrences(of: "_", with: "-")
             .filter { $0.isLetter || $0.isNumber || $0 == "-" }
@@ -168,7 +170,10 @@ public actor MetadataService {
               let tmdbID = Self.tmdbID(from: identified.id)
         else { return nil }
 
-        if let cached = details[tmdbID] { return cached }
+        // Films and series number themselves separately, so an id alone does
+        // not say which record this is: movie/1396 is not tv/1396.
+        let isSeries = item.kind == .series
+        if let cached = details[tmdbID], cached.isSeries == isSeries { return cached }
         guard !detailsInFlight.contains(tmdbID) else { return nil }
         detailsInFlight.insert(tmdbID)
         defer { detailsInFlight.remove(tmdbID) }
@@ -209,13 +214,18 @@ public actor MetadataService {
         let key = identityKey(title: name, year: item.year)
 
         if let cached = identified[key] { return cached }
-        guard !misses.contains(key), !inFlight.contains(key) else { return nil }
+        // Kept apart from the query keys `alternativeSpellings` uses. A title
+        // with no year has an identity key equal to its normalised name, and
+        // sharing one set meant this lookup blocked its own canonicalisation
+        // below — and a search that found no other spelling hid the poster.
+        let guardKey = "id:" + key
+        guard !misses.contains(guardKey), !inFlight.contains(guardKey) else { return nil }
 
         let artworkProviders = providers.filter(\.providesArtwork)
         guard !artworkProviders.isEmpty else { return nil }
 
-        inFlight.insert(key)
-        defer { inFlight.remove(key) }
+        inFlight.insert(guardKey)
+        defer { inFlight.remove(guardKey) }
 
         // Artwork databases search their own titles, not the viewer's. TMDB
         // will not find "Biler" however hard it looks, but it knows "Cars" —
@@ -248,7 +258,7 @@ public actor MetadataService {
             }
         }
 
-        if !anyProviderFailed { misses.insert(key) }
+        if !anyProviderFailed { misses.insert(guardKey) }
         return nil
     }
 

@@ -29,13 +29,24 @@ public struct TMDBProvider: MetadataProvider {
         let kinds: [Bool] = isSeries.map { [$0] } ?? [false, true]
 
         var results: [ResolvedTitle] = []
+        var searchFailure: (any Error)?
         for kind in kinds {
-            let candidates = (try? await client.search(name, year: year, isSeries: kind)) ?? []
+            // A search that failed is not a search that found nothing. Swallowing
+            // the error here let one rate-limited burst while scrolling be
+            // remembered as "no such title", and the poster stayed missing.
+            let candidates: [TMDBTitle]
+            do {
+                candidates = try await client.search(name, year: year, isSeries: kind)
+            } catch {
+                searchFailure = error
+                continue
+            }
             for candidate in candidates.prefix(5) {
                 let detailed = (try? await client.details(id: candidate.id, isSeries: kind)) ?? candidate
                 results.append(Self.resolved(detailed))
             }
         }
+        if results.isEmpty, let searchFailure { throw searchFailure }
         return results
     }
 

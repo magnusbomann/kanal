@@ -85,6 +85,10 @@ public struct XtreamClient: Sendable {
             URLQueryItem(name: "username", value: username),
             URLQueryItem(name: "password", value: password),
         ] + query
+        // `URLComponents` leaves "+" alone, and a PHP panel reads it as a
+        // space — a correct password containing one was refused as wrong.
+        components.percentEncodedQuery = components.percentEncodedQuery?
+            .replacingOccurrences(of: "+", with: "%2B")
         return components.url ?? portal
     }
 
@@ -179,7 +183,7 @@ public struct XtreamClient: Sendable {
                 logoURL: (entry["stream_icon"] as? String).flatMap { URL(string: $0) },
                 rawGroup: category,
                 category: CategoryNormalizer.normalize(category),
-                year: cleaned.year ?? (entry["year"] as? String).flatMap(Int.init),
+                year: cleaned.year ?? intValue(entry["year"]),
                 qualityTag: cleaned.qualityTag
             )
         }
@@ -209,7 +213,7 @@ public struct XtreamClient: Sendable {
                 category: CategoryNormalizer.normalize(category),
                 seriesName: cleaned.title,
                 providerSeriesID: seriesID,
-                year: cleaned.year ?? (entry["year"] as? String).flatMap(Int.init)
+                year: cleaned.year ?? intValue(entry["year"])
             )
         }
     }
@@ -283,12 +287,37 @@ public struct XtreamClient: Sendable {
     }
 
     private func jsonArray(_ url: URL) async throws -> [[String: Any]] {
-        let data = try await fetch(url)
-        // Panels answer with `[]`, `{}` or an error object when a section is empty.
-        guard let array = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
-            return []
+        if let entries = Self.entries(in: try await fetch(url)) { return entries }
+        // Not a list and not an empty section — an error page, or a panel
+        // that was busy for a moment. Reading that as "this account has no
+        // films" emptied the library until the next refresh, so ask once
+        // more before believing it.
+        try await Task.sleep(for: .seconds(1))
+        return Self.entries(in: try await fetch(url)) ?? []
+    }
+
+    /// The entries in a section's answer, or nil when the answer is not one.
+    ///
+    /// Panels say "nothing here" as `[]`, `{}`, `false`, `null` or an empty
+    /// body, and some key the list by position instead of sending an array.
+    static func entries(in data: Data) -> [[String: Any]]? {
+        if data.allSatisfy({ $0 == 0x20 || $0 == 0x0A || $0 == 0x0D || $0 == 0x09 }) { return [] }
+        guard let json = try? JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed]) else {
+            return nil
         }
-        return array
+        if let array = json as? [Any] {
+            // Element by element: one stray `null` must not discard the rest.
+            return array.compactMap { $0 as? [String: Any] }
+        }
+        if let object = json as? [String: Any] {
+            if object.isEmpty { return [] }
+            let values = object.values.compactMap { $0 as? [String: Any] }
+            // An object of objects is a list keyed by position; anything else
+            // is the panel describing a problem.
+            return values.count == object.count && object["user_info"] == nil ? values : nil
+        }
+        if json is NSNull || (json as? Bool) == false { return [] }
+        return nil
     }
 
     private func fetch(_ url: URL) async throws -> Data {

@@ -44,6 +44,19 @@ public enum PreferredLanguages {
         return "\(code)-\(region)"
     }
 
+    /// The same tag as TMDB files its translations under.
+    ///
+    /// TMDB keeps Norwegian under "no". Asked for "nb-NO" — which is what an
+    /// iPhone set to Norwegian reports — it finds the title but answers with
+    /// an empty plot, and the English one was shown instead: measured on The
+    /// Lion King, whose Norwegian plot is there under "no-NO". For the market
+    /// this app was built for, every description was in the wrong language.
+    public static func tmdbTag(_ tag: String) -> String {
+        let parts = tag.split(separator: "-", maxSplits: 1).map(String.init)
+        guard let code = parts.first?.lowercased(), code == "nb" || code == "nn" else { return tag }
+        return (["no"] + parts.dropFirst()).joined(separator: "-")
+    }
+
     private static let siblings: [String: [String]] = [
         "nb": ["nn"],
         "nn": ["nb"],

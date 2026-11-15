@@ -164,6 +164,12 @@ public enum SourceDetector {
         guard let first = components.first?.lowercased(), leadingKeywords.contains(first) else {
             return nil
         }
+        // A playlist *file* under one of those folders is a playlist, not a
+        // login: "/iptv/countries/no.m3u" read as user "countries", password
+        // "no.m3u" and failed setup against a panel that does not exist.
+        // "/live/USER/PASS/123.m3u8" is the one shape that keeps its meaning.
+        let ext = url.pathExtension.lowercased()
+        if ext == "m3u" || (ext == "m3u8" && first != "live") { return nil }
         let username = components[1]
         let password = components[2]
         guard !username.isEmpty, !password.isEmpty else { return nil }

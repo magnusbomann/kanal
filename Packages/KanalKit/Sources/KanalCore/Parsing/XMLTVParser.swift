@@ -240,7 +240,10 @@ public final class XMLTVParser: NSObject, XMLParserDelegate {
     static func date(from raw: String) -> Date? {
         let trimmed = raw.trimmingCharacters(in: .whitespaces)
         let parts = trimmed.split(separator: " ", maxSplits: 1)
-        let stamp = String(parts[0])
+        // An empty `start=""` splits into nothing, and indexing that took the
+        // app down on every launch the guide was reloaded.
+        guard let first = parts.first else { return nil }
+        let stamp = String(first)
         guard stamp.count >= 12, stamp.allSatisfy(\.isNumber) else { return nil }
 
         func number(_ range: Range<Int>) -> Int? {

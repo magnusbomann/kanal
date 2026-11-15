@@ -34,11 +34,25 @@ public enum TitleCleaner {
     /// them — around two million `NSRegularExpression` constructions per load,
     /// which was most of the time spent parsing.
     private static let countryPattern = try! NSRegularExpression(
-        pattern: #"^\s*[\[\(\|]?\s*([A-Za-z]{2,3})\s*[\]\)\|:\-–—]+\s*"#
+        pattern: #"^\s*([\[\(\|]?)\s*([A-Za-z]{2,3})(\s*)([\]\)\|:\-–—]+)(\s*)"#
+    )
+    /// Every two- and three-letter code that names a place or a language.
+    /// Built once: the check runs per title and the system lists are long.
+    private static let regionAndLanguageCodes: Set<String> = {
+        var codes = Set(Locale.Region.isoRegions.map { $0.identifier.uppercased() })
+        codes.formUnion(Locale.LanguageCode.isoLanguageCodes.map { $0.identifier.uppercased() })
+        return codes
+    }()
+    private static let leadingEpisodeMarker = try! NSRegularExpression(
+        pattern: #"^[Ss]\d{1,2}\s*[Ee]\d{1,3}\b"#
     )
     private static let episodePatterns: [NSRegularExpression] = [
         #"[\s\-–—_\[\(]*[Ss](\d{1,2})\s*[EeXx]\s*(\d{1,3})[\s\]\)]*"#,
-        #"[\s\-–—_\[\(]*(\d{1,2})\s*[xX]\s*(\d{1,3})\b[\s\]\)]*"#,
+        // "1x04". The episode is written with at least two digits and the
+        // season does not continue a longer number — otherwise "24x7",
+        // "FIBA 3x3" and "1280x720" read as episodes and took live channels
+        // out of the channel list.
+        #"[\s\-–—_\[\(]*(?<!\d)(\d{1,2})\s*[xX]\s*(\d{2,3})\b[\s\]\)]*"#,
         #"[\s\-–—_]*[Ss]eason\s*(\d{1,2})\s*[\-–—_]?\s*[Ee]pisode\s*(\d{1,3})"#,
     ].map { try! NSRegularExpression(pattern: $0) }
     private static let yearPattern = try! NSRegularExpression(
@@ -113,17 +127,40 @@ public enum TitleCleaner {
         guard let match = countryPattern.firstMatch(
                 in: input, range: NSRange(input.startIndex..., in: input)
               ),
-              let codeRange = Range(match.range(at: 1), in: input),
+              let codeRange = Range(match.range(at: 2), in: input),
+              let closerRange = Range(match.range(at: 4), in: input),
               let fullRange = Range(match.range, in: input)
         else { return nil }
 
-        let code = String(input[codeRange]).uppercased()
+        let written = String(input[codeRange])
+        let code = written.uppercased()
         // "HD | Something" is a quality tag, not a country.
         guard !qualityTokens.contains(code.lowercased()) else { return nil }
 
         var rest = String(input[fullRange.upperBound...])
         rest = rest.trimmingCharacters(in: separators)
         guard !rest.isEmpty else { return nil }
+
+        // Brackets and pipes are unmistakably a marker. A bare "XX:" or
+        // "XX -" is also how ordinary titles begin, and stripping any two or
+        // three letters there turned "Ant-Man" into "Man" and "Non-Stop" into
+        // "Stop". So a bare prefix must be written the way providers write
+        // markers — in capitals, a real country or language code, and with a
+        // dash set off by a space — and must leave a name behind rather than
+        // an episode number ("ER - S01E01" is the show ER).
+        let closer = input[closerRange]
+        let isBracketed = match.range(at: 1).length > 0
+            || closer.contains(where: { "])|".contains($0) })
+        if !isBracketed {
+            guard written == code, regionAndLanguageCodes.contains(code) else { return nil }
+            if closer.contains(where: { "-–—".contains($0) }),
+               match.range(at: 3).length == 0, match.range(at: 5).length == 0 {
+                return nil
+            }
+            guard leadingEpisodeMarker.firstMatch(
+                in: rest, range: NSRange(rest.startIndex..., in: rest)
+            ) == nil else { return nil }
+        }
         return (code, rest)
     }
 

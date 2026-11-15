@@ -25,6 +25,36 @@ struct TitleCleanerTests {
         #expect(result.countryCode == nil)
     }
 
+    @Test("A title that merely starts like a marker keeps its first word", arguments: [
+        ("Ant-Man (2015)", "Ant-Man"),
+        ("Non-Stop", "Non-Stop"),
+        ("NON-STOP (2014)", "NON-STOP"),
+        ("Sci-Fi Channel", "Sci-Fi Channel"),
+        ("Up: The Movie", "Up: The Movie"),
+        ("ER - S01E01", "ER S01E01"),
+    ])
+    func notAMarker(input: String, expected: String) {
+        let result = TitleCleaner.clean(input)
+        #expect(result.title == expected)
+        #expect(result.countryCode == nil)
+    }
+
+    @Test("A bare marker in capitals is still stripped", arguments: [
+        ("NO: NRK1", "NRK1", "NO"), ("UK - BBC One", "BBC One", "UK"), ("SE| SVT1", "SVT1", "SE"),
+    ])
+    func bareMarker(input: String, expected: String, code: String) {
+        let result = TitleCleaner.clean(input)
+        #expect(result.title == expected)
+        #expect(result.countryCode == code)
+    }
+
+    @Test("A channel name with a multiplication sign is not an episode", arguments: [
+        "Friends 24x7", "FIBA 3x3", "Test 1280x720",
+    ])
+    func notAnEpisode(input: String) {
+        #expect(TitleCleaner.clean(input).season == nil)
+    }
+
     @Test("Strips trailing quality tokens")
     func trailingQuality() {
         #expect(TitleCleaner.clean("TV2 Norge FHD").title == "TV2 Norge")

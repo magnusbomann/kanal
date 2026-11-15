@@ -64,6 +64,11 @@ struct XMLTVTests {
         #expect(withOffset == asUTC)
     }
 
+    @Test("An empty or malformed timestamp is no date, not a crash", arguments: ["", "   ", "+0100", "2026"])
+    func emptyTimestamp(raw: String) {
+        #expect(XMLTVParser.date(from: raw) == nil)
+    }
+
     @Test("Converts xmltv_ns episode numbering to onscreen form")
     func episodeNumbering() {
         #expect(XMLTVParser.onscreenCode(fromXMLTVNS: "0 . 3 . 0") == "S01E04")

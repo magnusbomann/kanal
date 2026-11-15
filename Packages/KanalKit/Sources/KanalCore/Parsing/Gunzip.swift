@@ -21,52 +21,76 @@ public enum Gunzip {
 
     /// RFC 1952: 10 fixed bytes, then optional extra/name/comment/CRC fields.
     private static func stripHeader(_ data: Data) -> Data? {
-        let bytes = [UInt8](data)
-        guard bytes.count > 18 else { return nil }
-        let flags = bytes[3]
+        // Indexed in place. Copying the archive into an array first doubled
+        // the memory of a guide that is already tens of megabytes.
+        let count = data.count
+        guard count > 18 else { return nil }
+        func byte(_ offset: Int) -> UInt8 { data[data.startIndex + offset] }
+        let flags = byte(3)
         var index = 10
 
         if flags & 0x04 != 0 { // FEXTRA
-            guard index + 1 < bytes.count else { return nil }
-            let length = Int(bytes[index]) | (Int(bytes[index + 1]) << 8)
+            guard index + 1 < count else { return nil }
+            let length = Int(byte(index)) | (Int(byte(index + 1)) << 8)
             index += 2 + length
         }
         if flags & 0x08 != 0 { // FNAME
-            while index < bytes.count, bytes[index] != 0 { index += 1 }
+            while index < count, byte(index) != 0 { index += 1 }
             index += 1
         }
         if flags & 0x10 != 0 { // FCOMMENT
-            while index < bytes.count, bytes[index] != 0 { index += 1 }
+            while index < count, byte(index) != 0 { index += 1 }
             index += 1
         }
         if flags & 0x02 != 0 { index += 2 } // FHCRC
 
         // Trailing 8 bytes are CRC32 + ISIZE.
-        guard index < bytes.count - 8 else { return nil }
+        guard index < count - 8 else { return nil }
         return data.subdata(in: (data.startIndex + index)..<(data.endIndex - 8))
     }
 
+    /// Inflates in fixed chunks.
+    ///
+    /// The one-shot call needs its whole output buffer up front, and guessing
+    /// meant reserving twelve times the archive, then forty-eight, then a
+    /// hundred and ninety-two — over a gigabyte for a large guide, on an Apple
+    /// TV that is killed long before that. A stream only ever holds what it
+    /// has actually produced.
     private static func inflate(_ deflated: Data) -> Data? {
-        // Guides expand roughly 10×; start there and grow if the buffer fills.
-        var capacity = max(deflated.count * 12, 1 << 20)
-        for _ in 0..<4 {
-            let result = deflated.withUnsafeBytes { source -> Data? in
-                guard let base = source.bindMemory(to: UInt8.self).baseAddress else { return nil }
-                let destination = UnsafeMutablePointer<UInt8>.allocate(capacity: capacity)
-                defer { destination.deallocate() }
-                let written = compression_decode_buffer(
-                    destination, capacity,
-                    base, deflated.count,
-                    nil, COMPRESSION_ZLIB
+        let stream = UnsafeMutablePointer<compression_stream>.allocate(capacity: 1)
+        defer { stream.deallocate() }
+        guard compression_stream_init(stream, COMPRESSION_STREAM_DECODE, COMPRESSION_ZLIB)
+                == COMPRESSION_STATUS_OK else { return nil }
+        defer { compression_stream_destroy(stream) }
+
+        let chunkSize = 1 << 18
+        let chunk = UnsafeMutablePointer<UInt8>.allocate(capacity: chunkSize)
+        defer { chunk.deallocate() }
+
+        var output = Data()
+        let finished = deflated.withUnsafeBytes { source -> Bool in
+            guard let base = source.bindMemory(to: UInt8.self).baseAddress else { return false }
+            stream.pointee.src_ptr = base
+            stream.pointee.src_size = source.count
+            while true {
+                stream.pointee.dst_ptr = chunk
+                stream.pointee.dst_size = chunkSize
+                let status = compression_stream_process(
+                    stream, Int32(COMPRESSION_STREAM_FINALIZE.rawValue)
                 )
-                guard written > 0 else { return nil }
-                // A full buffer means the output was probably truncated.
-                guard written < capacity else { return nil }
-                return Data(bytes: destination, count: written)
+                let produced = chunkSize - stream.pointee.dst_size
+                if produced > 0 { output.append(chunk, count: produced) }
+                switch status {
+                case COMPRESSION_STATUS_END:
+                    return true
+                case COMPRESSION_STATUS_OK:
+                    // No output and no input left is a truncated archive.
+                    if produced == 0, stream.pointee.src_size == 0 { return false }
+                default:
+                    return false
+                }
             }
-            if let result { return result }
-            capacity *= 4
         }
-        return nil
+        return finished && !output.isEmpty ? output : nil
     }
 }
