@@ -104,6 +104,7 @@ public struct ProView: View {
             }
         }
         .onDisappear {
+            store.forgetPendingPurchase()
             guard !didPurchase, !store.isPro else { return }
             store.recordPaywallDismissal()
         }

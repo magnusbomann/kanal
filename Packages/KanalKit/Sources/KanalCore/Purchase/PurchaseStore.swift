@@ -81,10 +81,11 @@ public final class PurchaseStore {
             guard case .verified(let transaction) = result else { continue }
             guard KanalProduct(rawValue: transaction.productID) != nil else { continue }
             guard transaction.revocationDate == nil else { continue }
-            if let expirationDate = transaction.expirationDate,
-               expirationDate <= .now {
-                continue
-            }
+            // No expiry check of our own. `currentEntitlements` already leaves
+            // out a lapsed subscription, and it deliberately keeps one in its
+            // billing grace period — whose expiry date is in the past. Checking
+            // the date again took Pluss away from someone Apple still counts
+            // as subscribed, and from anyone whose clock runs ahead.
             entitled = true
             break
         }
@@ -164,6 +165,16 @@ public final class PurchaseStore {
               await subscription.isEligibleForIntroOffer
         else { return nil }
         return offer
+    }
+
+    /// Forgets a purchase that was left waiting for someone's approval.
+    ///
+    /// Called when the offer is closed. A declined Ask to Buy or an abandoned
+    /// bank approval never reports back, and "waiting" then kept the buttons
+    /// disabled until the app was restarted. An approval that does arrive
+    /// still comes through `Transaction.updates`, whatever this says.
+    public func forgetPendingPurchase() {
+        isPending = false
     }
 
     // MARK: Buying
