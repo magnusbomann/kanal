@@ -26,6 +26,8 @@
 "browse.allSeries" = "Blader door alle series";
 "browse.movieCategories" = "Films per genre";
 "browse.seriesCategories" = "Serie per genre";
+"channels.empty.body" = "Je tv-dienst heeft geen livezenders. Films en series staan onder hun eigen tabs.";
+"channels.empty.title" = "Geen livezenders";
 "code.change" = "Wijzig de code";
 "code.confirm.message" = "Gewoon om er zeker van te zijn.";
 "code.confirm.title" = "Typ het nogmaals";
@@ -33,6 +35,7 @@
 "code.enter.title" = "Voer de code in";
 "code.footer.set" = "De code is nodig om het profiel van een kind te verlaten, profielen te wijzigen of instellingen te openen.";
 "code.footer.unset" = "Zonder een code kan een kind zelf naar elk profiel overstappen.";
+"code.locked" = "Te veel onjuiste codes. Wacht even en probeer het opnieuw.";
 "code.remove" = "Verwijder de code";
 "code.section" = "Oudercode";
 "code.set" = "Stel een code in";
@@ -114,6 +117,9 @@
 "handoff.aim" = "Punt op de code op je tv";
 "handoff.camera.body" = "Handoff werkt door de code op je tv-scherm te lezen. Geef camera-toegang toe in Instellingen en kom dan terug.";
 "handoff.camera.title" = "Kanal heeft de camera nodig";
+"handoff.confirm.body %@" = "Ga alleen verder als de Apple TV voor je de code %@ toont. Die ontvangt de inloggegevens van je tv-dienst en je profielen.";
+"handoff.confirm.send" = "Sturen";
+"handoff.confirm.title" = "Je tv-dienst naar deze Apple TV sturen?";
 "handoff.finding" = "Het vinden van je Apple TV";
 "handoff.sending" = "Verzenden";
 "handoff.sent" = "Verstuurd";

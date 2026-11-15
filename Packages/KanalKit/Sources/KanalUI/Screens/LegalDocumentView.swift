@@ -25,14 +25,28 @@ public struct LegalDocumentView: View {
 
     public var body: some View {
         ScrollView {
+            #if os(tvOS)
+            // A television scrolls by moving focus, and one block of text has
+            // nowhere for focus to go: only the first screenful of the terms
+            // could be read. Each paragraph is a stop.
+            LazyVStack(alignment: .leading, spacing: KanalMetrics.md) {
+                ForEach(Array(paragraphs.enumerated()), id: \.offset) { _, paragraph in
+                    Text(verbatim: paragraph)
+                        .font(KanalFont.body(15))
+                        .foregroundStyle(KanalColor.primaryText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .focusable()
+                }
+            }
+            .padding(KanalMetrics.lg)
+            #else
             Text(verbatim: contents)
                 .font(KanalFont.body(15))
                 .foregroundStyle(KanalColor.primaryText)
-                #if !os(tvOS)
                 .textSelection(.enabled)
-                #endif
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(KanalMetrics.lg)
+            #endif
         }
         .background(KanalColor.background)
         .navigationTitle(Text(document.title))
@@ -45,6 +59,12 @@ public struct LegalDocumentView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+    }
+
+    private var paragraphs: [String] {
+        contents.components(separatedBy: "\n\n")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
     }
 
     private var contents: String {

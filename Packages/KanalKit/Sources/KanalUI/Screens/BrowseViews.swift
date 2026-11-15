@@ -67,6 +67,16 @@ public struct ChannelsView: View {
 
             if mode == .guide {
                 GuideView()
+            } else if model.library.channelGroups.isEmpty, !showsFavoritesOnly {
+                // A films-only service, or a child with no channel approved
+                // yet. A blank tab reads as the app having failed to load.
+                EmptyStateView(
+                    symbol: MediaKind.liveTV.symbolName,
+                    title: String(model.isRestricted
+                        ? UIStrings.childLibraryEmptyTitle : UIStrings.channelsEmptyTitle),
+                    message: String(model.isRestricted
+                        ? UIStrings.childLibraryEmptyBody : UIStrings.channelsEmptyBody)
+                )
             } else {
                 channelList
             }
@@ -571,6 +581,7 @@ struct MovieLibraryView: View {
     @Environment(Navigator.self) private var navigator
     @State private var filter: LibraryFilter
     @State private var movies: [MediaItem] = []
+    @State private var loadedRequest: BrowseLoadRequest?
     @State private var isLoading = true
 
     init(initialCategory: String? = nil) {
@@ -629,6 +640,10 @@ struct MovieLibraryView: View {
     }
 
     private func loadMovies() async {
+        // Coming back to this screen re-runs the task. Unless what it shows
+        // has changed, the list — and the place scrolled to — stays.
+        let current = request
+        guard loadedRequest != current else { return }
         isLoading = true
         movies = []
         try? await Task.sleep(for: .milliseconds(140))
@@ -642,6 +657,7 @@ struct MovieLibraryView: View {
         guard !Task.isCancelled else { return }
         movies = result
         isLoading = false
+        loadedRequest = current
     }
 
     private var navigationTitle: Text {
@@ -665,6 +681,7 @@ struct SeriesLibraryView: View {
     @Environment(Navigator.self) private var navigator
     @State private var filter: LibraryFilter
     @State private var series: [SeriesGroup] = []
+    @State private var loadedRequest: BrowseLoadRequest?
     @State private var isLoading = true
 
     init(initialCategory: String? = nil) {
@@ -722,6 +739,8 @@ struct SeriesLibraryView: View {
     }
 
     private func loadSeries() async {
+        let current = request
+        guard loadedRequest != current else { return }
         isLoading = true
         series = []
         try? await Task.sleep(for: .milliseconds(140))
@@ -735,6 +754,7 @@ struct SeriesLibraryView: View {
         guard !Task.isCancelled else { return }
         series = result
         isLoading = false
+        loadedRequest = current
     }
 
     private func seriesSubtitle(_ group: SeriesGroup) -> String? {

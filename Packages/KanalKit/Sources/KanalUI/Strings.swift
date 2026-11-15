@@ -297,6 +297,8 @@ public enum UIStrings {
     public static let filterNoResultsBody = text("filter.noResults.body", "Suggests removing a filter")
     public static let seriesEmptyTitle = text("series.empty.title", "Title when the source carries no series at all")
     public static let seriesEmptyBody = text("series.empty.body", "Explains the playlist simply has no series, no filter to remove")
+    public static let channelsEmptyTitle = text("channels.empty.title", "Title when the source carries no live channels at all")
+    public static let channelsEmptyBody = text("channels.empty.body", "Explains the TV service simply has no live channels")
     public static let moviesEmptyTitle = text("movies.empty.title", "Title when the source carries no films at all")
     public static let moviesEmptyBody = text("movies.empty.body", "Explains the playlist simply has no films, no filter to remove")
     public static let browseMovieCategories = text(
@@ -548,6 +550,7 @@ public enum UIStrings {
     public static let codeConfirmTitle = text("code.confirm.title", "Asks for the new code a second time")
     public static let codeConfirmMessage = text("code.confirm.message", "Explains the second entry guards against typos")
     public static let codeWrong = text("code.wrong", "Shown when the entered code does not match")
+    public static let codeLocked = text("code.locked", "Shown when too many wrong codes were entered and the pad is paused")
     public static func codeDigitsEntered(_ count: Int) -> LocalizedStringResource {
         LocalizedStringResource(
             "code.digitsEntered \(count)", bundle: bundle,
@@ -732,6 +735,16 @@ public enum UIStrings {
     public static let handoffCameraBody = text("handoff.camera.body", "Explains why the camera is needed")
     public static let openSettings = text("action.openSettings", "Opens the system Settings app")
     public static let done = text("action.done", "Dismisses a completed screen")
+    public static let handoffConfirmTitle = text(
+        "handoff.confirm.title", "Asks before sending the TV service to an Apple TV opened from a link"
+    )
+    public static func handoffConfirmBody(_ code: String) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "handoff.confirm.body \(code)", bundle: bundle,
+            comment: "Tells the person to check the code on the television before sending. The argument is that code."
+        )
+    }
+    public static let handoffConfirmSend = text("handoff.confirm.send", "Button that sends the TV service to the Apple TV")
     public static let handoffSettingsHint = text(
         "handoff.settingsHint", "Explains handoff in the Settings list"
     )

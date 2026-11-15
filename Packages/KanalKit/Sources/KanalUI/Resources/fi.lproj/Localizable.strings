@@ -26,6 +26,8 @@
 "browse.allSeries" = "Selaa kaikkia sarjoja";
 "browse.movieCategories" = "Elokuvat genren mukaan";
 "browse.seriesCategories" = "Sarja lajityypeittäin";
+"channels.empty.body" = "TV-palvelussasi ei ole suoria kanavia. Elokuvat ja sarjat ovat omilla välilehdillään.";
+"channels.empty.title" = "Ei suoria kanavia";
 "code.change" = "Muuta koodia";
 "code.confirm.message" = "Varmuuden vuoksi.";
 "code.confirm.title" = "Kirjoita se uudestaan.";
@@ -33,6 +35,7 @@
 "code.enter.title" = "Anna koodi";
 "code.footer.set" = "Koodia tarvitaan lapsen profiilin, muutosprofiilien tai avointen asetusten jättämiseksi.";
 "code.footer.unset" = "Ilman koodia lapsi voi vaihtaa mihin tahansa profiiliin.";
+"code.locked" = "Liian monta väärää koodia. Odota hetki ja yritä uudelleen.";
 "code.remove" = "Poista koodi";
 "code.section" = "Vanhempien koodi";
 "code.set" = "Aseta koodi";
@@ -114,6 +117,9 @@
 "handoff.aim" = "Osoita koodia televisiossasi.";
 "handoff.camera.body" = "Luovutus toimii lukemalla koodin televisioruudulta. Salli kameran käyttö Asetuksissa ja tule sitten takaisin.";
 "handoff.camera.title" = "Kanal tarvitsee kameraa.";
+"handoff.confirm.body %@" = "Jatka vain, jos edessäsi oleva Apple TV näyttää koodin %@. Se saa TV-palvelusi kirjautumistiedot ja profiilisi.";
+"handoff.confirm.send" = "Lähetä";
+"handoff.confirm.title" = "Lähetetäänkö TV-palvelusi tähän Apple TV:hen?";
 "handoff.finding" = "Apple TV:n löytäminen";
 "handoff.sending" = "Lähetetään";
 "handoff.sent" = "Lähetetty";

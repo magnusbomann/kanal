@@ -2319,6 +2319,184 @@
         }
       }
     },
+    "channels.empty.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "خدمة التلفاز لديك لا تتضمن قنوات مباشرة. الأفلام والمسلسلات في علامات تبويب خاصة بها."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Din tv-tjeneste har ingen direkte kanaler. Film og serier ligger under deres egne faner."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ihr TV-Dienst hat keine Live-Sender. Filme und Serien finden Sie in eigenen Tabs."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your TV service has no live channels. Films and series are under their own tabs."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu servicio de TV no tiene canales en directo. Las películas y series están en sus propias pestañas."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV-palvelussasi ei ole suoria kanavia. Elokuvat ja sarjat ovat omilla välilehdillään."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre service TV ne propose aucune chaîne en direct. Les films et les séries ont leurs propres onglets."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il tuo servizio TV non ha canali in diretta. Film e serie sono nelle rispettive schede."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV-tjenesten din har ingen direktekanaler. Filmer og serier finner du under egne faner."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je tv-dienst heeft geen livezenders. Films en series staan onder hun eigen tabs."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Twoja usługa TV nie ma kanałów na żywo. Filmy i seriale są na osobnych kartach."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seu serviço de TV não tem canais ao vivo. Filmes e séries ficam em suas próprias abas."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Din tv-tjänst har inga direktsända kanaler. Filmer och serier finns under egna flikar."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV hizmetinde canlı kanal yok. Filmler ve diziler kendi sekmelerinde."
+          }
+        }
+      }
+    },
+    "channels.empty.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا توجد قنوات مباشرة"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingen direkte kanaler"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Live-Sender"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No live channels"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay canales en directo"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ei suoria kanavia"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune chaîne en direct"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessun canale in diretta"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingen direktekanaler"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geen livezenders"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brak kanałów na żywo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhum canal ao vivo"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inga direktsända kanaler"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Canlı kanal yok"
+          }
+        }
+      }
+    },
     "code.change": {
       "extractionState": "manual",
       "localizations": {
@@ -3195,6 +3373,95 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bir kod olmadan, bir çocuk kendi başına herhangi bir profile geçebilir."
+          }
+        }
+      }
+    },
+    "code.locked": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عدد كبير من الرموز الخاطئة. انتظر لحظة ثم حاول مرة أخرى."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For mange forkerte koder. Vent et øjeblik, og prøv igen."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu viele falsche Codes. Warten Sie einen Moment und versuchen Sie es erneut."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many wrong codes. Wait a moment and try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demasiados códigos incorrectos. Espera un momento e inténtalo de nuevo."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liian monta väärää koodia. Odota hetki ja yritä uudelleen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trop de codes incorrects. Patientez un instant, puis réessayez."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Troppi codici errati. Attendi un momento e riprova."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For mange feil koder. Vent litt og prøv igjen."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Te veel onjuiste codes. Wacht even en probeer het opnieuw."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zbyt wiele błędnych kodów. Poczekaj chwilę i spróbuj ponownie."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muitos códigos incorretos. Aguarde um momento e tente novamente."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "För många felaktiga koder. Vänta en stund och försök igen."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Çok fazla yanlış kod girildi. Biraz bekleyip tekrar dene."
           }
         }
       }
@@ -11946,6 +12213,273 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kanal kameraya ihtiyaç duyuyor"
+          }
+        }
+      }
+    },
+    "handoff.confirm.body %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تابع فقط إذا كان Apple TV الذي أمامك يعرض الرمز %@. سيستلم بيانات تسجيل الدخول لخدمة التلفاز وملفاتك الشخصية."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fortsæt kun, hvis Apple TV'et foran dig viser koden %@. Det modtager login til din tv-tjeneste og dine profiler."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fahren Sie nur fort, wenn das Apple TV vor Ihnen den Code %@ anzeigt. Es erhält die Anmeldung für Ihren TV-Dienst und Ihre Profile."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only continue if the Apple TV in front of you shows the code %@. It will receive the sign-in for your TV service and your profiles."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continúa solo si el Apple TV que tienes delante muestra el código %@. Recibirá el inicio de sesión de tu servicio de TV y tus perfiles."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jatka vain, jos edessäsi oleva Apple TV näyttää koodin %@. Se saa TV-palvelusi kirjautumistiedot ja profiilisi."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuez uniquement si l’Apple TV devant vous affiche le code %@. Elle recevra les identifiants de votre service TV et vos profils."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continua solo se l’Apple TV davanti a te mostra il codice %@. Riceverà l’accesso al tuo servizio TV e i tuoi profili."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fortsett bare hvis Apple TV-en foran deg viser koden %@. Den får innloggingen til TV-tjenesten din og profilene dine."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ga alleen verder als de Apple TV voor je de code %@ toont. Die ontvangt de inloggegevens van je tv-dienst en je profielen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kontynuuj tylko wtedy, gdy Apple TV przed Tobą pokazuje kod %@. Otrzyma dane logowania do Twojej usługi TV i Twoje profile."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue somente se a Apple TV à sua frente mostrar o código %@. Ela receberá o login do seu serviço de TV e os seus perfis."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fortsätt bara om Apple TV:n framför dig visar koden %@. Den får inloggningen till din tv-tjänst och dina profiler."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yalnızca önündeki Apple TV %@ kodunu gösteriyorsa devam et. TV hizmetinin oturum bilgilerini ve profillerini alacak."
+          }
+        }
+      }
+    },
+    "handoff.confirm.send": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إرسال"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähetä"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invia"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sturen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wyślij"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skicka"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gönder"
+          }
+        }
+      }
+    },
+    "handoff.confirm.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هل تريد إرسال خدمة التلفاز إلى Apple TV هذا؟"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send din tv-tjeneste til dette Apple TV?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV-Dienst an dieses Apple TV senden?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send your TV service to this Apple TV?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Enviar tu servicio de TV a este Apple TV?"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähetetäänkö TV-palvelusi tähän Apple TV:hen?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer votre service TV à cette Apple TV ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inviare il tuo servizio TV a questa Apple TV?"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sende TV-tjenesten din til denne Apple TV-en?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je tv-dienst naar deze Apple TV sturen?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wysłać usługę TV do tego Apple TV?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar seu serviço de TV para esta Apple TV?"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skicka din tv-tjänst till den här Apple TV:n?"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TV hizmetin bu Apple TV'ye gönderilsin mi?"
           }
         }
       }

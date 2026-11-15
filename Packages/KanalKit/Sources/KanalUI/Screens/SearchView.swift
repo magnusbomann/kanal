@@ -54,7 +54,13 @@ public struct SearchView: View {
         }
         #endif
         .onChange(of: query) { _, newValue in scheduleSearch(newValue) }
-        .onDisappear { searchTask?.cancel() }
+        .onDisappear {
+            searchTask?.cancel()
+            // The cancelled task returns without tidying up after itself, and
+            // the "searching more widely" pill then sat there until the query
+            // was edited.
+            isSearchingWider = false
+        }
     }
 
     private var focusBinding: FocusState<Bool>.Binding? {
@@ -66,15 +72,18 @@ public struct SearchView: View {
     }
 
     private var results: some View {
-        List {
+        // Read once. Grouping builds two dictionaries over the whole library,
+        // and asking for it at every use did that six times per keystroke.
+        let grouped = groupedResults
+        return List {
             if let matchedVia = outcome.matchedVia {
                 TranslationNote(query: trimmedQuery, matchedTitle: matchedVia)
                     .kanalListRowBackground(KanalColor.background)
                     .kanalHiddenRowSeparator()
             }
-            if !groupedResults.channels.isEmpty {
+            if !grouped.channels.isEmpty {
                 Section {
-                    ForEach(groupedResults.channels) { group in
+                    ForEach(grouped.channels) { group in
                         Button {
                             navigator.play(
                                 group,
@@ -91,9 +100,9 @@ public struct SearchView: View {
                 }
             }
 
-            if !groupedResults.movies.isEmpty {
+            if !grouped.movies.isEmpty {
                 Section {
-                    ForEach(groupedResults.movies) { movie in
+                    ForEach(grouped.movies) { movie in
                         Button {
                             navigator.showDetails(for: movie)
                         } label: {
@@ -107,9 +116,9 @@ public struct SearchView: View {
                 }
             }
 
-            if !groupedResults.series.isEmpty {
+            if !grouped.series.isEmpty {
                 Section {
-                    ForEach(groupedResults.series) { group in
+                    ForEach(grouped.series) { group in
                         Button {
                             guard let first = group.episodes.first else { return }
                             navigator.showDetails(for: first, seriesGroup: group)

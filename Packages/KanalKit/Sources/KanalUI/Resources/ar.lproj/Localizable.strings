@@ -26,6 +26,8 @@
 "browse.allSeries" = "كل المسلسلات";
 "browse.movieCategories" = "أفلام حسب النوع";
 "browse.seriesCategories" = "مسلسلات حسب النوع";
+"channels.empty.body" = "خدمة التلفاز لديك لا تتضمن قنوات مباشرة. الأفلام والمسلسلات في علامات تبويب خاصة بها.";
+"channels.empty.title" = "لا توجد قنوات مباشرة";
 "code.change" = "تغيير الرمز";
 "code.confirm.message" = "فقط للتأكد";
 "code.confirm.title" = "صنف مرة أخرى";
@@ -33,6 +35,7 @@
 "code.enter.title" = "أدخل الرمز";
 "code.footer.set" = "الشفرة مطلوبة لترك ملف الطفل أو تغيير البيانات أو الأماكن المفتوحة";
 "code.footer.unset" = "بدون شفرة، يمكن للطفل أن يتحول إلى أي ملف شخصي نفسه.";
+"code.locked" = "عدد كبير من الرموز الخاطئة. انتظر لحظة ثم حاول مرة أخرى.";
 "code.remove" = "إزالة الرمز";
 "code.section" = "قانون الوالدين";
 "code.set" = "وضع رمز";
@@ -114,6 +117,9 @@
 "handoff.aim" = "نقطة في الرمز على تلفازك";
 "handoff.camera.body" = "يعمل التسليم بقراءة الرمز على شاشة التلفزيون الخاصة بك. السماح بدخول الكاميرا في ستينغز، ثم العودة.";
 "handoff.camera.title" = "Kanal يحتاج الكاميرا";
+"handoff.confirm.body %@" = "تابع فقط إذا كان Apple TV الذي أمامك يعرض الرمز %@. سيستلم بيانات تسجيل الدخول لخدمة التلفاز وملفاتك الشخصية.";
+"handoff.confirm.send" = "إرسال";
+"handoff.confirm.title" = "هل تريد إرسال خدمة التلفاز إلى Apple TV هذا؟";
 "handoff.finding" = "العثور على Apple TV";
 "handoff.sending" = "إرسال";
 "handoff.sent" = "Sent";

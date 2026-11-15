@@ -26,6 +26,8 @@
 "browse.allSeries" = "Bläddra bland alla serier";
 "browse.movieCategories" = "Filmer efter genre";
 "browse.seriesCategories" = "Serier efter genre";
+"channels.empty.body" = "Din tv-tjänst har inga direktsända kanaler. Filmer och serier finns under egna flikar.";
+"channels.empty.title" = "Inga direktsända kanaler";
 "code.change" = "Ändra koden";
 "code.confirm.message" = "Bara för att vara säker.";
 "code.confirm.title" = "Skriv det igen";
@@ -33,6 +35,7 @@
 "code.enter.title" = "Ange koden";
 "code.footer.set" = "För att lämna ett barns profil, ändra profiler eller öppna inställningar krävs koden.";
 "code.footer.unset" = "Utan en kod kan ett barn själv byta till vilket profil som helst.";
+"code.locked" = "För många felaktiga koder. Vänta en stund och försök igen.";
 "code.remove" = "Ta bort koden";
 "code.section" = "Föräldrakod";
 "code.set" = "Ange en kod";
@@ -114,6 +117,9 @@
 "handoff.aim" = "Visa koden på din TV.";
 "handoff.camera.body" = "Handoff fungerar genom att läsa koden på din TV-skärm. Tillåt åtkomst till kameran i Inställningar och kom sedan tillbaka.";
 "handoff.camera.title" = "Kanal behöver kameran.";
+"handoff.confirm.body %@" = "Fortsätt bara om Apple TV:n framför dig visar koden %@. Den får inloggningen till din tv-tjänst och dina profiler.";
+"handoff.confirm.send" = "Skicka";
+"handoff.confirm.title" = "Skicka din tv-tjänst till den här Apple TV:n?";
 "handoff.finding" = "Hitta ditt Apple TV";
 "handoff.sending" = "Skicka";
 "handoff.sent" = "Skickat";

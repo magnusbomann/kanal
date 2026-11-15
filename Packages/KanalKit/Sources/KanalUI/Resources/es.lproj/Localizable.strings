@@ -26,6 +26,8 @@
 "browse.allSeries" = "Explorar todas las series";
 "browse.movieCategories" = "Películas por género";
 "browse.seriesCategories" = "Series por genero";
+"channels.empty.body" = "Tu servicio de TV no tiene canales en directo. Las películas y series están en sus propias pestañas.";
+"channels.empty.title" = "No hay canales en directo";
 "code.change" = "cambiar el codigo";
 "code.confirm.message" = "Sólo para estar seguro.";
 "code.confirm.title" = "Escríbelo de nuevo";
@@ -33,6 +35,7 @@
 "code.enter.title" = "Introduce el código";
 "code.footer.set" = "El código es necesario para abandonar el perfil de un niño, cambiar perfiles o abrir configuraciones.";
 "code.footer.unset" = "Sin un código, un niño puede cambiar él mismo a cualquier perfil.";
+"code.locked" = "Demasiados códigos incorrectos. Espera un momento e inténtalo de nuevo.";
 "code.remove" = "Quitar el código";
 "code.section" = "codigo parental";
 "code.set" = "Establecer un código";
@@ -114,6 +117,9 @@
 "handoff.aim" = "Señala el código de tu televisor";
 "handoff.camera.body" = "Handoff funciona leyendo el código en la pantalla de su televisor. Permita el acceso a la cámara en Configuración y luego regrese.";
 "handoff.camera.title" = "Kanal necesita la cámara";
+"handoff.confirm.body %@" = "Continúa solo si el Apple TV que tienes delante muestra el código %@. Recibirá el inicio de sesión de tu servicio de TV y tus perfiles.";
+"handoff.confirm.send" = "Enviar";
+"handoff.confirm.title" = "¿Enviar tu servicio de TV a este Apple TV?";
 "handoff.finding" = "Cómo encontrar su Apple TV";
 "handoff.sending" = "Enviando";
 "handoff.sent" = "Enviado";

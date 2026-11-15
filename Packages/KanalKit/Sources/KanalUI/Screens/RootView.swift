@@ -22,8 +22,11 @@ public struct RootView: View {
     @State private var isRepairingSource = false
     #if os(iOS)
     @State private var pairingInvitation: Pairing.Invitation?
-    @State private var presentsPairing = false
     #endif
+    /// The code, asked for before a restricted profile may replace the
+    /// household's TV service from the failure screen.
+    @State private var isUnlockingRepair = false
+    @State private var repairUnlocked = false
 
     public init() {}
 
@@ -124,9 +127,20 @@ public struct RootView: View {
                         username: panel.username, password: panel.password
                     ))
                 } else if let seeded = LaunchOptions.seededSource {
-                    try? await model.add(PlaylistSource(
-                        kind: .m3u, name: "Test", playlistURL: seeded
-                    ))
+                    // Started like any other launch first. Seeding without it
+                    // made every launch a brand-new household — a new owner
+                    // profile and a new copy of the service — which the next
+                    // sync merged with the earlier ones, and after a few
+                    // launches the app was asking which of several "Me" was
+                    // watching instead of doing what the test asked.
+                    await model.start()
+                    if let existing = model.sources.first(where: { $0.playlistURL == seeded }) {
+                        if model.activeSource?.id != existing.id { await model.switchTo(existing) }
+                    } else {
+                        try? await model.add(PlaylistSource(
+                            kind: .m3u, name: "Test", playlistURL: seeded
+                        ))
+                    }
                 } else {
                     await model.start()
                 }
@@ -134,6 +148,22 @@ public struct RootView: View {
                 await model.start()
                 #endif
                 #if DEBUG
+                // A first import lands in two stages — channels, then films
+                // and series — so what a launch argument asks for may not be
+                // there yet when loading "returns". Without this wait every
+                // UI test that starts a film found an empty list and gave up.
+                let wantsMovie = LaunchOptions.autoplayMovieIndex ?? LaunchOptions.detailsMovieIndex
+                let wantsSeries = LaunchOptions.openSeriesIndex
+                let wantsChannel = LaunchOptions.autoplayChannelIndex
+                for _ in 0..<150 {
+                    let library = model.library
+                    let ready = (wantsMovie.map { library.movies.indices.contains($0) } ?? true)
+                        && (wantsSeries.map { library.series.indices.contains($0) } ?? true)
+                        && (wantsChannel.map { library.channelGroups.indices.contains($0) } ?? true)
+                        && (LaunchOptions.autoplayItemID.map { id in library.items.contains { $0.id == id } } ?? true)
+                    if ready { break }
+                    try? await Task.sleep(for: .milliseconds(200))
+                }
                 if let wanted = LaunchOptions.autoplayItemID,
                    let item = model.library.items.first(where: { $0.id == wanted }) {
                     navigator.play(item)
@@ -167,11 +197,16 @@ public struct RootView: View {
             .onOpenURL { url in
                 guard let invitation = Pairing.Invitation(url: url) else { return }
                 pairingInvitation = invitation
-                presentsPairing = true
             }
-            .sheet(isPresented: $presentsPairing) {
-                NavigationStack { HandoffView(invitation: pairingInvitation) }
-                    .kanalEnvironment(model, navigator, purchases, downloads)
+            // Keyed by the invitation itself: a sheet driven by a separate
+            // flag can be built before the value it reads has been set, and
+            // a second link arriving while the first is up was ignored.
+            .sheet(item: $pairingInvitation) { invitation in
+                NavigationStack {
+                    HandoffView(invitation: invitation, requiresConfirmation: true)
+                }
+                .id(invitation)
+                .kanalEnvironment(model, navigator, purchases, downloads)
             }
             #endif
             .sheet(item: $navigator.choosingDownload) { item in
@@ -181,6 +216,17 @@ public struct RootView: View {
             .sheet(isPresented: $isShowingPro) {
                 ProView()
                     .kanalEnvironment(model, navigator, purchases, downloads)
+            }
+            .sheet(isPresented: $isUnlockingRepair, onDismiss: {
+                guard repairUnlocked else { return }
+                repairUnlocked = false
+                isRepairingSource = true
+            }) {
+                ParentalCodeView(purpose: .unlock) { entered in
+                    guard model.parentalCode.matches(entered) else { return false }
+                    repairUnlocked = true
+                    return true
+                }
             }
             .sheet(isPresented: $isRepairingSource) {
                 if let source = model.activeSource {
@@ -260,7 +306,15 @@ public struct RootView: View {
             SourceFailureView(
                 message: message,
                 retry: { Task { await model.refreshActiveSource() } },
-                repair: { isRepairingSource = true }
+                repair: {
+                    // Settings asks for the code before a service can be
+                    // changed; this door led to the same room without it.
+                    if model.needsCodeForSettings {
+                        isUnlockingRepair = true
+                    } else {
+                        isRepairingSource = true
+                    }
+                }
             )
         case .ready:
             MainTabView()
@@ -408,6 +462,10 @@ extension View {
         fullScreenCover(item: item, onDismiss: onDismiss, content: content)
         #endif
     }
+}
+
+extension Pairing.Invitation: Identifiable {
+    public var id: String { key }
 }
 
 extension View {

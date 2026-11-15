@@ -15,6 +15,7 @@ public struct SettingsView: View {
     @State private var isAddingSource = false
     @State private var renaming: PlaylistSource?
     @State private var repairing: PlaylistSource?
+    @State private var isShowingPro = false
     /// Whether the code has been given during this visit. Not remembered:
     /// walking out of settings and back in asks again, which is the behaviour
     /// a parent expects from a lock.
@@ -91,6 +92,10 @@ public struct SettingsView: View {
             repairSourceView(source)
         }
         #endif
+        // A sheet on both platforms, as the root presents it: on Apple TV
+        // that brings the system's own backdrop, where a cover let this
+        // screen show through around the offer.
+        .sheet(isPresented: $isShowingPro) { proView }
     }
 
     private var addSourceView: some View {
@@ -126,14 +131,12 @@ public struct SettingsView: View {
                 #endif
             } else {
                 Button {
-                    navigator?.wantsPro = true
+                    // Presented from here. Asking the root to present it put
+                    // the offer underneath this sheet, where it could not be
+                    // seen — and this is the one place people come to buy.
+                    isShowingPro = true
                 } label: {
-                    Label {
-                        Text(UIStrings.proSettingsUpgrade)
-                    } icon: {
-                        Image(systemName: "sparkles")
-                            .foregroundStyle(KanalColor.accentSolid)
-                    }
+                    UpgradeLabel()
                 }
             }
         }
@@ -273,17 +276,58 @@ public struct SettingsView: View {
         }
     }
 
+    /// The upgrade row's label.
+    ///
+    /// Its own view so it can see whether the row has focus: on Apple TV the
+    /// focused row turns white, and text that stayed white on it left the one
+    /// row that sells the app blank exactly when it was selected.
+    private struct UpgradeLabel: View {
+        @Environment(\.isFocused) private var isFocused
+
+        var body: some View {
+            Label {
+                Text(UIStrings.proSettingsUpgrade)
+                    #if os(tvOS)
+                    .foregroundStyle(isFocused ? Color.black : KanalColor.primaryText)
+                    #endif
+            } icon: {
+                Image(systemName: "sparkles")
+                    .foregroundStyle(KanalColor.accentSolid)
+            }
+        }
+    }
+
+    private var proView: some View {
+        ProView()
+            .environment(model)
+            .environment(purchases)
+            .environment(navigator)
+            .environment(downloads)
+    }
+
+    /// A row that can be chosen. A button on Apple TV, where the focus engine
+    /// only stops on controls — a tap gesture on plain content is never
+    /// focused, so a second service could not be switched to at all.
+    @ViewBuilder
+    private func sourceRow(_ source: PlaylistSource) -> some View {
+        let row = SourceRow(source: source, isActive: source.id == model.activeSource?.id)
+        #if os(tvOS)
+        Button { Task { await model.switchTo(source) } } label: { row }
+        #else
+        row
+            .contentShape(.rect)
+            .onTapGesture { Task { await model.switchTo(source) } }
+        #endif
+    }
+
     private var playlistsSection: some View {
         Section(String(UIStrings.sectionPlaylists)) {
             ForEach(model.sources) { source in
-                SourceRow(source: source, isActive: source.id == model.activeSource?.id)
-                    .contentShape(.rect)
-                    .onTapGesture { Task { await model.switchTo(source) } }
-                    #if !os(tvOS)
-                    .swipeActions(edge: .leading) {
-                        Button(String(UIStrings.rename)) { renaming = source }
-                            .tint(KanalColor.accentSolid)
-                    }
+                sourceRow(source)
+                    // On Apple TV too, where a long press is the only way to
+                    // reach these: it has no swipe, and without the menu a
+                    // service could be added there but never renamed, repaired
+                    // or removed.
                     .contextMenu {
                         Button {
                             renaming = source
@@ -295,9 +339,20 @@ public struct SettingsView: View {
                         } label: {
                             Label(String(UIStrings.changeTVService), systemImage: "wrench.and.screwdriver")
                         }
+                        #if os(tvOS)
+                        Button(role: .destructive) {
+                            downloads?.removeAll(forSource: source.id)
+                            Task { await model.remove(source) }
+                        } label: {
+                            Label(String(UIStrings.remove), systemImage: "trash")
+                        }
+                        #endif
                     }
-                    #endif
                     #if !os(tvOS)
+                    .swipeActions(edge: .leading) {
+                        Button(String(UIStrings.rename)) { renaming = source }
+                            .tint(KanalColor.accentSolid)
+                    }
                     .swipeActions {
                         Button(String(UIStrings.remove), role: .destructive) {
                             // Files belonging to a service that is gone are

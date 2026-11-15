@@ -26,6 +26,8 @@
 "browse.allSeries" = "Browse all series";
 "browse.movieCategories" = "Movies by genre";
 "browse.seriesCategories" = "Series by genre";
+"channels.empty.body" = "Your TV service has no live channels. Films and series are under their own tabs.";
+"channels.empty.title" = "No live channels";
 "code.change" = "Change the code";
 "code.confirm.message" = "Just to be sure.";
 "code.confirm.title" = "Type it again";
@@ -33,6 +35,7 @@
 "code.enter.title" = "Enter the code";
 "code.footer.set" = "The code is needed to leave a child's profile, change profiles, or open settings.";
 "code.footer.unset" = "Without a code, a child can switch to any profile themselves.";
+"code.locked" = "Too many wrong codes. Wait a moment and try again.";
 "code.remove" = "Remove the code";
 "code.section" = "Parental code";
 "code.set" = "Set a code";
@@ -114,6 +117,9 @@
 "handoff.aim" = "Point at the code on your TV";
 "handoff.camera.body" = "Handoff works by reading the code on your TV screen. Allow camera access in Settings, then come back.";
 "handoff.camera.title" = "Kanal needs the camera";
+"handoff.confirm.body %@" = "Only continue if the Apple TV in front of you shows the code %@. It will receive the sign-in for your TV service and your profiles.";
+"handoff.confirm.send" = "Send";
+"handoff.confirm.title" = "Send your TV service to this Apple TV?";
 "handoff.finding" = "Finding your Apple TV";
 "handoff.sending" = "Sending";
 "handoff.sent" = "Sent";

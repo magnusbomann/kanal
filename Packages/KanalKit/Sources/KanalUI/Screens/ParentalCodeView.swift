@@ -35,14 +35,21 @@ public struct ParentalCodeView: View {
     /// Returns whether the code was accepted. A `false` shakes the dots and
     /// clears them; the sheet stays up.
     public let onSubmit: (String) -> Bool
+    /// False when the code screen is a step inside another screen rather than
+    /// a sheet of its own, so that passing it must not close what it guards.
+    private let dismissesOnSuccess: Bool
+    @State private var isLocked = CodeAttempts.isLocked
 
     @State private var entered = ""
     @State private var confirming: String?
     @State private var isWrong = false
     @State private var shake = 0
 
-    public init(purpose: Purpose, onSubmit: @escaping (String) -> Bool) {
+    public init(
+        purpose: Purpose, dismissesOnSuccess: Bool = true, onSubmit: @escaping (String) -> Bool
+    ) {
         self.purpose = purpose
+        self.dismissesOnSuccess = dismissesOnSuccess
         self.onSubmit = onSubmit
     }
 
@@ -77,6 +84,12 @@ public struct ParentalCodeView: View {
         .padding(KanalMetrics.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(KanalColor.background)
+        .task(id: isLocked) {
+            guard isLocked, let until = CodeAttempts.lockedUntil else { return }
+            try? await Task.sleep(for: .seconds(max(until.timeIntervalSinceNow, 0)))
+            guard !Task.isCancelled else { return }
+            isLocked = CodeAttempts.isLocked
+        }
     }
 
     private var title: String {
@@ -86,6 +99,7 @@ public struct ParentalCodeView: View {
 
     private var message: String {
         if confirming != nil { return String(UIStrings.codeConfirmMessage) }
+        if isLocked, purpose == .unlock { return String(UIStrings.codeLocked) }
         if isWrong { return String(UIStrings.codeWrong) }
         return String(purpose.messageResource)
     }
@@ -131,6 +145,7 @@ public struct ParentalCodeView: View {
                     .kanalGlassPill()
             }
             .buttonStyle(.plain)
+            .disabled(isLocked && purpose == .unlock)
         }
     }
 
@@ -175,8 +190,13 @@ public struct ParentalCodeView: View {
 
     private func finish(with code: String) {
         if onSubmit(code) {
-            dismiss()
+            if purpose == .unlock { CodeAttempts.succeeded() }
+            if dismissesOnSuccess { dismiss() }
         } else {
+            if purpose == .unlock {
+                CodeAttempts.failed()
+                isLocked = CodeAttempts.isLocked
+            }
             reject()
         }
     }
@@ -185,6 +205,33 @@ public struct ParentalCodeView: View {
         entered = ""
         isWrong = true
         withAnimation(.default) { shake += 1 }
+    }
+}
+
+/// Slows down guessing.
+///
+/// Four digits is ten thousand codes, and with no limit a patient child gets
+/// through them in an afternoon. After five wrong entries the pad pauses, for
+/// longer each time. Shared by every code screen, so closing one and opening
+/// another does not start the count again. Held in memory only: restarting the
+/// app clears it, which costs more time than the pause it avoids.
+@MainActor
+enum CodeAttempts {
+    private static var failures = 0
+    private(set) static var lockedUntil: Date?
+
+    static var isLocked: Bool { (lockedUntil ?? .distantPast) > .now }
+
+    static func failed() {
+        failures += 1
+        guard failures >= 5 else { return }
+        let pause = min(30 * pow(2, Double(failures - 5)), 900)
+        lockedUntil = Date.now.addingTimeInterval(pause)
+    }
+
+    static func succeeded() {
+        failures = 0
+        lockedUntil = nil
     }
 }
 

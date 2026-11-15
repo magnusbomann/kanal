@@ -12,14 +12,41 @@ public struct HandoffView: View {
     @State private var scanned: Pairing.Invitation?
     @State private var cameraDenied = false
     @State private var preparationError: String?
+    /// An invitation that arrived as a link, rather than through this
+    /// screen's own camera, is only acted on once someone has said yes.
+    ///
+    /// The link names where to send and carries the key to seal it with, and
+    /// sending means the provider's sign-in and the household's profiles.
+    /// Acting on it unasked let anyone on the same network collect all of
+    /// that with one tapped link — and let a child's profile reach a screen
+    /// that Settings keeps behind the code.
+    private let requiresConfirmation: Bool
+    @State private var isConfirmed = false
+    @State private var isUnlocked = false
 
-    public init(invitation: Pairing.Invitation? = nil) {
+    public init(invitation: Pairing.Invitation? = nil, requiresConfirmation: Bool = false) {
         _scanned = State(initialValue: invitation)
+        self.requiresConfirmation = requiresConfirmation && invitation != nil
+    }
+
+    /// The invitation to act on, once nothing stands in the way.
+    private var approved: Pairing.Invitation? {
+        requiresConfirmation && !isConfirmed ? nil : scanned
     }
 
     public var body: some View {
         VStack(spacing: 0) {
-            if scanned == nil && !cameraDenied {
+            if let invitation = scanned, requiresConfirmation, !isConfirmed {
+                if model.needsCodeForSettings, !isUnlocked {
+                    ParentalCodeView(purpose: .unlock, dismissesOnSuccess: false) { entered in
+                        guard model.parentalCode.matches(entered) else { return false }
+                        isUnlocked = true
+                        return true
+                    }
+                } else {
+                    confirmation(for: invitation)
+                }
+            } else if scanned == nil && !cameraDenied {
                 scanner
             } else {
                 status
@@ -30,8 +57,8 @@ public struct HandoffView: View {
         #if !os(tvOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
-        .task(id: scanned) {
-            guard let invitation = scanned else { return }
+        .task(id: approved) {
+            guard let invitation = approved else { return }
             preparationError = nil
             while model.phase == .starting {
                 try? await Task.sleep(for: .milliseconds(50))
@@ -48,14 +75,40 @@ public struct HandoffView: View {
         .onDisappear { guest.cancel() }
     }
 
+    private func confirmation(for invitation: Pairing.Invitation) -> some View {
+        VStack(spacing: KanalMetrics.lg) {
+            Spacer()
+            Image(systemName: "appletv.fill")
+                .font(.system(size: 40))
+                .foregroundStyle(KanalColor.accentSolid)
+            Text(UIStrings.handoffConfirmTitle)
+                .font(KanalFont.section(19))
+                .foregroundStyle(KanalColor.primaryText)
+                .multilineTextAlignment(.center)
+            Text(UIStrings.handoffConfirmBody(invitation.code))
+                .font(KanalFont.body(14))
+                .foregroundStyle(KanalColor.secondaryText)
+                .multilineTextAlignment(.center)
+            Button(String(UIStrings.handoffConfirmSend)) { isConfirmed = true }
+                .buttonStyle(KanalPrimaryButtonStyle())
+                .accessibilityIdentifier("handoff.confirm.send")
+            Button(String(UIStrings.cancel)) { dismiss() }
+                .buttonStyle(KanalSecondaryButtonStyle())
+            Spacer()
+        }
+        .padding(KanalMetrics.lg)
+        .frame(maxWidth: .infinity)
+    }
+
     private var scanner: some View {
         ZStack {
             QRScannerView { code in
                 guard scanned == nil,
                       let url = URL(string: code),
                       let invitation = Pairing.Invitation(url: url)
-                else { return }
+                else { return false }
                 scanned = invitation
+                return true
             } onDenied: {
                 cameraDenied = true
             }
@@ -153,7 +206,8 @@ public struct HandoffView: View {
 
 /// A camera preview that reports QR payloads.
 struct QRScannerView: UIViewControllerRepresentable {
-    let onScan: (String) -> Void
+    /// Returns whether the code was one this screen can use.
+    let onScan: (String) -> Bool
     let onDenied: () -> Void
 
     func makeCoordinator() -> Coordinator {
@@ -171,12 +225,15 @@ struct QRScannerView: UIViewControllerRepresentable {
 
     @MainActor
     final class Coordinator: NSObject, AVCaptureMetadataOutputObjectsDelegate {
-        let onScan: (String) -> Void
+        let onScan: (String) -> Bool
         /// Scanning is one-shot: a QR code fires many times per second and the
-        /// first frame is as good as the fiftieth.
+        /// first frame is as good as the fiftieth. But only a code that was
+        /// accepted ends it — any other QR in view (a router label, a poster)
+        /// used to be the one shot, and the television's own code was then
+        /// never read however long it was held up.
         private var hasScanned = false
 
-        init(onScan: @escaping (String) -> Void) {
+        init(onScan: @escaping (String) -> Bool) {
             self.onScan = onScan
         }
 
@@ -196,8 +253,7 @@ struct QRScannerView: UIViewControllerRepresentable {
             // this callback genuinely arrives on the main actor.
             MainActor.assumeIsolated {
                 guard !hasScanned else { return }
-                hasScanned = true
-                onScan(value)
+                hasScanned = onScan(value)
             }
         }
     }
