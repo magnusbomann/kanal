@@ -19,6 +19,29 @@
 			<key>NSPrivacyAccessedAPITypeReasons</key>
 			<array><string>35F9.1</string></array>
 		</dict>
+		<!-- The three below are used by the bundled decoders (VLCKit, and
+		     FFmpeg on iOS), which ship no manifest of their own. They read
+		     their own settings, check the files they are given to play, and
+		     look at free space before caching. An upload without these is
+		     answered with ITMS-91053. -->
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array><string>CA92.1</string></array>
+		</dict>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array><string>C617.1</string></array>
+		</dict>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryDiskSpace</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array><string>E174.1</string></array>
+		</dict>
 	</array>
 </dict>
 </plist>
