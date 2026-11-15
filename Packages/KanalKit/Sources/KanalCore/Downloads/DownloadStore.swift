@@ -61,6 +61,13 @@ public final class DownloadStore {
             return URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
         }
         try? FileManager.default.createDirectory(at: self.directory, withIntermediateDirectories: true)
+        // Films can be fetched again, so they have no business in a backup:
+        // twenty gigabytes of them would fill or fail an iCloud backup, and
+        // Apple's storage rules say as much.
+        var folder = self.directory
+        var values = URLResourceValues()
+        values.isExcludedFromBackup = true
+        try? folder.setResourceValues(values)
     }
 
     /// tvOS has no durable place for large files: everything an app writes
@@ -96,6 +103,12 @@ public final class DownloadStore {
                 continue
             }
             tasks[record.id] = task
+            // The index is written a second behind the truth, so a task can be
+            // running under a record still saved as waiting. Left that way,
+            // the queue started a second download of the same film.
+            if let index = downloads.firstIndex(where: { $0.id == record.id }) {
+                downloads[index].state = .downloading
+            }
         }
 
         // A record left mid-flight by a crash or a force-quit has no task to
@@ -308,6 +321,11 @@ public final class DownloadStore {
     /// without a network.
     func recordFinished(_ fileName: String, size: Int64) {
         guard let record = downloads.first(where: { $0.fileName == fileName }) else { return }
+        // A download that completed while the app was not running reports
+        // here after the queue may already have restarted it. That second
+        // task has nothing left to fetch and would hold the provider's only
+        // connection while it did.
+        tasks[record.id]?.cancel()
         tasks[record.id] = nil
         update(record.id) {
             $0.state = .finished
@@ -320,6 +338,9 @@ public final class DownloadStore {
 
     func recordFailure(_ fileName: String, message: String) {
         guard let record = downloads.first(where: { $0.fileName == fileName }) else { return }
+        // A late failure from a superseded task must not delete a film that
+        // has since finished.
+        guard !record.isFinished else { return }
         tasks[record.id] = nil
         try? FileManager.default.removeItem(at: fileURL(record))
         update(record.id) {

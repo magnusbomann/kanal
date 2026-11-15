@@ -63,13 +63,12 @@ public struct WatchState: Codable, Sendable, Equatable {
         hiddenCategoryNames = try container.decodeIfPresent(
             Set<String>.self, forKey: .hiddenCategoryNames
         ) ?? []
-        progress = try container.decodeIfPresent(
-            [String: WatchProgress].self, forKey: .progress
-        ) ?? [:]
+        // Entry by entry. A merge between devices can leave one entry
+        // half-written, and one unreadable entry used to make the whole state
+        // undecodable — which emptied that profile's favourites and history.
+        progress = Self.decodeEntries(WatchProgress.self, in: container, forKey: .progress)
         recentIDs = try container.decodeIfPresent([String].self, forKey: .recentIDs) ?? []
-        recentItems = try container.decodeIfPresent(
-            [String: MediaItem].self, forKey: .recentItems
-        ) ?? [:]
+        recentItems = Self.decodeEntries(MediaItem.self, in: container, forKey: .recentItems)
         recentChannelGroupIDs = try container.decodeIfPresent(
             [String].self, forKey: .recentChannelGroupIDs
         ) ?? []
@@ -79,6 +78,57 @@ public struct WatchState: Codable, Sendable, Equatable {
         workingVariants = try container.decodeIfPresent(
             [String: String].self, forKey: .workingVariants
         ) ?? [:]
+        scrubAddresses()
+    }
+
+    /// Rewrites ids from builds that put the stream address in them.
+    ///
+    /// Done on reading, so a file on disk and a snapshot from another device
+    /// are both brought to today's ids, and the address — often the login —
+    /// stops being written anywhere by the next save.
+    private mutating func scrubAddresses() {
+        func hasAddress(_ id: String) -> Bool { id.contains("://") }
+        let scrub = MediaItem.scrubbedID
+        if favoriteIDs.contains(where: hasAddress) { favoriteIDs = Set(favoriteIDs.map(scrub)) }
+        if recentIDs.contains(where: hasAddress) { recentIDs = recentIDs.map(scrub) }
+        if progress.keys.contains(where: hasAddress) {
+            progress = Dictionary(progress.map { key, value in
+                (scrub(key), WatchProgress(
+                    itemID: scrub(value.itemID), position: value.position,
+                    duration: value.duration, updatedAt: value.updatedAt
+                ))
+            }, uniquingKeysWith: { $0.updatedAt >= $1.updatedAt ? $0 : $1 })
+        }
+        if recentItems.keys.contains(where: hasAddress) {
+            recentItems = Dictionary(
+                recentItems.map { (scrub($0.key), $0.value) }, uniquingKeysWith: { first, _ in first }
+            )
+        }
+        for (group, variant) in workingVariants where hasAddress(variant) {
+            workingVariants[group] = scrub(variant)
+        }
+        for (group, variant) in lockedVariants where hasAddress(variant) {
+            lockedVariants[group] = scrub(variant)
+        }
+    }
+
+    /// A dictionary whose unreadable entries are dropped rather than fatal.
+    private static func decodeEntries<Value: Decodable, Key: CodingKey>(
+        _ type: Value.Type,
+        in container: KeyedDecodingContainer<Key>,
+        forKey key: Key
+    ) -> [String: Value] {
+        guard let entries = try? container.decodeIfPresent([String: Tolerant<Value>].self, forKey: key) else {
+            return [:]
+        }
+        return entries.compactMapValues(\.value)
+    }
+
+    private struct Tolerant<Value: Decodable>: Decodable {
+        let value: Value?
+        init(from decoder: any Decoder) throws {
+            value = try? Value(from: decoder)
+        }
     }
 
     public static let fileName = "watch-state.json"
@@ -91,7 +141,12 @@ public struct WatchState: Codable, Sendable, Equatable {
         if recentIDs.count > 200 {
             let removed = Array(recentIDs.suffix(from: 200))
             recentIDs.removeLast(recentIDs.count - 200)
-            for id in removed { recentItems[id] = nil }
+            for id in removed {
+                recentItems[id] = nil
+                // Positions go with the history they belong to. Kept forever,
+                // they grew without limit and were carried to every device.
+                progress[id] = nil
+            }
         }
     }
 

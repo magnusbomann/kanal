@@ -27,8 +27,6 @@ public extension AppModel {
         profileSelectionGeneration &+= 1
         let generation = profileSelectionGeneration
         await flushPendingWatchState()
-        let restored = await storage.load(WatchState.self, from: profile.watchStateFileName)
-            ?? WatchState()
         // A restricted profile's library is a filter and a full re-sort of
         // the catalogue. On Apple TV that froze the picker for seconds when
         // done on the main actor, so it is cut here, before the switch, while
@@ -37,6 +35,12 @@ public extension AppModel {
         let narrowed = await Self.narrow(
             catalogue, with: ContentPolicy(profile: profile, ratings: ratings)
         )
+        // Read last, after the slow part. A sync that lands while the library
+        // is being cut writes this profile's file; a copy taken before that
+        // would be put back over it, and its missing entries then sent to
+        // every device as deletions.
+        let restored = await storage.load(WatchState.self, from: profile.watchStateFileName)
+            ?? WatchState()
         guard generation == profileSelectionGeneration,
               profiles.contains(where: { $0.id == profile.id }) else { return }
         activeProfileID = profile.id

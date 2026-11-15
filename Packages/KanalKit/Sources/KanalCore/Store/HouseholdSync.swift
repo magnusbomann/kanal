@@ -108,7 +108,7 @@ public actor ICloudHouseholdSync: HouseholdSyncing {
     public func pull() throws -> HouseholdSnapshot? {
         store.synchronize()
         if let payload = store.data(forKey: valueKey) {
-            return try decoder.decode(HouseholdSnapshot.self, from: payload)
+            return try decoder.decode(HouseholdSnapshot.self, from: Self.unpacked(payload))
         }
         if let payload = store.data(forKey: previousValueKey) {
             // AppModel migrates any old portal descriptor into Keychain
@@ -131,8 +131,28 @@ public actor ICloudHouseholdSync: HouseholdSyncing {
         try write(snapshot)
     }
 
+    // The snapshot is JSON whose keys repeat thousands of times, and iCloud's
+    // key-value store holds a megabyte. Deflated it is roughly a tenth of the
+    // size, which is the difference between a family's history fitting and
+    // sync stopping for good. JSON begins with "{", so the marker cannot be
+    // mistaken for an uncompressed payload written by an earlier build.
+    private static let packedMarker = Data("KNZ1".utf8)
+
+    static func packed(_ json: Data) -> Data {
+        guard let deflated = try? (json as NSData).compressed(using: .zlib) as Data,
+              deflated.count + packedMarker.count < json.count
+        else { return json }
+        return packedMarker + deflated
+    }
+
+    static func unpacked(_ payload: Data) throws -> Data {
+        guard payload.starts(with: packedMarker) else { return payload }
+        let body = payload.dropFirst(packedMarker.count)
+        return try (Data(body) as NSData).decompressed(using: .zlib) as Data
+    }
+
     private func write(_ snapshot: HouseholdSnapshot) throws {
-        let payload = try encoder.encode(snapshot.sanitizedForSync())
+        let payload = Self.packed(try encoder.encode(snapshot.sanitizedForSync()))
         guard payload.count <= maximumPayloadBytes else {
             throw SyncError.payloadTooLarge
         }

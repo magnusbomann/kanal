@@ -68,14 +68,14 @@ public struct MyLibraryView: View {
 
     @ViewBuilder
     private var downloadsSection: some View {
-        if let downloads, !downloads.downloads.isEmpty {
+        if let downloads, !visibleDownloads.isEmpty {
             List {
                 if downloads.isHeldForPlayback, !downloads.inProgress.isEmpty {
                     Text(UIStrings.downloadHeld)
                         .font(KanalFont.body(13))
                         .foregroundStyle(KanalColor.secondaryText)
                 }
-                ForEach(downloads.downloads) { record in
+                ForEach(visibleDownloads) { record in
                     DownloadRow(record: record) { play(record, in: downloads) }
                         .kanalRowActions(
                             title: String(
@@ -98,10 +98,24 @@ public struct MyLibraryView: View {
         }
     }
 
+    /// The downloads this profile may know about.
+    ///
+    /// Downloads belong to the device, not to a profile, so a film a parent
+    /// saved for themselves sat in a child's library with its title and
+    /// poster — unplayable, but visible, and removable. A restricted profile
+    /// is shown what its own rules allow and nothing else.
+    private var visibleDownloads: [Download] {
+        guard let downloads else { return [] }
+        guard model.isRestricted else { return downloads.downloads }
+        return downloads.downloads.filter { model.canPlay($0.item) }
+    }
+
     @ViewBuilder
     private func storageFooter(_ downloads: DownloadStore) -> some View {
         VStack(alignment: .leading, spacing: KanalMetrics.xs) {
-            Text(UIStrings.downloadsStorage(DownloadSize.text(downloads.totalByteCount)))
+            Text(UIStrings.downloadsStorage(DownloadSize.text(
+                visibleDownloads.reduce(Int64(0)) { $0 + $1.byteCount }
+            )))
                 .font(KanalFont.body(12))
                 .foregroundStyle(KanalColor.tertiaryText)
             #if os(tvOS)
@@ -267,7 +281,7 @@ public struct MyLibraryView: View {
     private var clearTitle: String? {
         switch section {
         case .downloads:
-            (downloads?.downloads.isEmpty ?? true) ? nil : String(UIStrings.downloadsRemoveAll)
+            visibleDownloads.isEmpty ? nil : String(UIStrings.downloadsRemoveAll)
         case .favourites:
             model.watchState.favoriteIDs.isEmpty ? nil : String(UIStrings.favouritesClearAll)
         case .continueWatching:
@@ -279,7 +293,14 @@ public struct MyLibraryView: View {
 
     private func clear() {
         switch section {
-        case .downloads: downloads?.removeAll()
+        case .downloads:
+            // Only what this profile can see — never a grown-up's films from
+            // a child's screen.
+            if model.isRestricted {
+                visibleDownloads.forEach { downloads?.remove($0.id) }
+            } else {
+                downloads?.removeAll()
+            }
         case .favourites: model.clearFavorites()
         case .continueWatching: model.clearWatchHistory()
         }

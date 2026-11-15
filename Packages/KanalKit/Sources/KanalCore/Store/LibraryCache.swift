@@ -13,7 +13,8 @@ import Foundation
 public enum LibraryCache {
 
     private static let magic: UInt32 = 0x4B_4E_4C_31  // "KNL1"
-    private static let version: UInt16 = 2
+    // 3: derived ids carry a fingerprint of the stream address, not the address.
+    private static let version: UInt16 = 3
 
     public struct Snapshot: Sendable {
         public var items: [MediaItem]
@@ -59,7 +60,7 @@ public enum LibraryCache {
                 writer.writeString(item.rawTitle)
             }
 
-            let derivedID = "\(item.rawTitle)|\(stream)"
+            let derivedID = MediaItem.derivedID(rawTitle: item.rawTitle, stream: stream)
             if item.id == derivedID {
                 writer.writeUInt8(0)
             } else {
@@ -121,7 +122,7 @@ public enum LibraryCache {
             guard let hasID = reader.readUInt8() else { return nil }
             let id: String
             if hasID == 0 {
-                id = "\(rawTitle)|\(stream)"
+                id = MediaItem.derivedID(rawTitle: rawTitle, stream: stream)
             } else {
                 guard let stored = reader.readString() else { return nil }
                 id = stored

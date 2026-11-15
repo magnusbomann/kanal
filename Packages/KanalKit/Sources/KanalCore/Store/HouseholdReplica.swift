@@ -39,7 +39,7 @@ public struct HouseholdHistoryStub: Codable, Sendable, Hashable {
     public let rawGroup: String?
 
     public init(item: MediaItem) {
-        id = item.id; kind = item.kind; title = item.title; rawTitle = item.rawTitle
+        id = MediaItem.scrubbedID(item.id); kind = item.kind; title = item.title; rawTitle = item.rawTitle
         season = item.season; episode = item.episode; providerSeriesID = item.providerSeriesID
         seriesName = item.seriesName; year = item.year; category = item.category
         countryCode = item.countryCode; language = item.language
@@ -112,7 +112,7 @@ public struct HouseholdReplica: Codable, Sendable {
         let date = changed.isEmpty ? value.modifiedAt : clean.modifiedAt
         value = clean
         value.modifiedAt = date
-        value.syncRecords = records
+        value.syncRecords = changed.isEmpty ? records : Self.pruned(records, keeping: after)
         observed = value
     }
 
@@ -135,6 +135,7 @@ public struct HouseholdReplica: Codable, Sendable {
         }
         clock = max(clock, remoteRecords.values.map(\.counter).max() ?? 0)
         var merged = Self.materialize(fields)
+        records = Self.pruned(records, keeping: Self.fields(merged))
         merged.modifiedAt = max(value.modifiedAt, incoming.modifiedAt)
         merged.syncRecords = records
         value = merged
@@ -150,6 +151,46 @@ public struct HouseholdReplica: Codable, Sendable {
         if incoming.counter != current.counter { return incoming.counter > current.counter }
         if incoming.deleted != current.deleted { return incoming.deleted }
         return incoming.deviceID > current.deviceID
+    }
+
+    /// Dictionaries whose entries are each one value, versioned as a whole.
+    ///
+    /// Versioning every field of every entry gave one watched title some
+    /// sixteen records, and a household reached iCloud's size limit — after
+    /// which nothing synced again — within weeks. It also let two devices
+    /// each win half of the same entry, leaving one that could not be read.
+    private static let atomicEntries: Set<String> = ["progress", "recentItems"]
+    /// Where a deletion is history rather than a decision. A favourite or a
+    /// profile removed on one device must stay removed; a forgotten film that
+    /// comes back is only a row someone removes again.
+    private static let historyContainers: Set<String> = [
+        "progress", "recentItems", "recentIDs", "recentChannelGroupIDs",
+    ]
+    private static let keptHistoryTombstones = 400
+
+    /// Drops version records that no longer describe anything.
+    ///
+    /// Records were only ever added. One for a value that no longer exists
+    /// and was never deleted says nothing, and tombstones for history pile up
+    /// with every title that ages out of the list.
+    private static func pruned(
+        _ records: [String: HouseholdFieldStamp], keeping fields: [String: Data]
+    ) -> [String: HouseholdFieldStamp] {
+        // "://", as these keys escape it. A record for an id from before
+        // addresses were taken out of ids keeps that address in the cloud for
+        // as long as the record lives, so none are kept.
+        var result = records.filter {
+            ($0.value.deleted || fields[$0.key] != nil) && !$0.key.contains(":~1~1")
+        }
+        let history = result.filter { entry in
+            entry.value.deleted && entry.key.split(separator: "/").contains { historyContainers.contains(String($0)) }
+        }
+        if history.count > keptHistoryTombstones {
+            let stale = history.sorted { ($0.value.counter, $0.key) > ($1.value.counter, $1.key) }
+                .dropFirst(keptHistoryTombstones)
+            for entry in stale { result[entry.key] = nil }
+        }
+        return result
     }
 
     private static let memberships: Set<String> = [
@@ -181,9 +222,19 @@ public struct HouseholdReplica: Codable, Sendable {
             object[group] = keyed
         }
         var result: [String: Data] = [:]
+        func leaf(_ node: Any, at path: [String]) {
+            guard let data = try? JSONSerialization.data(
+                withJSONObject: node, options: [.fragmentsAllowed, .sortedKeys]
+            ) else { return }
+            result[path.map(escape).joined(separator: "/")] = data
+        }
         func walk(_ node: Any, at path: [String]) {
             if let object = node as? [String: Any] {
-                for (key, value) in object { walk(value, at: path + [key]) }
+                if let name = path.last, atomicEntries.contains(name) {
+                    for (key, value) in object { leaf(value, at: path + [key]) }
+                } else {
+                    for (key, value) in object { walk(value, at: path + [key]) }
+                }
             } else if let array = node as? [String], let name = path.last, memberships.contains(name) {
                 for (index, key) in array.enumerated() {
                     let rank = name.hasPrefix("recent") ? index : 0
@@ -251,7 +302,9 @@ public struct HouseholdReplica: Codable, Sendable {
                 return a == b ? $0 < $1 : a > b
             }.prefix(200))
             state.recentChannelGroupIDs = Array(state.recentChannelGroupIDs.prefix(50))
-            state.recentItems = state.recentItems.filter { state.recentIDs.contains($0.key) }
+            let recent = Set(state.recentIDs)
+            state.recentItems = state.recentItems.filter { recent.contains($0.key) }
+            state.progress = state.progress.filter { recent.contains($0.key) }
             states[key] = state
         }
         return .init(modifiedAt: .distantPast, sources: sources, profiles: profiles, watchStates: states)

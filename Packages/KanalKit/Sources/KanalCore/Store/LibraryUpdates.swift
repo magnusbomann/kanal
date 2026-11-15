@@ -48,6 +48,10 @@ public struct LibraryUpdates: Codable, Sendable, Equatable {
         at date: Date = .now
     ) -> LibraryUpdates {
         guard !previous.isEmpty, !current.isEmpty else { return LibraryUpdates() }
+        // A first import arrives in two stages, channels first. Closed between
+        // them, the next launch compared the whole catalogue against the
+        // channels alone and announced every film and series as new.
+        guard !(previous.movies.isEmpty && previous.series.isEmpty) else { return LibraryUpdates() }
 
         let knownMovies = Set(previous.movies.map(movieKey))
         var seenMovies = Set<String>()

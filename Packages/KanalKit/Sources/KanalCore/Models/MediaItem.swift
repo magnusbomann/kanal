@@ -114,3 +114,60 @@ public struct MediaItem: Identifiable, Codable, Sendable, Hashable {
         return String(format: "S%02dE%02d", season, episode)
     }
 }
+
+// MARK: - Identity without the address
+
+public extension MediaItem {
+    /// The id of a playlist entry that brought none of its own.
+    ///
+    /// It has to change when the address does and stay put otherwise, so it
+    /// is made from the title and the stream. But not from the stream's text:
+    /// a provider's stream address routinely *is* the login —
+    /// `/movie/USER/PASS/123.mkv` — and ids are what favourites and history
+    /// are keyed by, which travel to iCloud and into backups. A fingerprint
+    /// identifies the address just as well and says nothing about it.
+    static func derivedID(rawTitle: String, stream: String) -> String {
+        "\(rawTitle)|\(fingerprint(stream))"
+    }
+
+    /// FNV-1a, 64 bits. Chosen for speed — this runs once per entry of a
+    /// four-hundred-thousand-entry catalogue on every launch.
+    static func fingerprint(_ text: String) -> String {
+        var hash: UInt64 = 0xcbf2_9ce4_8422_2325
+        for byte in text.utf8 {
+            hash ^= UInt64(byte)
+            hash = hash &* 0x0000_0100_0000_01b3
+        }
+        let digits = String(hash, radix: 16)
+        return String(repeating: "0", count: 16 - digits.count) + digits
+    }
+
+    /// An id written by an earlier build, with any address in it replaced by
+    /// its fingerprint — the id the same entry is given today.
+    ///
+    /// Covers the scoped forms too ("<source>|<title>|<address>") and the
+    /// "#2" suffix that tells repeated entries apart. Anything without an
+    /// address in it comes back unchanged.
+    static func scrubbedID(_ id: String) -> String {
+        guard let scheme = id.range(of: "://") else { return id }
+        // Walk back from "://" over the scheme's letters to the bar before it.
+        var start = scheme.lowerBound
+        while start > id.startIndex {
+            let previous = id.index(before: start)
+            let character = id[previous]
+            guard character.isLetter || character.isNumber || "+.-".contains(character) else { break }
+            start = previous
+        }
+        guard start > id.startIndex, id[id.index(before: start)] == "|" else { return id }
+
+        var address = id[start...]
+        var suffix = ""
+        if let hash = address.lastIndex(of: "#"),
+           address[address.index(after: hash)...].allSatisfy(\.isNumber),
+           address.index(after: hash) < address.endIndex {
+            suffix = String(address[hash...])
+            address = address[..<hash]
+        }
+        return id[..<start] + fingerprint(String(address)) + suffix
+    }
+}

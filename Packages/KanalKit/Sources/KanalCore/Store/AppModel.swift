@@ -157,6 +157,7 @@ public final class AppModel {
 
     private static let sourcesFile = "sources.json"
     private static let introFile = "intro-completed.json"
+    private static let activeSourceFile = "active-source.json"
     static let profilesFile = "profiles.json"
     private static let syncStampFile = "household-sync-stamp.json"
 
@@ -227,7 +228,14 @@ public final class AppModel {
         householdReplica = await storage.load(HouseholdReplica.self, from: Self.replicaFile)
             ?? HouseholdReplica()
         await syncNow()
-        activeSourceID = sources.first(where: Self.hasConnection)?.id ?? sources.first?.id
+        // The service that was on last time, when it is still there. Without
+        // this a household with two providers was put back on the first one
+        // at every launch, with what looked like an emptied history.
+        let remembered = await storage.load(String.self, from: Self.activeSourceFile)
+            .flatMap(UUID.init(uuidString:))
+        activeSourceID = sources.first(where: { $0.id == remembered && Self.hasConnection($0) })?.id
+            ?? sources.first(where: Self.hasConnection)?.id
+            ?? sources.first?.id
 
         guard let source = activeSource, Self.hasConnection(source) else {
             phase = .welcome
@@ -514,6 +522,7 @@ public final class AppModel {
         invalidateGuideLoads()
         clearLoadedEpisodes()
         activeSourceID = source.id
+        await storage.save(source.id.uuidString, to: Self.activeSourceFile)
         await setCatalogue(.empty)
         guide = nil
         installLibraryUpdates(await storage.load(
@@ -900,6 +909,7 @@ public final class AppModel {
             }
         }
         activeSourceID = activeSource.id
+        await storage.save(activeSource.id.uuidString, to: Self.activeSourceFile)
         invalidateGuideLoads()
         guide = nil
         installLibraryUpdates(nil)
@@ -1373,7 +1383,10 @@ public final class AppModel {
             if shouldAskWhoIsWatching { isChoosingProfile = true }
             else { activeProfileID = profiles.first?.id; isChoosingProfile = false }
         }
-        if let id = activeProfileID { watchState = states[id.uuidString] ?? WatchState() }
+        // A profile the merge has nothing for keeps what this device already
+        // holds. Falling back to an empty state here is how one unreadable
+        // entry became an emptied profile, saved to disk a moment later.
+        if let id = activeProfileID { watchState = states[id.uuidString] ?? watchState }
         if activeSourceID == nil || !sources.contains(where: { $0.id == activeSourceID }) {
             activeSourceID = sources.first?.id
         }
