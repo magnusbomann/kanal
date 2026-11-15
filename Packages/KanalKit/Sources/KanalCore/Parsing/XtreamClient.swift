@@ -46,7 +46,7 @@ public struct XtreamClient: Sendable {
     public let portal: URL
     public let username: String
     public let password: String
-    private let session: URLSession
+    let session: URLSession
 
     public init(portal: URL, username: String, password: String, session: URLSession = .shared) {
         self.portal = portal

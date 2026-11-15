@@ -1,4 +1,5 @@
 import AVFoundation
+import AVKit
 import KanalCore
 import KanalUI
 import SwiftUI
@@ -27,9 +28,18 @@ enum VLCPlayback {
     static func handle(for request: AlternativePlayerRequest) -> AlternativePlayerHandle {
         enableEngineLogging()
         let controller = VLCPlaybackController(request: request)
+        #if os(iOS)
+        var airPlay: (@MainActor () -> Void)?
+        if !request.isLive {
+            airPlay = { @MainActor in controller.beginAirPlay() }
+        }
+        #else
+        let airPlay: (@MainActor () -> Void)? = nil
+        #endif
         return AlternativePlayerHandle(
             surface: AnyView(VLCSurface(controller: controller)),
-            controller: controller
+            controller: controller,
+            airPlay: airPlay
         )
     }
 
@@ -134,6 +144,7 @@ final class VLCPlaybackController: PlaybackControlling {
     private var hasSeekedToStart = false
     private var hasLoadedTracks = false
     private var hasReportedReady = false
+    private var hasReportedPlaceholder = false
     private var hasStopped = false
     /// The view on the phone. The film is drawn here unless a mirrored
     /// television has taken it — see `ExternalDisplay`.
@@ -145,10 +156,7 @@ final class VLCPlaybackController: PlaybackControlling {
     @ObservationIgnored private var relay: AirPlayRelay?
     @ObservationIgnored private var relayView: RelayPlayerView?
     @ObservationIgnored private var relayPolling: Task<Void, Never>?
-    @ObservationIgnored private var routeObserver: (any NSObjectProtocol)?
-    /// A failed attempt is not retried until the person picks a television
-    /// again, so a film that cannot be carried never loops.
-    @ObservationIgnored private var relayBlocked = false
+    @ObservationIgnored private var routePicker: RoutePickerPresenter?
     /// Where VLC picks up again after a failed attempt.
     @ObservationIgnored private var resumeAfterRelay: TimeInterval?
     #endif
@@ -171,13 +179,6 @@ final class VLCPlaybackController: PlaybackControlling {
             MainActor.assumeIsolated {
                 guard let self, !self.hasStopped else { return }
                 self.player.drawable = self.drawable
-            }
-        }
-        if !request.isLive {
-            routeObserver = NotificationCenter.default.addObserver(
-                forName: AVAudioSession.routeChangeNotification, object: nil, queue: .main
-            ) { [weak self] _ in
-                MainActor.assumeIsolated { self?.routeChanged() }
             }
         }
         #endif
@@ -242,12 +243,14 @@ final class VLCPlaybackController: PlaybackControlling {
         if let displayObserver { NotificationCenter.default.removeObserver(displayObserver) }
         displayObserver = nil
         #if os(iOS)
-        if let routeObserver { NotificationCenter.default.removeObserver(routeObserver) }
-        routeObserver = nil
+        routePicker?.dismantle()
+        routePicker = nil
         endRelay()
         #endif
         player.delegate = nil
         proxy = nil
+        // So the next stream knows the provider may still be counting this one.
+        if player.media != nil { SystemPlaybackController.noteStreamReleased() }
         player.stop()
         player.drawable = nil
         player.media = nil
@@ -258,24 +261,23 @@ final class VLCPlaybackController: PlaybackControlling {
     // MARK: AirPlay
 
     #if os(iOS)
-    /// Picking a television in the route picker arrives here as a route
-    /// change. Nothing else ever starts the relay.
-    private func routeChanged() {
+    /// The AirPlay button.
+    ///
+    /// Order matters. iOS decides at the moment a receiver is picked whether
+    /// it gets the picture or only the sound, and gives the picture only when
+    /// a system video player is already playing. Picked while VLC plays, an
+    /// Apple TV becomes a speaker. So the film moves to the system player
+    /// first — repackaged on the phone — and the picker opens after that.
+    func beginAirPlay() {
         guard !hasStopped, !request.isLive, hasReportedReady else { return }
-        guard let route = AirPlayRelay.airPlayRouteID else {
-            relayBlocked = false
+        if let relay, relay.isPlaying || relay.isBuffering {
+            presentRoutePicker()
             return
         }
-        // A HomePod or other speaker is AirPlay too, but takes no picture.
-        // Once one has shown that, films stay in VLC while it is chosen.
-        guard relay == nil, !relayBlocked, !Self.audioOnlyRoutes.contains(route) else { return }
-        beginRelay(route: route)
+        beginRelay()
     }
 
-    /// AirPlay receivers found to take sound only, for the life of the app.
-    private static var audioOnlyRoutes: Set<String> = []
-
-    private func beginRelay(route: String) {
+    private func beginRelay() {
         let start = Double(player.time.intValue) / 1000
         let language = audioTracks.first { $0.id == selectedAudioTrackID }?.languageCode
         let relay = AirPlayRelay(url: request.url, userAgent: "Kanal/1.0 (AppleCoreMedia)", language: language)
@@ -297,16 +299,34 @@ final class VLCPlaybackController: PlaybackControlling {
             guard let self, self.relay === relay else { return }
             switch outcome {
             case .started:
-                self.pollRelay(route: route)
+                self.pollRelay()
+                self.presentRoutePicker()
             case .failed(let position):
                 self.returnToVLC(at: position)
             }
         }
     }
 
-    private func pollRelay(route: String) {
+    private func presentRoutePicker() {
+        guard let host = localView else { return }
+        let picker = routePicker ?? RoutePickerPresenter(in: host)
+        routePicker = picker
+        picker.present { [weak self] in
+            // Closed without a television taking the picture — the person
+            // changed their mind, or picked a speaker. VLC plays on the phone
+            // better than a repackaged copy does, so it takes the film back.
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .seconds(3))
+                guard let self, let relay = self.relay else { return }
+                guard !relay.player.isExternalPlaybackActive, ExternalDisplay.shared.surface == nil
+                else { return }
+                self.returnToVLC(at: relay.position)
+            }
+        }
+    }
+
+    private func pollRelay() {
         relayPolling?.cancel()
-        let started = Date.now
         relayPolling = Task { [weak self] in
             while !Task.isCancelled {
                 guard let self, let relay = self.relay else { return }
@@ -320,16 +340,6 @@ final class VLCPlaybackController: PlaybackControlling {
                     self.returnToVLC(at: relay.position)
                     return
                 }
-                // Video goes to the receiver only if it can show it. If after
-                // a few seconds it has not, this was a speaker, and VLC
-                // plays better than a repackaged copy does on the phone.
-                if !relay.player.isExternalPlaybackActive,
-                   AirPlayRelay.airPlayRouteID == route,
-                   Date.now.timeIntervalSince(started) > 4 {
-                    Self.audioOnlyRoutes.insert(route)
-                    self.returnToVLC(at: relay.position)
-                    return
-                }
                 if self.duration > 0 { self.request.onProgress(self.position, self.duration) }
                 try? await Task.sleep(for: .milliseconds(500))
             }
@@ -337,10 +347,8 @@ final class VLCPlaybackController: PlaybackControlling {
     }
 
     /// Hands the film back to VLC on the phone, where the relay left it.
-    /// Not tried again until the person picks a receiver anew.
     private func returnToVLC(at position: TimeInterval) {
         endRelay()
-        relayBlocked = true
         resumeAfterRelay = position
         isBuffering = true
         player.play()
@@ -444,8 +452,17 @@ final class VLCPlaybackController: PlaybackControlling {
         case .stopped, .ended:
             isBuffering = false
             sample()
-            // Only a recording can end; a broadcast that stops has dropped out.
-            if state == .ended, !isLiveContent { hasEnded = true }
+            guard state == .ended else { break }
+            if isLiveContent {
+                // Only a recording can end. A broadcast that does has dropped
+                // out — or was never the channel, but the provider's short
+                // "offline" clip. Either way this feed is finished, and saying
+                // so is what lets the next one be tried instead of leaving a
+                // frozen last frame on screen.
+                request.onFailure(String(localized: CoreStrings.alternativeEngineFailed))
+            } else if !hasReportedPlaceholder {
+                hasEnded = true
+            }
         default:
             break
         }
@@ -465,8 +482,33 @@ final class VLCPlaybackController: PlaybackControlling {
         request.onProgress(position, duration)
     }
 
+    /// Whether what opened is the provider's stand-in rather than the title.
+    ///
+    /// Measured on a real panel: a film the provider no longer has is answered
+    /// with HTTP 200 and a ten-second MPEG-TS clip reading "This channel is
+    /// currently offline" — video only, no sound. Every real film has sound,
+    /// and a length the container declares up front; this has neither.
+    private var isProviderPlaceholder: Bool {
+        guard !request.isLive else { return false }
+        let length = Double(player.media?.length.intValue ?? 0) / 1000
+        guard length < 120 else { return false }
+        let hasSound = player.audioTrackIndexes.contains { ($0 as? NSNumber)?.intValue ?? -1 >= 0 }
+        return !hasSound
+    }
+
     /// Says, once, that there is a picture.
     private func reportStarted() {
+        guard !hasReportedPlaceholder else { return }
+        if !hasReportedReady, !request.isLive {
+            // Judged once the clock has moved, when the track list is complete.
+            guard player.time.intValue > 0 else { return }
+            if isProviderPlaceholder {
+                hasReportedPlaceholder = true
+                isBuffering = false
+                request.onPlaceholder()
+                return
+            }
+        }
         isBuffering = false
         if !hasReportedReady {
             hasReportedReady = true
@@ -479,8 +521,6 @@ final class VLCPlaybackController: PlaybackControlling {
             resumeAfterRelay = nil
             seek(to: resume)
         }
-        // Picked before the film had started: carry it now.
-        routeChanged()
         #endif
     }
 
@@ -583,6 +623,62 @@ final class RelayPlayerView: UIView {
     }
 
     required init?(coder: NSCoder) { nil }
+}
+#endif
+
+#if os(iOS)
+/// Opens the system AirPlay picker from code.
+///
+/// There is no API for it; the picker is a button, so a hidden one is kept
+/// and pressed. If a future iOS changes that, nothing opens and the film plays
+/// on, on the phone — `present` reports it closed straight away.
+@MainActor
+final class RoutePickerPresenter: NSObject, AVRoutePickerViewDelegate {
+    private let picker = AVRoutePickerView()
+    private var onClose: (() -> Void)?
+
+    init(in host: UIView) {
+        super.init()
+        picker.prioritizesVideoDevices = true
+        picker.delegate = self
+        picker.alpha = 0.011
+        picker.isUserInteractionEnabled = false
+        picker.frame = CGRect(x: host.bounds.midX - 22, y: host.bounds.minY + 8, width: 44, height: 44)
+        host.addSubview(picker)
+    }
+
+    func present(onClose: @escaping () -> Void) {
+        self.onClose = onClose
+        guard let button = Self.button(in: picker) else {
+            closed()
+            return
+        }
+        button.sendActions(for: .touchUpInside)
+    }
+
+    func dismantle() {
+        picker.delegate = nil
+        picker.removeFromSuperview()
+        onClose = nil
+    }
+
+    nonisolated func routePickerViewDidEndPresentingRoutes(_ routePickerView: AVRoutePickerView) {
+        MainActor.assumeIsolated { closed() }
+    }
+
+    private func closed() {
+        let close = onClose
+        onClose = nil
+        close?()
+    }
+
+    private static func button(in view: UIView) -> UIButton? {
+        if let button = view as? UIButton { return button }
+        for child in view.subviews {
+            if let found = button(in: child) { return found }
+        }
+        return nil
+    }
 }
 #endif
 

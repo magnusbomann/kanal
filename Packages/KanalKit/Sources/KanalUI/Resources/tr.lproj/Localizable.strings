@@ -75,6 +75,10 @@
 "download.remove" = "İndirmeyi sil";
 "download.retry" = "Yeniden indir";
 "download.running" = "İndiriliyor";
+"download.version.hint" = "Daha küçük sürümler daha hızlı iner ve daha az yer kaplar.";
+"download.version.standard" = "Standart";
+"download.version.title" = "Bir sürüm seçin";
+"download.version.unknownSize" = "Boyut bilinmiyor";
 "download.waiting" = "Bekliyor";
 "downloads.empty.body" = "Bir film ya da bölüm indirin, bağlantı olmadan izleyin.";
 "downloads.empty.title" = "İndirilen yok";

@@ -18,7 +18,17 @@ public struct LiveStreamRecovery: Sendable {
         self.locked = locked
     }
 
-    public func expired(at now: TimeInterval) -> Bool { now - startedAt >= 20 }
+    /// How many different feeds one search may open.
+    public static let maximumSources = 3
+    /// The whole search, however many feeds it covers.
+    ///
+    /// A minute rather than twenty seconds. Each feed is now waited on for as
+    /// long as it is still sending something, and against a real provider a
+    /// working feed has taken twenty-five seconds to produce a picture — the
+    /// old limit ended the search while the answer was still on its way.
+    public static let searchWindow: TimeInterval = 60
+
+    public func expired(at now: TimeInterval) -> Bool { now - startedAt >= Self.searchWindow }
 
     public mutating func played() {
         lastWorking = current
@@ -41,7 +51,7 @@ public struct LiveStreamRecovery: Sendable {
             attempted = [current]
             return current
         }
-        guard !locked, !expired(at: now), attempted.count < 3,
+        guard !locked, !expired(at: now), attempted.count < Self.maximumSources,
               let next = order.first(where: { !attempted.contains($0) }) else { return nil }
         current = next
         attempted.insert(next)

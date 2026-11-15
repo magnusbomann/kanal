@@ -75,6 +75,10 @@
 "download.remove" = "حذف التنزيل";
 "download.retry" = "التنزيل مرة أخرى";
 "download.running" = "جارٍ التنزيل";
+"download.version.hint" = "النسخ الأصغر تُنزَّل أسرع وتشغل مساحة أقل.";
+"download.version.standard" = "قياسي";
+"download.version.title" = "اختر نسخة";
+"download.version.unknownSize" = "الحجم غير معروف";
 "download.waiting" = "في الانتظار";
 "downloads.empty.body" = "نزّل فيلمًا أو حلقة لتشاهدها دون اتصال.";
 "downloads.empty.title" = "لا توجد تنزيلات";

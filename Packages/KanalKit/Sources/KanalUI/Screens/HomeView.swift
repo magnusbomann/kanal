@@ -377,6 +377,12 @@ public struct HomeView: View {
         }
         .padding(.horizontal, KanalMetrics.lg)
         .padding(.top, KanalMetrics.md)
+        #if os(tvOS)
+        // The buttons sit at the far right and the shelves start at the left,
+        // so pressing up from a card found nothing straight above it and focus
+        // skipped the header — profile switch and settings with it.
+        .focusSection()
+        #endif
     }
 
     private var headerControlSize: CGFloat {

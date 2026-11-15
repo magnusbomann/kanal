@@ -81,6 +81,9 @@ public final class Navigator {
     /// row, the interstitial's own pacing. The shell owns the presentation,
     /// because a view that is dismissing itself cannot present anything.
     public var wantsPro = false
+    /// A film with several versions whose Download was pressed. The shell
+    /// asks which one, so the question can come from a context menu too.
+    public var choosingDownload: MediaItem?
 
     public init() {
         selectedTab = LaunchOptions.startTab.flatMap(AppTab.init(argument:)) ?? .home

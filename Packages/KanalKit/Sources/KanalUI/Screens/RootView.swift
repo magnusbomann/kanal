@@ -44,10 +44,14 @@ public struct RootView: View {
             // tapped, rather than only from the library screen.
             .onAppear {
                 navigator.alternatives = { [weak model, weak downloads] item in
+                    // Any listing of the film counts: the 1080p copy on the
+                    // device plays even when the 4K listing was tapped.
                     if let model,
-                       let file = downloads?.playableFile(for: item, sourceID: model.activeSourceID) {
-                        let local = item.playing(from: file)
-                        return PlaybackPlan(item: local, candidates: [file], owners: [item.id])
+                       let found = downloads?.playableFile(
+                           forAnyOf: model.downloadVariants(for: item), sourceID: model.activeSourceID
+                       ) {
+                        let local = item.playing(from: found.file)
+                        return PlaybackPlan(item: local, candidates: [found.file], owners: [item.id])
                     }
                     return model?.playbackPlan(for: item)
                 }
@@ -170,6 +174,10 @@ public struct RootView: View {
                     .kanalEnvironment(model, navigator, purchases, downloads)
             }
             #endif
+            .sheet(item: $navigator.choosingDownload) { item in
+                DownloadVersionSheet(item: item)
+                    .kanalEnvironment(model, navigator, purchases, downloads)
+            }
             .sheet(isPresented: $isShowingPro) {
                 ProView()
                     .kanalEnvironment(model, navigator, purchases, downloads)
@@ -286,7 +294,14 @@ public struct MainTabView: View {
             Tab(String(CoreStrings.series), systemImage: MediaKind.series.symbolName, value: AppTab.series) {
                 stack(path: $navigator.seriesPath) { SeriesView() }
             }
-            Tab(value: AppTab.search, role: .search) {
+            // An ordinary tab on a Mac: the search role is what hands the tab
+            // bar to UIKit's search controller, which crashes there. See
+            // `SearchFieldSupport`.
+            Tab(
+                String(UIStrings.search), systemImage: "magnifyingglass",
+                value: AppTab.search,
+                role: SearchFieldSupport.usesSystemField ? .search : nil
+            ) {
                 stack(path: $navigator.searchPath) { SearchView() }
             }
         }

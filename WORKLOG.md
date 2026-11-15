@@ -118,6 +118,68 @@ git repo — treat it as a separate deliverable (see `Site/README.md`).
 
 ## Session log
 
+### 2026-11-15 — Mac search crash, and streams that never started
+
+- **Who:** Claude (Fable 5.2), with Magnus.
+- **Goal:** Magnus reported the Mac app closing when searching and when
+  leaving a film, and "nothing streams" lately. Fix and ship to TestFlight.
+- **Did:**
+  - **Search crash (Mac).** Three crash reports from build 202610311528, one
+    stack: `UISearchController` activating inside the tab bar →
+    `-[UIScreen _preferredFocusedWindow]` → `_screenBasedFocusUnsupported`
+    assertion. UIKit bug for the iPad app on a Mac. On a Mac
+    (`isiOSAppOnMac`) `SearchView` now draws its own field
+    (`SearchField` / `SearchFieldSupport`) and the search tab drops
+    `role: .search`. iPhone, iPad and Apple TV keep `.searchable` unchanged.
+  - **Live TV gave up on a clock.** `LiveChannelSession` handed Apple's
+    player to VLC after 3 s, declared the feed dead at 6 s, and stopped after
+    3 feeds / 20 s — each step a new connection on a one-connection account.
+    It now waits on evidence: the system player's own byte-based verdict, a
+    20 s allowance for VLC, an 8 s stall limit once a picture has moved, a
+    0.7 s settle between feeds, and a 60 s search window
+    (`LiveStreamRecovery.searchWindow`). A status pill shows "connecting" /
+    "trying another source" instead of a black screen.
+  - **The provider's offline clip counted as success.** Measured today: a dead
+    channel or film is answered with HTTP 200 and a 10 s, video-only MPEG-TS
+    clip ("This channel is currently offline") from `/auth/…`. 11 of 20
+    sampled Norwegian feeds, 0 of 30 random films, but 3 of the first 4 in the
+    4K category. A feed is now only remembered as working after 12 s of play;
+    VLC reports a live stream that ends as a failure; a film that opens with
+    no sound and no length ≥ 2 min is reported through the new
+    `AlternativePlayerRequest.onPlaceholder`, and `PlayerView` skips to the
+    film's next listing or says it could not be started. The system player
+    retries the clip only when a stream was released in the last minute.
+  - `SystemPlaybackController` shows buffering while opening and releases its
+    item on terminal failure instead of holding the connection paused.
+  - `ExternalDisplaySceneDelegate` ignores external-display scenes on a Mac.
+- **Verified:** `swift test` — 447 tests in 86 suites passed. Unsigned generic
+  iOS and tvOS Debug builds succeed. The real `SystemPlaybackController`, run
+  natively on macOS against the provider: seven live channels moving in
+  0.9–1.2 s, the offline channel reported as `.providerPlaceholder`.
+- **NOT verified:** nothing was run as the iPad app on the Mac — the Mac is
+  not in the development profile and Apple refused to add it (see below), and
+  the simulators are disabled on this machine (CoreSimulator out of date). So
+  the Mac search field, the rewritten live session's UI, and VLC's
+  placeholder detection are compiled and reasoned, not seen running. The
+  "closes when leaving a film" crash left no report of its own; all three
+  reports are the search stack, which a film opened from search would also
+  hit on the way back — likely the same bug, not proven. The provider was
+  fast today, so the slow-evening failure was not reproduced live either.
+- **TestFlight: NOT uploaded.** `./Scripts/upload-testflight.sh both` archived
+  iOS as build 202611151930 (archive succeeded, iCloud entitlement verified)
+  and Apple refused the export with `403
+  FORBIDDEN.REQUIRED_AGREEMENTS_MISSING_OR_EXPIRED`. tvOS was not attempted.
+- **Left open / for next agent:** Magnus, as Account Holder, has to accept the
+  new Program License Agreement (developer.apple.com → Agreements, and
+  App Store Connect → Business). Then rerun `./Scripts/upload-testflight.sh`.
+  The same agreement blocks installing a development build on the Mac
+  ("PLA Update available"). After the TestFlight build installs,
+  check on the Mac: search, play a film from search and close it, a live
+  channel, an offline channel ("Discovery+ Extra 8"), and "Mad Max 2 4K
+  (1981)" (dead on the provider today).
+- **Commits:** none — left uncommitted alongside the pre-existing download
+  work in the tree, for Magnus to review.
+
 ### 2026-10-30 — Pre-release walkthrough on iPhone and Apple TV simulators
 
 - **Who:** Claude (Opus 5.5), with Magnus.

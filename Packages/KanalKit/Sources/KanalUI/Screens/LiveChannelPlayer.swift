@@ -6,6 +6,15 @@ import SwiftUI
 
 /// The session owns source selection; each decoder receives exactly one stream.
 /// This prevents decoder fallback from silently overriding a manual selection.
+///
+/// It waits on evidence, not on a clock. An earlier version gave Apple's
+/// player three seconds, the second decoder three more, and then moved to the
+/// next feed — so on an evening when the provider needed four seconds to
+/// answer, every feed of every channel was abandoned in turn and nothing ever
+/// played. Each of those abandoned attempts was also a fresh connection on an
+/// account that is allowed one. A feed is now only given up on when its
+/// decoder says it failed, when the provider answers with its "offline" clip,
+/// or when a picture that was moving has stopped for good.
 @MainActor @Observable
 final class LiveChannelSession {
     private(set) var system = SystemPlaybackController()
@@ -13,23 +22,61 @@ final class LiveChannelSession {
     private(set) var recovery: LiveStreamRecovery?
     private(set) var stopped = false
     private(set) var waitingForNetwork = false
+    /// Whether a feed played for long enough to be the channel rather than
+    /// the provider's ten-second "this channel is offline" clip.
     private(set) var hasPlayed = false
+    /// How many feeds this search has opened, and how many of them the
+    /// provider answered with its offline clip.
+    private(set) var attempts = 0
+    private var offlineAttempts = 0
     private var connected: Bool?
     private var monitor: NWPathMonitor?
     private var generation = 0
     private var alternativeFailed = false
-    private var attemptStarted: TimeInterval = 0
+    private var triedAlternative = false
+    private var isSettling = false
+    private var alternativeStarted: TimeInterval = 0
+    private var attemptBegan: TimeInterval = 0
     private var lastPosition: TimeInterval = 0
     private var lastProgress: TimeInterval = 0
-    private var currentPlaying = false
+    /// When the picture first moved on this attempt.
+    private var firstProgress: TimeInterval?
+    /// Set once this attempt has outlasted the offline clip.
+    private var confirmed = false
     private var builder: AlternativePlayerBuilder?
     private var variants: [MediaItem] = []
     private var onPlayed: ((String) -> Void)?
 
+    /// Longer than the provider's offline clip, which is ten seconds and
+    /// plays perfectly. Anything still moving after this is the channel.
+    private static let confirmAfter: TimeInterval = 12
+    /// How long a picture that was moving may stand still before the feed is
+    /// treated as gone.
+    private static let stallLimit: TimeInterval = 8
+    /// The second decoder reports no byte counts to wait on, so it gets a
+    /// plain allowance — generous, because it is only reached after Apple's
+    /// player has already refused the stream.
+    private static let alternativePatience: TimeInterval = 20
+    /// The backstop for a feed that neither plays nor fails. The system
+    /// player normally reaches its own verdict well inside this.
+    private static let openingCeiling: TimeInterval = 35
+    /// Lets the provider stop counting the feed just released before the next
+    /// one is asked for.
+    private static let connectionSettle: Duration = .milliseconds(700)
+
     var controller: any PlaybackControlling { alternative?.controller ?? system }
     var currentID: String? { recovery?.current }
     var locked: Bool { recovery?.locked == true }
-    var isCurrentPlaying: Bool { currentPlaying && !stopped && !waitingForNetwork && controller.isPlaying }
+    var isCurrentPlaying: Bool {
+        firstProgress != nil && !stopped && !waitingForNetwork && controller.isPlaying
+    }
+    /// True from the moment a feed is asked for until its picture moves.
+    var isOpening: Bool {
+        !stopped && !waitingForNetwork && recovery != nil && firstProgress == nil
+    }
+    /// True when the search ended because the provider itself said, for every
+    /// feed tried, that the channel is off the air.
+    var endedOffline: Bool { stopped && attempts > 0 && offlineAttempts == attempts }
     private var now: TimeInterval { ProcessInfo.processInfo.systemUptime }
 
     func start(variants: [MediaItem], selected: String, locked: Bool,
@@ -62,7 +109,7 @@ final class LiveChannelSession {
             // An exhausted search stays exhausted even if connectivity changes.
             guard !stopped else { return }
             recovery?.retry(at: now)
-            openCurrent()
+            beginSearch()
         }
     }
 
@@ -73,17 +120,25 @@ final class LiveChannelSession {
         recovery = LiveStreamRecovery(order: variants.map(\.id), selected: id,
                                       locked: locked, now: now)
         stopped = false
-        if connected == true { openCurrent() }
+        if connected == true { beginSearch() }
     }
 
     func retry() {
         recovery?.retry(at: now)
         stopped = false
-        if connected == true { openCurrent() }
+        if connected == true { beginSearch() }
+    }
+
+    /// A deliberate start: the count of what has been tried begins again.
+    private func beginSearch() {
+        attempts = 0
+        offlineAttempts = 0
+        openCurrent(settling: false)
     }
 
     private func stopEngines() {
         generation += 1
+        isSettling = false
         system.stop()
         alternative?.controller.stop()
         alternative = nil
@@ -96,25 +151,44 @@ final class LiveChannelSession {
         stopEngines()
     }
 
-    private func openCurrent() {
+    private func openCurrent(settling: Bool) {
         stopEngines()
         guard let item = variants.first(where: { $0.id == currentID }) else {
             stopped = true
             return
         }
-        attemptStarted = now
-        lastProgress = now
         lastPosition = 0
-        currentPlaying = false
+        firstProgress = nil
+        confirmed = false
+        triedAlternative = false
+        attempts += 1
         // A new controller also isolates delayed KVO callbacks from old attempts.
         system = SystemPlaybackController()
+        guard settling else {
+            begin(item)
+            return
+        }
+        isSettling = true
+        let token = generation
+        Task { [weak self] in
+            try? await Task.sleep(for: Self.connectionSettle)
+            guard let self, self.generation == token, self.isSettling else { return }
+            self.isSettling = false
+            self.begin(item)
+        }
+    }
+
+    private func begin(_ item: MediaItem) {
+        attemptBegan = now
+        lastProgress = now
         system.start(plan: PlaybackPlan(item: item, candidates: [item.streamURL],
                                         owners: [item.id]), resumingAt: nil)
     }
 
-    private func tryAlternative() -> Bool {
-        guard alternative == nil, let builder,
+    private func tryAlternative(at time: TimeInterval) -> Bool {
+        guard alternative == nil, !triedAlternative, let builder,
               let item = variants.first(where: { $0.id == currentID }) else { return false }
+        triedAlternative = true
         system.stop()
         generation += 1
         let token = generation
@@ -127,41 +201,62 @@ final class LiveChannelSession {
                 self.alternativeFailed = true
             }, onClose: {}
         ))
+        alternativeStarted = time
         lastPosition = 0
+        firstProgress = nil
         return true
     }
 
     /// Called by a cancellable view task. Only advancing playback confirms success;
     /// a ready decoder or an open socket alone must not mark a dead feed as good.
     func tick() {
-        guard connected == true, !waitingForNetwork, !stopped, recovery != nil else { return }
+        guard connected == true, !waitingForNetwork, !stopped, !isSettling, recovery != nil else { return }
         let time = now
         let position = controller.position
         if controller.isPlaying, position.isFinite, position > lastPosition + 0.05 {
             lastProgress = time
-            if !currentPlaying {
+            if firstProgress == nil { firstProgress = time }
+            if !confirmed, let firstProgress, time - firstProgress >= Self.confirmAfter {
+                confirmed = true
+                hasPlayed = true
                 recovery?.played()
                 if let currentID { onPlayed?(currentID) }
-                currentPlaying = true
             }
-            hasPlayed = true
         }
         lastPosition = position
-        let working = currentPlaying && time - lastProgress < 8
-        let failed = alternative == nil ? system.failure != nil : alternativeFailed
-        if working && !failed { return }
-        // A user's pause has no buffering and no terminal error. Leave it alone.
-        if currentPlaying, !controller.isPlaying, !controller.isBuffering, !failed,
-           recovery?.lastWorking == currentID { return }
-        if recovery?.expired(at: time) == true && recovery?.lastWorking != currentID {
-            finish()
+
+        let engineFailed = alternative == nil ? system.failure != nil : alternativeFailed
+        if firstProgress != nil, !engineFailed {
+            if time - lastProgress < Self.stallLimit { return }
+            // A user's pause has no buffering and no terminal error. Leave it alone.
+            if !controller.isPlaying, !controller.isBuffering { return }
+            advance(at: time)
             return
         }
-        if failed || time - attemptStarted >= 6 || (hasPlayed && time - lastProgress >= 8) {
-            if recovery?.lastWorking != currentID, alternative == nil, time - attemptStarted < 6, tryAlternative() { return }
-            if recovery?.failed(at: time) != nil { openCurrent() } else { finish() }
-        } else if time - attemptStarted >= 3, alternative == nil {
-            _ = tryAlternative()
+
+        if alternative == nil {
+            // No verdict yet means the system player is still waiting on
+            // evidence of its own: it keeps going while bytes arrive and
+            // reports a failure when they stop.
+            guard let failure = system.failure else {
+                if time - attemptBegan >= Self.openingCeiling { advance(at: time) }
+                return
+            }
+            if failure == .providerPlaceholder { offlineAttempts += 1 }
+            if failure.shouldTryAlternativeEngine, tryAlternative(at: time) { return }
+            advance(at: time)
+        } else if alternativeFailed || time - alternativeStarted >= Self.alternativePatience {
+            advance(at: time)
+        }
+    }
+
+    /// Reopens this feed if it had been the channel, moves to the next one if
+    /// not, and stops when the search has nothing left.
+    private func advance(at time: TimeInterval) {
+        if recovery?.failed(at: time) != nil {
+            openCurrent(settling: true)
+        } else {
+            finish()
         }
     }
 
@@ -209,11 +304,20 @@ struct LiveChannelPlayer: View {
                     onClose: closePlayback
                 )
             }
+            if session.isOpening, !session.waitingForNetwork {
+                // Says what is happening instead of leaving a black screen. A
+                // feed can take many seconds to answer, and a wait that says
+                // nothing is the one people read as the app being broken.
+                PlaybackStallPill(stage: openingStage)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.top, KanalMetrics.xxl)
+                    .allowsHitTesting(false)
+            }
             if session.waitingForNetwork || session.stopped {
                 VStack(spacing: KanalMetrics.md) {
-                    Text(session.waitingForNetwork ? UIStrings.streamWaiting : UIStrings.streamSearchStopped)
+                    Text(stoppedTitle)
                         .font(KanalFont.section(17))
-                    Text(session.waitingForNetwork ? UIStrings.streamWaitingBody : UIStrings.streamSearchStoppedBody)
+                    Text(stoppedBody)
                         .font(KanalFont.body(13))
                     Button(String(UIStrings.tryAgain)) { session.retry() }
                         .buttonStyle(KanalPrimaryButtonStyle(size: 14))
@@ -258,6 +362,23 @@ struct LiveChannelPlayer: View {
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
         #endif
+    }
+
+    /// "Connecting" for the first feed, "trying another source" after that.
+    private var openingStage: PlaybackStage {
+        let count = min(variants.count, LiveStreamRecovery.maximumSources)
+        guard session.attempts > 1, count > 1 else { return .connecting }
+        return .switchingSource(number: min(session.attempts, count), count: count)
+    }
+
+    private var stoppedTitle: LocalizedStringResource {
+        if session.waitingForNetwork { return UIStrings.streamWaiting }
+        return session.endedOffline ? UIStrings.playbackPlaceholderTitle : UIStrings.streamSearchStopped
+    }
+
+    private var stoppedBody: LocalizedStringResource {
+        if session.waitingForNetwork { return UIStrings.streamWaitingBody }
+        return session.endedOffline ? UIStrings.playbackPlaceholderBody : UIStrings.streamSearchStoppedBody
     }
 
     private func closePlayback() {

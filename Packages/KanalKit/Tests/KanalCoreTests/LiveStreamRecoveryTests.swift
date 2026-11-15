@@ -13,9 +13,17 @@ struct LiveStreamRecoveryTests {
 
     @Test func decoderChangesCannotExtendDeadline() {
         var recovery = LiveStreamRecovery(order: ["a", "b"], selected: "a", locked: false, now: 10)
-        #expect(!recovery.expired(at: 29.9))
-        #expect(recovery.expired(at: 30))
-        #expect(recovery.failed(at: 30) == nil)
+        #expect(!recovery.expired(at: 69.9))
+        #expect(recovery.expired(at: 70))
+        #expect(recovery.failed(at: 70) == nil)
+    }
+
+    /// A feed that is still answering after twenty seconds is slow, not dead.
+    /// Measured against a real provider, a working one has taken twenty-five.
+    @Test func aSlowFeedIsNotCutOffAtTwentySeconds() {
+        var recovery = LiveStreamRecovery(order: ["a", "b"], selected: "a", locked: false, now: 0)
+        #expect(!recovery.expired(at: 25))
+        #expect(recovery.failed(at: 25) == "b")
     }
 
     @Test func retriesWorkingSourceBeforeSwitching() {

@@ -26,6 +26,10 @@ public final class DownloadStore {
     @ObservationIgnored private let directory: URL
     @ObservationIgnored private var session: URLSession?
     @ObservationIgnored private var tasks: [String: URLSessionDownloadTask] = [:]
+    /// Bytes per second per download, smoothed so the time left does not
+    /// jump about with every burst.
+    public private(set) var rates: [String: Double] = [:]
+    @ObservationIgnored private var lastSample: [String: (time: Date, bytes: Int64)] = [:]
     @ObservationIgnored private var saveTask: Task<Void, Never>?
     @ObservationIgnored private let makeSession: (URLSessionDelegate) -> URLSession
 
@@ -116,6 +120,29 @@ public final class DownloadStore {
     public func download(for itemID: String, sourceID: UUID?) -> Download? {
         let key = Download.key(itemID: itemID, sourceID: sourceID)
         return downloads.first { $0.id == key }
+    }
+
+    /// The record for whichever listing of a film was downloaded. A film
+    /// listed as 4K and 1080p is one film: downloading either is having it.
+    public func download(forAnyOf items: [MediaItem], sourceID: UUID?) -> Download? {
+        let records = items.compactMap { download(for: $0.id, sourceID: sourceID) }
+        return records.first(where: \.isFinished) ?? records.first(where: { $0.state.isActive }) ?? records.first
+    }
+
+    /// The downloaded file among a film's listings, and which listing it is.
+    public func playableFile(forAnyOf items: [MediaItem], sourceID: UUID?) -> (file: URL, item: MediaItem)? {
+        for item in items {
+            if let file = playableFile(for: item, sourceID: sourceID) { return (file, item) }
+        }
+        return nil
+    }
+
+    /// Seconds left, from the recent speed. Nil until there is a speed and a
+    /// size to measure against.
+    public func secondsRemaining(for record: Download) -> TimeInterval? {
+        guard record.state == .downloading, record.expectedByteCount > record.byteCount,
+              let rate = rates[record.id], rate > 0 else { return nil }
+        return Double(record.expectedByteCount - record.byteCount) / rate
     }
 
     /// The local file to play instead of going to the provider, when there is
@@ -258,6 +285,19 @@ public final class DownloadStore {
 
     func recordProgress(_ fileName: String, written: Int64, expected: Int64) {
         guard let record = downloads.first(where: { $0.fileName == fileName }) else { return }
+        let now = Date.now
+        if let last = lastSample[record.id] {
+            let elapsed = now.timeIntervalSince(last.time)
+            if elapsed >= 2 {
+                let current = Double(written - last.bytes) / elapsed
+                if current >= 0 {
+                    rates[record.id] = rates[record.id].map { $0 * 0.7 + current * 0.3 } ?? current
+                }
+                lastSample[record.id] = (now, written)
+            }
+        } else {
+            lastSample[record.id] = (now, written)
+        }
         update(record.id, persisting: false) {
             $0.byteCount = written
             if expected > 0 { $0.expectedByteCount = expected }

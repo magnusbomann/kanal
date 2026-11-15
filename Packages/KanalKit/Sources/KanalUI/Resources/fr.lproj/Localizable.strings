@@ -75,6 +75,10 @@
 "download.remove" = "Supprimer le téléchargement";
 "download.retry" = "Télécharger à nouveau";
 "download.running" = "Téléchargement";
+"download.version.hint" = "Les versions plus légères se téléchargent plus vite et prennent moins de place.";
+"download.version.standard" = "Standard";
+"download.version.title" = "Choisir une version";
+"download.version.unknownSize" = "Taille inconnue";
 "download.waiting" = "En attente";
 "downloads.empty.body" = "Téléchargez un film ou un épisode et regardez-le sans connexion.";
 "downloads.empty.title" = "Aucun téléchargement";

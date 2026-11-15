@@ -651,6 +651,18 @@ public enum UIStrings {
         "licenses.relink",
         "The LGPL notice: states the viewer's right to obtain and substitute their own build of the library"
     )
+    public static let downloadVersionTitle = text(
+        "download.version.title", "Heading of the sheet offering a film's versions to download"
+    )
+    public static let downloadVersionHint = text(
+        "download.version.hint", "Under the versions: why a smaller one might be the better choice"
+    )
+    public static let downloadVersionUnknownSize = text(
+        "download.version.unknownSize", "A version whose file size the provider does not state"
+    )
+    public static let downloadVersionStandard = text(
+        "download.version.standard", "A version whose picture quality the provider does not state"
+    )
     public static let creditFFmpegPurpose = text(
         "credit.ffmpeg.purpose", "What FFmpeg does inside Kanal: makes films AirPlay-able"
     )

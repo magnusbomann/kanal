@@ -99,8 +99,8 @@ public final class SystemPlaybackController: PlaybackControlling {
         statusObservation = nil
         bufferObservation = nil
         rateObservation = nil
-        player.pause()
-        player.replaceCurrentItem(with: nil)
+        isBuffering = false
+        release()
     }
 
     public func snapshot() -> (position: TimeInterval, duration: TimeInterval) {
@@ -220,8 +220,28 @@ public final class SystemPlaybackController: PlaybackControlling {
 
     /// Lets go of the current stream without tearing down the controller.
     private func release() {
+        if player.currentItem != nil { Self.noteStreamReleased() }
         player.pause()
         player.replaceCurrentItem(with: nil)
+    }
+
+    /// When any player in the app last let go of a stream.
+    ///
+    /// A provider that counts connections goes on counting one for a while
+    /// after it closes, and answers the next request with its "offline" clip.
+    /// That is worth one patient retry — but only then. With nothing recently
+    /// released, the same clip means what it says, and retrying it only makes
+    /// someone wait twice to be told a channel is off the air.
+    private static var lastStreamRelease: ContinuousClock.Instant?
+
+    /// Called by whichever engine closes a stream, this one or the second.
+    public static func noteStreamReleased() {
+        lastStreamRelease = .now
+    }
+
+    private static var releasedAStreamRecently: Bool {
+        guard let lastStreamRelease else { return false }
+        return ContinuousClock.now - lastStreamRelease < .seconds(60)
     }
 
     // MARK: Playing one candidate
@@ -239,6 +259,10 @@ public final class SystemPlaybackController: PlaybackControlling {
         playerItem.automaticallyPreservesTimeOffsetFromLive = kind == .liveTV
 
         observe(playerItem, url: url)
+        // Opening is waiting, and the controls should say so. The observer
+        // only reports changes, so without this a stream that is still
+        // connecting looks exactly like one that is idle.
+        isBuffering = true
         player.replaceCurrentItem(with: playerItem)
         player.play()
         loadTracks(from: asset, item: playerItem)
@@ -339,7 +363,10 @@ public final class SystemPlaybackController: PlaybackControlling {
         // the container and waiting would only add up: four guesses, four
         // pointless pauses, on every film that never had a chance.
         let openedAConnection = plan.isVariantStart(candidateIndex)
-        if reason.mayBeConnectionLimit, !hasRetriedForConnection, openedAConnection {
+        // The offline clip is only suspect when a stream was let go moments
+        // ago; otherwise the provider is simply saying the feed is down.
+        let worthRetrying = reason != .providerPlaceholder || Self.releasedAStreamRecently
+        if reason.mayBeConnectionLimit, worthRetrying, !hasRetriedForConnection, openedAConnection {
             hasRetriedForConnection = true
             let index = candidateIndex
             release()
@@ -359,8 +386,11 @@ public final class SystemPlaybackController: PlaybackControlling {
 
         guard candidateIndex + 1 < plan.candidates.count else {
             isSwitchingSource = false
+            isBuffering = false
             failure = reason
-            player.pause()
+            // Let go rather than pause: a paused item keeps its connection,
+            // and the provider goes on counting it against the next attempt.
+            release()
             return
         }
         // Crossing into a different feed needs the same pause a deliberate
@@ -410,9 +440,18 @@ public final class SystemPlaybackController: PlaybackControlling {
                         self.advance(after: nil, url: url, because: .providerPlaceholder)
                         return
                     }
+                    // The same clip stands in for a film the provider no
+                    // longer has. Told apart from a genuinely short title by
+                    // having no sound, which no real film lacks.
+                    if self.plan?.item.kind != .liveTV, Self.isPlaceholderLength(item.duration),
+                       !item.tracks.contains(where: { $0.assetTrack?.mediaType == .audio }) {
+                        self.advance(after: nil, url: url, because: .providerPlaceholder)
+                        return
+                    }
                     self.timeout?.cancel()
                     self.failure = nil
                     self.isSwitchingSource = false
+                    self.isBuffering = !item.isPlaybackLikelyToKeepUp
                     self.playingOwnerID = self.plan?.owner(at: self.candidateIndex)
                     let seconds = item.duration.seconds
                     self.duration = seconds.isFinite ? seconds : 0

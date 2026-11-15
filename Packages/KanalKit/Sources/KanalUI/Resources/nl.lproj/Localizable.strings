@@ -75,6 +75,10 @@
 "download.remove" = "Verwijder download";
 "download.retry" = "Opnieuw downloaden";
 "download.running" = "Downloaden";
+"download.version.hint" = "Kleinere versies downloaden sneller en nemen minder ruimte in.";
+"download.version.standard" = "Standaard";
+"download.version.title" = "Kies een versie";
+"download.version.unknownSize" = "Grootte onbekend";
 "download.waiting" = "Wachten";
 "downloads.empty.body" = "Download een film of aflevering en kijk zonder verbinding.";
 "downloads.empty.title" = "Niets gedownload";

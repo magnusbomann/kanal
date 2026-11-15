@@ -39,6 +39,9 @@ final class ExternalDisplaySceneDelegate: UIResponder, UIWindowSceneDelegate {
         options connectionOptions: UIScene.ConnectionOptions
     ) {
         guard let scene = scene as? UIWindowScene else { return }
+        // A Mac has no television to mirror to. Should it ever offer a second
+        // screen as one, the film must stay in the window being looked at.
+        guard !ProcessInfo.processInfo.isiOSAppOnMac else { return }
         let controller = UIViewController()
         controller.view.backgroundColor = .black
 

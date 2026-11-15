@@ -75,6 +75,10 @@
 "download.remove" = "Radera nedladdning";
 "download.retry" = "Ladda ner igen";
 "download.running" = "Laddar ner";
+"download.version.hint" = "Mindre versioner laddas ner snabbare och tar mindre plats.";
+"download.version.standard" = "Standard";
+"download.version.title" = "Välj version";
+"download.version.unknownSize" = "Okänd storlek";
 "download.waiting" = "Väntar";
 "downloads.empty.body" = "Ladda ner en film eller ett avsnitt och se den utan uppkoppling.";
 "downloads.empty.title" = "Inget nedladdat";

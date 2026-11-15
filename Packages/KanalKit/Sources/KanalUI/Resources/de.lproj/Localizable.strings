@@ -75,6 +75,10 @@
 "download.remove" = "Download löschen";
 "download.retry" = "Erneut laden";
 "download.running" = "Wird geladen";
+"download.version.hint" = "Kleinere Versionen laden schneller und brauchen weniger Platz.";
+"download.version.standard" = "Standard";
+"download.version.title" = "Version wählen";
+"download.version.unknownSize" = "Größe unbekannt";
 "download.waiting" = "Wartet";
 "downloads.empty.body" = "Lade einen Film oder eine Folge, dann läuft er auch ohne Verbindung.";
 "downloads.empty.title" = "Nichts geladen";

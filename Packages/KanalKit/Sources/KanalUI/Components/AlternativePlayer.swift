@@ -22,6 +22,11 @@ public struct AlternativePlayerRequest {
     /// Called as playback advances, so watch progress still gets recorded.
     public let onProgress: @MainActor (TimeInterval, TimeInterval) -> Void
     public let onFailure: @MainActor (String) -> Void
+    /// Called instead of `onReady` when what opened is not the title at all
+    /// but the provider's stand-in for a stream it does not have — a short
+    /// silent clip saying so. It decodes perfectly, which is why the engine
+    /// has to name it: left alone it counts as the film having played.
+    public let onPlaceholder: @MainActor () -> Void
     /// The way out. Without it a viewer has to force-quit the app to stop
     /// watching, which is exactly what happened before this existed.
     public let onClose: @MainActor () -> Void
@@ -35,6 +40,7 @@ public struct AlternativePlayerRequest {
         onReady: @escaping @MainActor () -> Void,
         onProgress: @escaping @MainActor (TimeInterval, TimeInterval) -> Void,
         onFailure: @escaping @MainActor (String) -> Void,
+        onPlaceholder: @escaping @MainActor () -> Void = {},
         onClose: @escaping @MainActor () -> Void
     ) {
         self.url = url
@@ -45,6 +51,7 @@ public struct AlternativePlayerRequest {
         self.onReady = onReady
         self.onProgress = onProgress
         self.onFailure = onFailure
+        self.onPlaceholder = onPlaceholder
         self.onClose = onClose
     }
 }
@@ -59,10 +66,20 @@ public struct AlternativePlayerRequest {
 public struct AlternativePlayerHandle {
     public let surface: AnyView
     public let controller: any PlaybackControlling
+    /// The engine's own way to AirPlay, when it has one. The system route
+    /// picker cannot send this engine's picture — choosing a television there
+    /// moves only the sound — so an engine that can do better says so here
+    /// and the chrome shows its button instead of the picker.
+    public let airPlay: (@MainActor () -> Void)?
 
-    public init(surface: AnyView, controller: any PlaybackControlling) {
+    public init(
+        surface: AnyView,
+        controller: any PlaybackControlling,
+        airPlay: (@MainActor () -> Void)? = nil
+    ) {
         self.surface = surface
         self.controller = controller
+        self.airPlay = airPlay
     }
 }
 

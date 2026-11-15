@@ -163,6 +163,9 @@ final class AirPlayRelay {
                     // asked for, so the clock is set from where it really is.
                     self.offset = max(session.origin, 0)
                     let item = AVPlayerItem(url: address.appendingPathComponent("index.m3u8"))
+                    // Read as far ahead as what is written allows, rather than
+                    // the few seconds a live playlist gets by default.
+                    item.preferredForwardBufferDuration = 60
                     self.player.replaceCurrentItem(with: item)
                     // A playlist still being written opens at its live edge,
                     // seconds into the film, and a seek before the item is
@@ -261,13 +264,15 @@ final class RemuxSession: @unchecked Sendable {
         return cleaned ? 0 : field(state.pointee)
     }
 
-    /// Two whole segments listed is enough for AVPlayer to start and keep
-    /// going while the rest is written.
+    /// Twenty seconds ready before the television starts. With two segments
+    /// it began playing right at the edge of what was written and stalled
+    /// every time the provider slowed — measured as stutter on a real Apple
+    /// TV. A cushion up front costs a few seconds once instead.
     var isPlayable: Bool {
         guard let text = try? String(contentsOf: directory.appendingPathComponent("index.m3u8"), encoding: .utf8)
         else { return false }
         let segments = text.components(separatedBy: "#EXTINF").count - 1
-        return segments >= 2 || (segments >= 1 && text.contains("#EXT-X-ENDLIST"))
+        return segments >= 5 || (segments >= 1 && text.contains("#EXT-X-ENDLIST"))
     }
 
     func cancel() {
@@ -338,7 +343,9 @@ final class HLSServer: @unchecked Sendable {
     }
 
     private func accept(_ connection: NWConnection) {
-        connection.start(queue: queue)
+        // Each request on its own queue: the television fetches the playlist
+        // and the next segment at once, and one should not wait on the other.
+        connection.start(queue: DispatchQueue(label: "Kanal AirPlay connection", qos: .userInitiated))
         connection.receive(minimumIncompleteLength: 1, maximumLength: 16_384) { [weak self] data, _, _, _ in
             guard let self, let data, let request = String(data: data, encoding: .utf8) else {
                 connection.cancel()

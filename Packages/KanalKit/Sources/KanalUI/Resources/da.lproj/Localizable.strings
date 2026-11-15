@@ -75,6 +75,10 @@
 "download.remove" = "Slet overførsel";
 "download.retry" = "Hent igen";
 "download.running" = "Henter";
+"download.version.hint" = "Mindre versioner hentes hurtigere og fylder mindre.";
+"download.version.standard" = "Standard";
+"download.version.title" = "Vælg version";
+"download.version.unknownSize" = "Ukendt størrelse";
 "download.waiting" = "Venter";
 "downloads.empty.body" = "Hent en film eller et afsnit, og se det uden forbindelse.";
 "downloads.empty.title" = "Intet hentet";

@@ -75,6 +75,10 @@
 "download.remove" = "Poista lataus";
 "download.retry" = "Lataa uudelleen";
 "download.running" = "Ladataan";
+"download.version.hint" = "Pienemmät versiot latautuvat nopeammin ja vievät vähemmän tilaa.";
+"download.version.standard" = "Vakio";
+"download.version.title" = "Valitse versio";
+"download.version.unknownSize" = "Koko tuntematon";
 "download.waiting" = "Odottaa";
 "downloads.empty.body" = "Lataa elokuva tai jakso, niin katsot sen ilman yhteyttä.";
 "downloads.empty.title" = "Ei latauksia";

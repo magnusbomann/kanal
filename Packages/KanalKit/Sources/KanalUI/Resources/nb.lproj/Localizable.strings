@@ -75,6 +75,10 @@
 "download.remove" = "Slett nedlasting";
 "download.retry" = "Last ned på nytt";
 "download.running" = "Laster ned";
+"download.version.hint" = "Mindre versjoner lastes ned raskere og tar mindre plass.";
+"download.version.standard" = "Standard";
+"download.version.title" = "Velg versjon";
+"download.version.unknownSize" = "Ukjent størrelse";
 "download.waiting" = "Venter";
 "downloads.empty.body" = "Last ned en film eller en episode, så spilles den av uten nett.";
 "downloads.empty.title" = "Ingenting lastet ned";

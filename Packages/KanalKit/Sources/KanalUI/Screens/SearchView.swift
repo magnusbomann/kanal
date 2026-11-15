@@ -44,10 +44,7 @@ public struct SearchView: View {
             }
         }
         .background(KanalColor.background)
-        .searchable(text: $query, prompt: Text(UIStrings.searchPrompt))
-        #if os(iOS)
-        .searchFocused($isSearchFocused)
-        #endif
+        .modifier(SearchField(query: $query, isFocused: focusBinding))
         .navigationTitle(Text(UIStrings.search))
         #if os(iOS)
         .task(id: navigator.searchFocusRequest) {
@@ -58,6 +55,14 @@ public struct SearchView: View {
         #endif
         .onChange(of: query) { _, newValue in scheduleSearch(newValue) }
         .onDisappear { searchTask?.cancel() }
+    }
+
+    private var focusBinding: FocusState<Bool>.Binding? {
+        #if os(iOS)
+        $isSearchFocused
+        #else
+        nil
+        #endif
     }
 
     private var results: some View {
@@ -169,6 +174,86 @@ public struct SearchView: View {
             isSearchingWider = false
         }
     }
+}
+
+/// Whether the system's own search field can be trusted here.
+///
+/// It cannot on a Mac running the iPad app. UIKit's search controller sizes
+/// itself from the screen while it takes over the tab bar, and on a Mac that
+/// lookup is an assertion — `_screenBasedFocusUnsupported` — so the app closed
+/// the moment the field was activated or put away. Three crash reports, one
+/// stack. The Mac gets a field Kanal draws itself; nothing else changes.
+enum SearchFieldSupport {
+    static let usesSystemField = !ProcessInfo.processInfo.isiOSAppOnMac
+}
+
+/// The search field: the system's where it works, Kanal's own where it does not.
+struct SearchField: ViewModifier {
+    @Binding var query: String
+    let isFocused: FocusState<Bool>.Binding?
+
+    func body(content: Content) -> some View {
+        #if os(iOS)
+        if SearchFieldSupport.usesSystemField, let isFocused {
+            content
+                .searchable(text: $query, prompt: Text(UIStrings.searchPrompt))
+                .searchFocused(isFocused)
+        } else {
+            content.safeAreaInset(edge: .top, spacing: 0) { inlineField }
+        }
+        #else
+        content.searchable(text: $query, prompt: Text(UIStrings.searchPrompt))
+        #endif
+    }
+
+    #if os(iOS)
+    private var inlineField: some View {
+        HStack(spacing: KanalMetrics.sm) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(KanalColor.secondaryText)
+            inlineTextField
+            if !query.isEmpty {
+                Button { query = "" } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 15))
+                        .foregroundStyle(KanalColor.secondaryText)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(UIStrings.clear))
+                .accessibilityIdentifier("search.clear")
+            }
+        }
+        .padding(.horizontal, KanalMetrics.md)
+        .frame(minHeight: KanalMetrics.minTarget)
+        .background(KanalColor.surface, in: .capsule)
+        .padding(.horizontal, KanalMetrics.md)
+        .padding(.vertical, KanalMetrics.sm)
+        .frame(maxWidth: 720)
+        .frame(maxWidth: .infinity)
+        .background(KanalColor.background)
+    }
+
+    @ViewBuilder
+    private var inlineTextField: some View {
+        let field = TextField(
+            "", text: $query,
+            prompt: Text(UIStrings.searchPrompt).foregroundStyle(KanalColor.secondaryText)
+        )
+        .textFieldStyle(.plain)
+        .font(KanalFont.body(15))
+        .foregroundStyle(KanalColor.primaryText)
+        .autocorrectionDisabled()
+        .textInputAutocapitalization(.never)
+        .submitLabel(.search)
+        .accessibilityIdentifier("search.field")
+        if let isFocused {
+            field.focused(isFocused)
+        } else {
+            field
+        }
+    }
+    #endif
 }
 
 /// Explains a result that only turned up under another name.

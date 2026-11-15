@@ -75,6 +75,10 @@
 "download.remove" = "Delete download";
 "download.retry" = "Download again";
 "download.running" = "Downloading";
+"download.version.hint" = "Smaller versions download faster and take up less space.";
+"download.version.standard" = "Standard";
+"download.version.title" = "Choose a version";
+"download.version.unknownSize" = "Size unknown";
 "download.waiting" = "Waiting";
 "downloads.empty.body" = "Download a film or an episode and it plays without a connection.";
 "downloads.empty.title" = "Nothing downloaded";

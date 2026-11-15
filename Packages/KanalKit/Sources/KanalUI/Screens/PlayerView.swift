@@ -169,7 +169,8 @@ public struct PlayerView: View {
                         controller: handle.controller,
                         title: item.title,
                         subtitle: subtitle,
-                        trailingAccessory: AnyView(AirPlayButton()),
+                        trailingAccessory: handle.airPlay.map { AnyView(AirPlayActionButton(action: $0)) }
+                            ?? AnyView(AirPlayButton()),
                         watermark: watermark,
                         sourceControl: alternativeSourceControl,
                         onClose: closePlayback
@@ -341,6 +342,22 @@ public struct PlayerView: View {
                     startAlternativePlayback(at: alternativeCandidatePosition + 1)
                 } else {
                     alternativeError = .other(message)
+                }
+            },
+            onPlaceholder: {
+                guard attempt == alternativeAttempt else { return }
+                // The provider's own word that this listing is gone. Asking it
+                // again in another container gets the same clip, so the format
+                // guesses are skipped and the next listing of the film is
+                // tried — or, with none left, the viewer is told.
+                let next = alternativeCandidatePosition + 1
+                if next < plan.variantCount {
+                    stage = .switchingSource(number: next + 1, count: plan.variantCount)
+                    startAlternativePlayback(at: next)
+                } else {
+                    watchdog?.cancel()
+                    handle?.controller.stop()
+                    alternativeError = .providerPlaceholder
                 }
             },
             onClose: closePlayback
@@ -633,7 +650,9 @@ public struct PlayerView: View {
         case .rejected: UIStrings.playbackRejectedTitle
         case .offline: UIStrings.playbackOfflineTitle
         case .timedOut: UIStrings.playbackTimeoutTitle
-        case .providerPlaceholder: UIStrings.playbackPlaceholderTitle
+        // This screen only ever shows films and episodes, and the channel
+        // wording would be wrong for them.
+        case .providerPlaceholder: UIStrings.playbackTimeoutTitle
         case .other: UIStrings.streamFailedTitle
         }
     }
@@ -646,7 +665,7 @@ public struct PlayerView: View {
         case .rejected: String(UIStrings.playbackRejectedBody)
         case .offline: String(UIStrings.playbackOfflineBody)
         case .timedOut: String(UIStrings.playbackTimeoutBody)
-        case .providerPlaceholder: String(UIStrings.playbackPlaceholderBody)
+        case .providerPlaceholder: String(UIStrings.playbackTimeoutBody)
         case .other(let message): message
         }
     }
@@ -718,6 +737,30 @@ struct AirPlayButton: View {
         RoutePicker()
             .frame(width: KanalMetrics.minTarget, height: KanalMetrics.minTarget)
             .kanalGlassOverVideo(cornerRadius: 100)
+        #else
+        EmptyView()
+        #endif
+    }
+}
+
+/// AirPlay for an engine that has to prepare first. Looks like the system
+/// picker; what it does on a tap is the engine's business.
+struct AirPlayActionButton: View {
+    let action: @MainActor () -> Void
+
+    var body: some View {
+        #if os(iOS)
+        Button { action() } label: {
+            Image(systemName: "airplay.video")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: KanalMetrics.minTarget, height: KanalMetrics.minTarget)
+                .kanalGlassOverVideo(cornerRadius: 100)
+                .contentShape(.circle)
+        }
+        .buttonStyle(PlayerControlButtonStyle())
+        .accessibilityIdentifier("player.airplay")
+        .accessibilityLabel(Text(verbatim: "AirPlay"))
         #else
         EmptyView()
         #endif
