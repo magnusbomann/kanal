@@ -68,6 +68,8 @@ public struct PlayerView: View {
     @State private var stallTask: Task<Void, Never>?
     @State private var playbackSourceID: UUID?
     @State private var playbackProfileID: UUID?
+    /// See `LiveChannelPlayer.didReportEnd`.
+    @State private var didReportEnd = false
 
     /// The engine currently playing, whichever it is.
     private var activeController: any PlaybackControlling {
@@ -117,10 +119,19 @@ public struct PlayerView: View {
         // views whose inherited dismiss action may target the wrong layer.
         countdown?.cancel()
         progressTask?.cancel()
+        // Recorded before the cover is taken down; see `LiveChannelPlayer`.
+        // A film has its answer here. A channel has already given its own,
+        // and this view's engines never ran for it.
+        if item.kind != .liveTV {
+            navigator?.lastPlaybackPlayed = didPlay
+            didReportEnd = true
+        }
         system.stop()
         let closingHandle = handle
         handle = nil
         closingHandle?.controller.stop()
+        // Anything still on its way from an engine now belongs to nobody.
+        alternativeAttempt += 1
         navigator?.playing = nil
         dismiss()
     }
@@ -150,18 +161,20 @@ public struct PlayerView: View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            if engine == .alternative, let handle {
+            if engine == .alternative {
                 // Pinned to the attempt, not to the surrounding layout. The
                 // surface tearing down is what stops the engine, so it must
                 // happen when a feed is actually replaced and never merely
                 // because a sibling — the chrome, the loading card — came or
-                // went.
-                handle.surface
-                    .id(alternativeAttempt)
-                    .ignoresSafeArea()
+                // went. Absent for the moment between two feeds.
+                if let handle {
+                    handle.surface
+                        .id(alternativeAttempt)
+                        .ignoresSafeArea()
+                }
                 if let alternativeError {
                     errorOverlay(alternativeError)
-                } else if !isOpening {
+                } else if let handle, !isOpening {
                     // Held back until there is a picture. A play button over a
                     // black screen invites a press that does nothing, and sits
                     // exactly where the loading card wants to be.
@@ -225,7 +238,12 @@ public struct PlayerView: View {
         }
         #if os(tvOS)
         // The chrome owns Menu once it is up; while it is held back, this does.
-        .onExitCommand { if isOpening { closePlayback() } }
+        // So does an error: with no chrome up there is nothing else to hear
+        // Menu, and it used to do nothing at all on the failure screen.
+        .onExitCommand {
+            let failed = engine == .alternative ? alternativeError != nil : system.failure != nil
+            if isOpening || failed { closePlayback() }
+        }
         #endif
         .task { startPlayback() }
         .onChange(of: activeController.isBuffering) { _, buffering in
@@ -256,7 +274,13 @@ public struct PlayerView: View {
         // across rather than shown to anyone as an error. Connectivity and
         // credentials would fail in both engines, so those stay actionable.
         .onChange(of: system.failure) { _, failure in
-            guard let failure, canTryAlternative(after: failure) else { return }
+            guard let failure else { return }
+            guard canTryAlternative(after: failure) else {
+                // The error is on screen with its own Retry. A watchdog left
+                // running replaced it twenty seconds later with another.
+                watchdog?.cancel()
+                return
+            }
             startAlternativePlayback()
         }
         .onChange(of: didPlay) { _, played in
@@ -264,6 +288,12 @@ public struct PlayerView: View {
             watchdog?.cancel()
         }
         .onChange(of: activeController.isPlaying) { wasPlaying, isPlaying in
+            // Playing again after the end — rewinding to rewatch the last
+            // scene — is someone saying they are not done with this episode.
+            if isPlaying, secondsUntilNext != nil {
+                countdown?.cancel()
+                secondsUntilNext = nil
+            }
             // A pause is an explicit checkpoint. This also covers a pause
             // issued by the system while the app is backgrounding.
             guard wasPlaying, !isPlaying else { return }
@@ -280,8 +310,9 @@ public struct PlayerView: View {
             stallTask?.cancel()
             // Read before the engines are torn down: closing a stream that
             // never played is the one case that must not be asked for money.
-            navigator?.lastPlaybackPlayed = didPlay
+            if !didReportEnd { navigator?.lastPlaybackPlayed = didPlay }
             recordProgress()
+            alternativeAttempt += 1
             Task { await model.flushPendingWatchState() }
             // Whichever engine is running, not just the built-in one.
             system.stop()
@@ -341,6 +372,7 @@ public struct PlayerView: View {
                     )
                     startAlternativePlayback(at: alternativeCandidatePosition + 1)
                 } else {
+                    watchdog?.cancel()
                     alternativeError = .other(message)
                 }
             },
@@ -483,7 +515,11 @@ public struct PlayerView: View {
     /// re-buffer gets the pill instead.
     /// Between pressing play and the first frame, with nothing yet wrong.
     private var isOpening: Bool {
-        alternativeError == nil && system.failure == nil && !didPlay
+        // The system engine's failure only counts while it is the engine in
+        // use. It stays set after the film is handed to VLC, and counting it
+        // there meant the hand-off showed a play button over black instead of
+        // the loading card.
+        alternativeError == nil && (engine == .alternative || system.failure == nil) && !didPlay
     }
 
     private var showsLoadingScreen: Bool { isOpening && showsWaitingUI }
@@ -525,8 +561,12 @@ public struct PlayerView: View {
         guard order.indices.contains(position) else { return }
         let candidateIndex = order[position]
 
+        // Whether a connection is being let go of right now. The provider
+        // allows one and is slow to notice it has gone.
+        let releasesStream = system.isHoldingStream || handle != nil
         system.stop()
         handle?.controller.stop()
+        handle = nil
         hasTriedAlternative = true
         hasChosenAudioLanguage = false
         alternativeCandidatePosition = position
@@ -541,11 +581,19 @@ public struct PlayerView: View {
         } else {
             beginWatchdog()
         }
-        handle = alternativePlayer(alternativeRequest(
-            for: attempt,
-            candidateIndex: candidateIndex
-        ))
         engine = .alternative
+        let request = alternativeRequest(for: attempt, candidateIndex: candidateIndex)
+        guard releasesStream else {
+            handle = alternativePlayer(request)
+            return
+        }
+        // The same pause the system engine takes between feeds: asking again
+        // on the heels of a release is answered with the "offline" clip.
+        Task { @MainActor in
+            try? await Task.sleep(for: SystemPlaybackController.connectionSettle)
+            guard attempt == alternativeAttempt else { return }
+            handle = alternativePlayer(request)
+        }
     }
 
     private func canTryAlternative(after failure: PlaybackFailure) -> Bool {
@@ -591,6 +639,9 @@ public struct PlayerView: View {
             model.recordChannel(groupID: groupID)
             return
         }
+        // Only what actually played has a position worth keeping; a film
+        // closed while it was still opening would otherwise be filed at zero.
+        guard playingOwner != nil else { return }
         let snapshot = engine == .alternative ? alternativeSnapshot : system.snapshot()
         guard snapshot.duration > 0 else { return }
         model.record(item: item, position: snapshot.position, duration: snapshot.duration)

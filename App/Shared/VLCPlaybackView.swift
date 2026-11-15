@@ -126,7 +126,15 @@ final class VLCHostView: UIView {
 @Observable
 final class VLCPlaybackController: PlaybackControlling {
 
-    private(set) var isPlaying = false
+    private(set) var isPlaying = false {
+        didSet {
+            // AVPlayer keeps the screen awake while it plays; VLC does not.
+            // Without this an iPhone dims and locks partway through a film
+            // and an Apple TV starts its screensaver over one.
+            guard oldValue != isPlaying else { return }
+            UIApplication.shared.isIdleTimerDisabled = isPlaying
+        }
+    }
     /// From the library entry, not from the stream — see `PlaybackControlling`.
     private(set) var isLiveContent = false
     private(set) var hasEnded = false
@@ -150,6 +158,10 @@ final class VLCPlaybackController: PlaybackControlling {
     /// television has taken it — see `ExternalDisplay`.
     @ObservationIgnored private weak var localView: UIView?
     @ObservationIgnored private var displayObserver: (any NSObjectProtocol)?
+    @ObservationIgnored private var backgroundObserver: (any NSObjectProtocol)?
+    /// The furthest the clock has reached, for telling a film that finished
+    /// from one whose connection was dropped.
+    private var furthestPosition: TimeInterval = 0
     #if os(iOS)
     /// Set while the film is being carried to an AirPlay television. VLC is
     /// stopped meanwhile; every control is forwarded here instead.
@@ -182,6 +194,15 @@ final class VLCPlaybackController: PlaybackControlling {
             }
         }
         #endif
+
+        // AVPlayer pauses itself when the app leaves the screen; VLC plays on
+        // — heard as a film still running behind the Home screen, with no
+        // controls to stop it and the provider's one connection still held.
+        backgroundObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated { self?.pauseForBackground() }
+        }
 
         isLiveContent = request.isLive
         hasEnded = false
@@ -242,6 +263,8 @@ final class VLCPlaybackController: PlaybackControlling {
         sample()
         if let displayObserver { NotificationCenter.default.removeObserver(displayObserver) }
         displayObserver = nil
+        if let backgroundObserver { NotificationCenter.default.removeObserver(backgroundObserver) }
+        backgroundObserver = nil
         #if os(iOS)
         routePicker?.dismantle()
         routePicker = nil
@@ -256,6 +279,17 @@ final class VLCPlaybackController: PlaybackControlling {
         player.media = nil
         isPlaying = false
         isBuffering = false
+    }
+
+    private func pauseForBackground() {
+        guard !hasStopped, player.isPlaying else { return }
+        #if os(iOS)
+        // A television is showing the film; leaving the phone's screen is
+        // exactly what someone does next.
+        guard relay == nil, ExternalDisplay.shared.surface == nil else { return }
+        #endif
+        player.pause()
+        isPlaying = false
     }
 
     // MARK: AirPlay
@@ -461,7 +495,16 @@ final class VLCPlaybackController: PlaybackControlling {
                 // frozen last frame on screen.
                 request.onFailure(String(localized: CoreStrings.alternativeEngineFailed))
             } else if !hasReportedPlaceholder {
-                hasEnded = true
+                // "Ended" is also what a dropped connection looks like once
+                // reconnecting has failed. Only the real end may mark an
+                // episode as watched and start the next one.
+                let nearEnd = duration > 0
+                    && (furthestPosition >= duration * 0.95 || duration - furthestPosition < 20)
+                if nearEnd {
+                    hasEnded = true
+                } else {
+                    request.onFailure(String(localized: CoreStrings.alternativeEngineFailed))
+                }
             }
         default:
             break
@@ -478,7 +521,11 @@ final class VLCPlaybackController: PlaybackControlling {
         // The clock moving is the least deniable evidence there is that this
         // stream started, and it arrives even when no state change did.
         if position > 0 { reportStarted() }
-        guard duration > 0 else { return }
+        furthestPosition = max(furthestPosition, position)
+        // Not before there is a picture. VLC knows a film's length while its
+        // clock still reads zero, and reporting that on the way out — closing
+        // a film that was still opening — overwrote where it had been left.
+        guard duration > 0, hasReportedReady else { return }
         request.onProgress(position, duration)
     }
 

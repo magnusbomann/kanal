@@ -229,7 +229,13 @@ final class LiveChannelSession {
         if firstProgress != nil, !engineFailed {
             if time - lastProgress < Self.stallLimit { return }
             // A user's pause has no buffering and no terminal error. Leave it alone.
-            if !controller.isPlaying, !controller.isBuffering { return }
+            if !controller.isPlaying, !controller.isBuffering {
+                // The pause is not a stall, and neither is the moment after
+                // it: without this, pressing play after ten seconds found the
+                // stall limit already spent and tore down a working feed.
+                lastProgress = time
+                return
+            }
             advance(at: time)
             return
         }
@@ -276,6 +282,9 @@ struct LiveChannelPlayer: View {
     var onPlaybackEnded: (Bool) -> Void = { _ in }
     @State private var session = LiveChannelSession()
     @State private var showsSources = false
+    /// Whether closing has already said if anything played, so a late
+    /// `onDisappear` does not say it again after the answer was consumed.
+    @State private var didReportEnd = false
 
     private var group: ChannelGroup? {
         model.library.channelGroups.first { $0.id == plan.groupID || $0.variants.contains { $0.id == plan.item.id } }
@@ -346,6 +355,14 @@ struct LiveChannelPlayer: View {
                           locked: savedLock != nil, builder: alternativePlayer, suspended: missingLock) { id in
                 model.rememberWorkingVariant(id, forGroup: groupID)
                 model.recordChannel(groupID: groupID)
+                // Said the moment it is true. The chrome's close button goes
+                // straight to the presenting view, and the presenter asks
+                // "did anything play?" as the cover comes down — before this
+                // view has disappeared. Answered only on disappearing, every
+                // channel counted as one that never started, and the free
+                // tier's offer never came.
+                onPlaybackEnded(true)
+                didReportEnd = true
             }
             if missingLock { showsSources = true }
             while !Task.isCancelled {
@@ -355,7 +372,7 @@ struct LiveChannelPlayer: View {
             }
         }
         .onDisappear {
-            onPlaybackEnded(session.hasPlayed)
+            if !didReportEnd { onPlaybackEnded(session.hasPlayed) }
             session.stop()
         }
         #if os(iOS)
@@ -382,6 +399,13 @@ struct LiveChannelPlayer: View {
     }
 
     private func closePlayback() {
+        // Said now, not left to `onDisappear`. Whoever presented the player
+        // asks "did anything play?" when the cover has gone, and the cover's
+        // dismissal is not promised to come after this view disappearing —
+        // when it came first, a channel watched for an hour counted as one
+        // that never started.
+        onPlaybackEnded(session.hasPlayed)
+        didReportEnd = true
         // Release the stream before removing the player. The owning view also
         // gets a direct chance to clear its navigation state.
         session.stop()

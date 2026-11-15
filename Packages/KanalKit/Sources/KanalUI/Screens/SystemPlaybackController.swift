@@ -216,7 +216,10 @@ public final class SystemPlaybackController: PlaybackControlling {
     /// enough that nobody reads it as a stall. Measured against the panel, the
     /// gap barely moves the median — around four seconds either way — but an
     /// overlapping request is the one thing that reliably gets refused.
-    private static let connectionSettle: Duration = .milliseconds(700)
+    static let connectionSettle: Duration = .milliseconds(700)
+
+    /// Whether a stream is open, and so a connection would be released by stopping.
+    var isHoldingStream: Bool { player.currentItem != nil }
 
     /// Lets go of the current stream without tearing down the controller.
     private func release() {

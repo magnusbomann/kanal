@@ -53,7 +53,6 @@ public struct PlayerChrome: View {
     #if os(tvOS)
     private enum FocusTarget: Hashable { case surface, close, play, timeline }
     @FocusState private var focusedTarget: FocusTarget?
-    @State private var controlsEngaged = false
     @State private var seekState = TelevisionSeekState(duration: 0)
     #endif
 
@@ -117,7 +116,8 @@ public struct PlayerChrome: View {
                 }
                 #if os(tvOS)
                 .focusSection()
-                .onMoveCommand { _ in controlsEngaged = true }
+                // Moving between controls keeps them up a little longer.
+                .onMoveCommand { _ in scheduleHide() }
                 #endif
                 .transition(.opacity)
             }
@@ -432,7 +432,6 @@ public struct PlayerChrome: View {
         if seekState.duration != controller.duration {
             seekState = TelevisionSeekState(duration: controller.duration)
         }
-        controlsEngaged = true
         _ = seekState.nudge(direction, from: controller.position,
                             at: ProcessInfo.processInfo.systemUptime)
         hideTask?.cancel()
@@ -442,15 +441,15 @@ public struct PlayerChrome: View {
     /// Controls get out of the way on their own, but never while paused —
     /// nobody wants to hunt for the play button.
     private func scheduleHide(userInitiated: Bool = true) {
-        #if os(tvOS)
-        if userInitiated { controlsEngaged = true }
-        #endif
         hideTask?.cancel()
         hideTask = Task {
             try? await Task.sleep(for: .seconds(4))
             guard !Task.isCancelled, controller.isPlaying else { return }
             #if os(tvOS)
-            guard !showsTracks, !controlsEngaged, seekState.pending == nil else { return }
+            // Nothing here remembers that the remote was ever touched: a flag
+            // that did was never cleared, and after the first press the
+            // controls and their dimming stayed over the film for good.
+            guard !showsTracks, seekState.pending == nil else { return }
             focusedTarget = .surface
             #endif
             isVisible = false
