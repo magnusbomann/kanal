@@ -40,7 +40,7 @@ public struct WikidataProvider: MetadataProvider {
 
     public init(
         session: URLSession = .shared,
-        userAgent: String = "Kanal/1.0 (IPTV player for Apple platforms)",
+        userAgent: String = "Kanal/1.0 (https://kanalplayer.com/support; hello@kanalplayer.com)",
         languages: [String] = PreferredLanguages.codes()
     ) {
         self.session = session

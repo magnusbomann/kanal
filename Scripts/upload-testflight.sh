@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# Archives both apps and uploads them to TestFlight.
+# Archives both apps and uploads them to App Store Connect, where the build
+# serves TestFlight and can be attached to an App Store version for review.
 #
 # Needs an App Store Connect API key, because Xcode's own signed-in session is
 # not reachable from the command line — `xcodebuild` fails with "Failed to Use
@@ -52,7 +53,9 @@ cat > "$options" <<PLIST
 	<key>signingStyle</key><string>automatic</string>
 	<key>destination</key><string>upload</string>
 	<key>uploadSymbols</key><true/>
-	<key>testFlightInternalTestingOnly</key><true/>
+	<!-- Must stay false: a build marked internal-only can never be attached to
+	     an App Store version or sent to review. -->
+	<key>testFlightInternalTestingOnly</key><false/>
 </dict>
 </plist>
 PLIST

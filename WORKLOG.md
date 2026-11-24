@@ -118,6 +118,68 @@ git repo — treat it as a separate deliverable (see `Site/README.md`).
 
 ## Session log
 
+### 2026-11-24 — Launch readiness check, and preparing the submission
+
+- **Who:** Claude (Opus 5.5), with Magnus.
+- **Goal:** Answer "can we push this to launch?", then prepare everything that
+  can be prepared without Magnus.
+- **Found (read-only, via the App Store Connect API):** iOS and tvOS 1.0 both
+  `PREPARE_FOR_SUBMISSION` with no description, keywords, screenshots,
+  support URL, privacy URL, age rating or attached build. The record is named
+  "Kanal". Latest builds 202611152137 (both platforms, the 15 Nov sweep) are
+  `VALID`. **kanalplayer.com is not registered** (whois: no match), yet the
+  in-app privacy/terms texts, the site and every URL Apple will need name it.
+  `upload-testflight.sh` exported with `testFlightInternalTestingOnly`, so
+  every build so far is internal-only and cannot be submitted.
+- **Did:**
+  - `Scripts/upload-testflight.sh`: internal-only flag set to `false`. The
+    next upload is the first build that can go to review.
+  - `WikidataProvider` user agent now carries a contact URL and address
+    (Wikimedia policy; README "Before shipping" updated).
+  - `Scripts/set-domain.sh <domain>` moves app texts, `AppStore/` and `Site/`
+    to another domain in one step, if kanalplayer.com cannot be had.
+  - `AppStore/metadata.md`: name, subtitle, promo text, description and
+    keywords in en-US and nb; age-rating and App Privacy answers; App Review
+    notes with a step-by-step walk. `AppStore/check-lengths.py` checks Apple's
+    limits (all pass).
+  - `Site/demo.m3u` (sibling folder, not in git): the review playlist — four
+    public test streams, ten Blender Studio open movies (CC BY / BY-ND) and
+    "Caminandes" as a three-episode series. Every URL answered 206/200 today.
+  - `AppStore/capture-screenshots.sh`: captures from simulators seeded with
+    the demo playlist, never a real provider. A first set is in
+    `AppStore/screenshots/` (gitignored, 40 MB): iPhone 6.9" en + nb, iPad
+    13" en, Apple TV 1080p en — home, films, a film page, live list, series,
+    player, plus the paywall for the in-app purchase review screenshot.
+    Simulators drop a tvOS relaunch that comes too soon after a terminate;
+    the script now pauses between them.
+  - Site copy corrected where it contradicted the app: "history never leaves
+    the device" (it syncs via private iCloud), "talks to nobody else" (also
+    iCloud, Wikidata, TMDB), pricing "being settled" (now free + Pluss), and
+    "English and Norwegian" (14 languages ship).
+- **Verified:** `swift test` — 470 tests in 89 suites pass. The demo playlist
+  loads in the iPhone 17 Pro Max simulator: Home, Films, Series show it, most
+  posters arrive from TMDB.
+- **NOT verified:** the review notes' steps on hardware; that App Store
+  Connect accepts the internal-only change (it will show on the next upload).
+- **Left open:**
+  - Magnus: register the domain, deploy `Site/`, make hello@/privacy@/legal@
+    deliver, then enter `AppStore/metadata.md` in App Store Connect (or ask an
+    agent to push it via the API), answer age rating + App Privacy, select the
+    three IAPs on the version, upload a new build, attach it, submit.
+  - "Sprite Fright" and "Caminandes" get no TMDB poster, while the other
+    Blender films do — worth a look in the metadata matcher.
+  - The paywall lists profiles, metadata and Apple TV setup as Pluss
+    features, but `ProFeature.enforced` is empty, so free has them too. The
+    App Store description says only what Pluss really removes; the paywall
+    copy should be brought into line, or a reviewer may call it misleading.
+  - Live channel tiles in the screenshots show initials (the demo playlist
+    has no `tvg-logo`), and the demo has no guide, so no screenshot shows the
+    TV guide. Both are what the store listing most lacks.
+  - Uncommitted edits to `VLCPlaybackView`, `SettingsView`,
+    `SystemPlaybackController` and `KanalFont` were in the tree and are not
+    mine — another session's work, left out of this commit.
+- **Commits:** see `git log` for 2026-11-24.
+
 ### 2026-11-15 — Whole-app bug sweep before launch
 
 - **Who:** Claude (Fable 5.2), with Magnus. Four read-only review agents

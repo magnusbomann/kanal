@@ -483,9 +483,11 @@ cd Packages/KanalKit && KANAL_LIVE_TESTS=1 swift test --filter LiveIntegrationTe
 
 ## Before shipping
 
-- **Wikimedia user agent.** `WikidataProvider` sends
-  `Kanal/1.0 (IPTV player for Apple platforms)`. Wikimedia's policy wants a
-  contact URL in there — add one once the site exists.
+- **The domain.** The app's legal texts, the Wikimedia user agent
+  (`WikidataProvider`), the App Store metadata in `AppStore/` and the sibling
+  `Site/` all say `kanalplayer.com`, which is not registered yet. Register it
+  (or pick another and run `Scripts/set-domain.sh <domain>`), deploy `Site/`,
+  and make `hello@`, `privacy@` and `legal@` deliver.
 - Confirm the iCloud key-value entitlement is enabled for the App ID in the
   Developer portal before the first device/archive build.
 
