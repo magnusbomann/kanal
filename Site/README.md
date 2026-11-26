@@ -126,6 +126,15 @@ UHF's page has both, and both beat any sentence we could write:
   details and live). Still missing, because no capture exists yet: the guide,
   a child's profile and the Apple TV pairing screen.
 
+## Pictures first, words in the FAQ
+
+Magnus's note after the first 3D version (2026-11-26): far too much text, and
+he wants illustrations. So each section is one headline, at most one short
+line, and a picture — a real capture or a drawn one in coral and neutral. The
+longer explanations (how search works, child profiles, Matroska) live in the
+FAQ. Images in `assets/` are cached for a year, so a changed image needs a new
+file name, not just new bytes.
+
 ## What may be shown
 
 Hard rule: every image on this site comes from the demo playlist (`demo.m3u`),

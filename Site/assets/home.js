@@ -85,7 +85,7 @@
         entry.target.classList.add('seen');
         io.unobserve(entry.target);
       }
-    }, { threshold: 0.4 });
+    }, { threshold: 0.2 });
     seen.forEach((el) => io.observe(el));
   } else {
     seen.forEach((el) => el.classList.add('seen'));

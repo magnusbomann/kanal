@@ -148,7 +148,7 @@ html.home {
 
 .floor {
   position: absolute;
-  inset: 126% -80% auto;
+  inset: 133% -80% auto;
   height: 150%;
   transform-origin: 50% 0;
   transform: rotateX(74deg);
@@ -196,20 +196,30 @@ html.home {
   pointer-events: none;
 }
 
+/* A sideboard, wider than the television, on two legs. */
 .console {
   position: absolute;
-  inset: 112% 12% auto;
-  height: 14%;
+  inset: 111% -4% auto;
+  height: 17%;
   border-radius: calc(var(--tvw) * 0.006);
-  background: linear-gradient(#e2d2bc, #cdb99f 30%, #b9a388);
+  background:
+    linear-gradient(90deg, transparent 33.2%, #1b0b0426 33.2% 33.5%, transparent 33.5% 66.5%, #1b0b0426 66.5% 66.8%, transparent 66.8%),
+    linear-gradient(#e6d7c2, #d2bfa6 22%, #c3ad92);
   box-shadow: inset 0 1px 0 #ffffff99, 0 calc(var(--tvw) * 0.03) calc(var(--tvw) * 0.04) calc(var(--tvw) * -0.02) #1b0b0466;
+}
+.console::after {
+  content: "";
+  position: absolute;
+  inset: 100% 7% auto;
+  height: 28%;
+  background: linear-gradient(90deg, #8f7b64 0 1.6%, transparent 1.6% 98.4%, #8f7b64 98.4%);
 }
 .atv {
   position: absolute;
-  inset: auto auto 100% 18%;
-  width: 11%;
-  aspect-ratio: 4.2;
-  border-radius: 22% / 60%;
+  inset: auto auto 100% 14%;
+  width: 7%;
+  aspect-ratio: 3;
+  border-radius: 16% / 42%;
   background: linear-gradient(#1a1a1d, #020203);
   box-shadow: inset 0 1px 0 #ffffff30;
 }
@@ -223,19 +233,10 @@ html.home {
   background: #fff;
   box-shadow: 0 0 6px 1px #fff;
 }
-.remote {
-  position: absolute;
-  inset: auto auto 100% 34%;
-  width: 9%;
-  height: calc(var(--tvw) * 0.004);
-  border-radius: 2px;
-  background: linear-gradient(90deg, #8d8d94, #55555c);
-}
-
 .handset {
   position: absolute;
-  inset: auto 3% -20% auto;
-  width: 18%;
+  inset: auto 2.5% -7% auto;
+  width: 15%;
   transform: translateZ(130px) rotateY(-16deg) rotateZ(3deg);
 }
 
@@ -278,9 +279,9 @@ html.home {
   --pocket:  clamp(0, calc((var(--p) - 0.82) / 0.12), 1);
   --rest: calc(1 - var(--push));
   /* Where the television starts, before the camera walks up to it. */
-  --x0: 0vw; --y0: 23svh; --s0: 0.86; --ry0: -15deg; --rx0: 7deg;
+  --x0: 0vw; --y0: 23svh; --s0: 0.84; --ry0: -15deg; --rx0: 7deg;
   /* On a phone the room stays in shot; on a desk the screen takes over. */
-  --sway: -24deg; --lift: 7svh; --keep: 0;
+  --sway: -24deg; --lift: 7svh; --keep: 0; --s1: 0.88;
 }
 
 .js .hero-copy {
@@ -292,13 +293,13 @@ html.home {
 .js .deep .hero-copy { visibility: hidden; }
 
 .js .room {
-  --tvw: min(94vw, 74rem, calc((100svh - 15rem) * 1.7778));
+  --tvw: min(94vw, 74rem, calc((100svh - 16.5rem) * 1.7778));
   position: absolute;
   inset: 50% auto auto 50%;
   margin: calc(var(--tvw) * -0.28125) 0 0 calc(var(--tvw) * -0.5);
   transform:
     translate3d(calc(var(--rest) * var(--x0)), calc(var(--rest) * var(--y0) - var(--push) * var(--lift)), 0)
-    scale(calc(var(--s0) + (1 - var(--s0)) * var(--push)))
+    scale(calc(var(--s0) + (var(--s1) - var(--s0)) * var(--push)))
     rotateY(calc(var(--rest) * var(--ry0) + var(--push) * (var(--p) - 0.6) * var(--sway)))
     rotateX(calc(var(--rest) * var(--rx0) + var(--push) * (1 - var(--keep)) * 3deg));
   will-change: transform;
@@ -309,7 +310,7 @@ html.home {
 .js .glow { opacity: calc(0.35 + var(--push) * 0.3); }
 .js .sheen { opacity: var(--rest); }
 .js .console { opacity: calc(1 - var(--push) * var(--keep) * 1.6); }
-.js .floor { opacity: calc(1 - var(--push) * var(--keep) * 0.75); }
+.js .floor { opacity: calc(1 - var(--push) * var(--keep) * 1.6); }
 
 .js .handset {
   opacity: var(--pocket);
@@ -365,10 +366,10 @@ html.home {
 @keyframes cue { 0%, 100% { scale: 1 0.3; } 50% { scale: 1 1; } }
 
 @media (max-width: 899px) {
-  .handset { width: 30%; inset: auto 2% -62% auto; }
+  .handset { width: 25%; inset: auto 1% -30% auto; }
   .js .room { --tvw: min(94vw, calc((100svh - 17rem) * 1.7778)); }
   .hero-copy .btn-quiet { display: none; }
-  .js .beats { inset-block-end: 11svh; }
+  .js .beats { inset-block-end: 9svh; }
   .duo { margin-inline: 8% 2%; }
   .duo-phone { inset-inline-start: -4%; width: 30%; }
 }
@@ -377,7 +378,7 @@ html.home {
 }
 
 @media (min-width: 900px) {
-  .js .stage { --x0: 21vw; --y0: 3svh; --s0: 0.5; --ry0: -23deg; --rx0: 5deg; --sway: -7deg; --lift: 1svh; --keep: 1; }
+  .js .stage { --x0: 21vw; --y0: 3svh; --s0: 0.5; --ry0: -23deg; --rx0: 5deg; --sway: 0deg; --lift: 3svh; --keep: 1; --s1: 1; }
   .js .hero-copy { inset-block-start: 50%; translate: 0 -50%; }
   .js .hero-copy > * { max-width: 46%; }
   .js .hero-copy h1 { font-size: clamp(3.2rem, 1rem + 5.2vw, 6.2rem); }
@@ -659,3 +660,50 @@ html.home {
 @media print {
   .wall, .floor, .glow, .handset, .scroll-cue { display: none; }
 }
+
+/* ============================================= less text, more pictures */
+
+.home .split .lede { font-size: var(--step-1); max-width: 30ch; }
+.home .split .lede strong { color: var(--text); font-weight: 650; }
+.home .section-head { margin-block-end: clamp(1.5rem, 4vw, 2.75rem); }
+
+.chips { list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.75rem 0 0; padding: 0; }
+.chips li {
+  padding: 0.5rem 0.95rem;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--tint-edge);
+  font: 800 var(--step--1)/1 var(--font-display);
+  letter-spacing: 0.04em;
+}
+
+/* Child profile, drawn: a shelf where only the allowed titles are lit. */
+.kids {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(0.5rem, 1.5vw, 1rem);
+  transform-style: preserve-3d;
+  transform: perspective(1000px) rotateX(10deg) rotateY(calc(-18deg + (var(--v, 0.5) - 0.5) * 28deg));
+}
+.kids i {
+  aspect-ratio: 3 / 4;
+  border-radius: 14%;
+  border: 1.5px dashed #ffffff33;
+  background: #ffffff0a center / 34% no-repeat url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23ffffff55" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>');
+}
+.kids .ok {
+  border: 0;
+  background: var(--accent-gradient);
+  box-shadow: 0 24px 40px -16px #ff6a3c99;
+  transform: translateZ(calc(20px + var(--v, 0.5) * 50px));
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" fill="none" stroke="%231B0B04" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>'), var(--accent-gradient);
+  background-size: 38%, cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.home .band .lede { color: var(--on-ink-2); }
+
+.ico { width: 3rem; height: 3rem; color: var(--accent-solid); margin-block-end: 1.1rem; }
+.quad h3 { font: 900 var(--step-1)/1.1 var(--font-display); font-stretch: 80%; }
+.quad p { color: var(--text-2); margin-block-start: 0.4rem; }
+.deck .card { min-height: 16rem; }
