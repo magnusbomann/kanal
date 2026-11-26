@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="a" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFA183"/><stop offset="1" stop-color="#FF6A3C"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.1" r="0.7">
+      <stop offset="0" stop-color="#FF6A3C" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#FF6A3C" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#0B0B0C"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <g transform="translate(80,74)">
+    <rect x="0" y="4" width="46" height="34" rx="11" fill="url(#a)"/>
+    <path d="M16 13v16M33 13l-9 8 9 8" fill="none" stroke="#1B0B04" stroke-width="4"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="60" y="33" font-family="Helvetica Neue, Arial, sans-serif" font-weight="700"
+          font-size="30" letter-spacing="1" fill="#F5F5F7">Kanal</text>
+  </g>
+
+  <text x="80" y="290" font-family="Arial Narrow, Helvetica Neue, Arial, sans-serif"
+        font-weight="700" font-size="104" fill="#F5F5F7">Set it up once.</text>
+  <text x="80" y="396" font-family="Arial Narrow, Helvetica Neue, Arial, sans-serif"
+        font-weight="700" font-size="104" fill="#F5F5F7">Never explain it</text>
+  <text x="80" y="502" font-family="Arial Narrow, Helvetica Neue, Arial, sans-serif"
+        font-weight="700" font-size="104" fill="url(#a)">again.</text>
+
+  <text x="80" y="576" font-family="Helvetica Neue, Arial, sans-serif" font-size="27"
+        fill="#A8A8B0">The IPTV player anyone in the house can use — iPhone, iPad, Apple TV</text>
+</svg>

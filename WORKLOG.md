@@ -50,8 +50,8 @@ _Last updated: 2026-08-26. Update this block whenever the big picture moves;
 keep the blow-by-blow in the Session log._
 
 **Repo:** `Kanal/` is the git repo (branch `main`, tracks `origin/main`).
-`Site/` is the static marketing/support site, a sibling folder, **not** in this
-git repo — treat it as a separate deliverable (see `Site/README.md`).
+`Site/` is the static marketing/support site, deployed by Vercel with Root
+Directory `Site` (moved into this repo 2026-11-26; see `Site/README.md`).
 
 **Build & run**
 - `xcodegen generate && open Kanal.xcodeproj` — iOS + tvOS targets, mostly thin
@@ -142,7 +142,7 @@ git repo — treat it as a separate deliverable (see `Site/README.md`).
     keywords in en-US and nb; age-rating and App Privacy answers; App Review
     notes with a step-by-step walk. `AppStore/check-lengths.py` checks Apple's
     limits (all pass).
-  - `Site/demo.m3u` (sibling folder, not in git): the review playlist — four
+  - `Site/demo.m3u`: the review playlist — four
     public test streams, ten Blender Studio open movies (CC BY / BY-ND) and
     "Caminandes" as a three-episode series. Every URL answered 206/200 today.
   - `AppStore/capture-screenshots.sh`: captures from simulators seeded with

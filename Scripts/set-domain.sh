@@ -4,8 +4,7 @@
 #
 # Everything that leaves the device or reaches App Review names the domain:
 # the in-app privacy and terms texts, the Wikimedia user agent, the App Store
-# metadata and review notes in AppStore/, and every page of the sibling Site/
-# folder. They all say kanalplayer.com today.
+# metadata and review notes in AppStore/, and every page of Site/. They all say kanalplayer.com today.
 #
 #   ./Scripts/set-domain.sh kanal.example
 #
@@ -13,7 +12,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SITE="$ROOT/../Site"
+SITE="$ROOT/Site"
 OLD="${OLD_DOMAIN:-kanalplayer.com}"
 NEW="${1:?Usage: $0 <new-domain>}"
 

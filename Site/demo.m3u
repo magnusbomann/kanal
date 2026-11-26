@@ -1,0 +1,38 @@
+#EXTM3U
+# Kanal review and demo playlist. Every stream below is a public test
+# stream, or a Blender Studio open movie released under Creative Commons
+# (CC BY or CC BY-ND), hosted by the Blender Foundation or the Internet Archive.
+#EXTINF:-1 tvg-id="akamai.live.test" group-title="Test channels",Akamai Live Test
+https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8
+#EXTINF:-1 tvg-id="apple.bipbop" group-title="Test channels",Apple BipBop
+https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8
+#EXTINF:-1 tvg-id="apple.bipbop.advanced" group-title="Test channels",Apple BipBop Advanced
+https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8
+#EXTINF:-1 tvg-id="mux.test" group-title="Test channels",Mux Test Stream
+https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8
+#EXTINF:-1 group-title="Open Movies",Big Buck Bunny (2008)
+https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4
+#EXTINF:-1 group-title="Open Movies",Elephants Dream (2006)
+https://download.blender.org/ED/elephantsdream-720-h264-st-aac.mov
+#EXTINF:-1 group-title="Open Movies",Sintel (2010)
+https://download.blender.org/durian/movies/Sintel.2010.1080p.mkv
+#EXTINF:-1 group-title="Open Movies",Tears of Steel (2012)
+https://download.blender.org/demo/movies/ToS/tears_of_steel_720p.mov
+#EXTINF:-1 group-title="Open Movies",Cosmos Laundromat (2015)
+https://archive.org/download/CosmosLaundromatFirstCycle/Cosmos%20Laundromat%20-%20First%20Cycle%20%281080p%29.mp4
+#EXTINF:-1 group-title="Open Movies",Agent 327: Operation Barbershop (2017)
+https://archive.org/download/agent327operationbarbershop/agent327-1080.mp4
+#EXTINF:-1 group-title="Open Movies",Hero (2018)
+https://archive.org/download/hero_20260106/hero.mp4
+#EXTINF:-1 group-title="Open Movies",Spring (2019)
+https://archive.org/download/spring_blenderopenmovie/Spring%20-%20Blender%20Open%20Movie%20-%20YouTube.mp4
+#EXTINF:-1 group-title="Open Movies",Coffee Run (2020)
+https://archive.org/download/coffee-run/Coffee%20Run.mp4
+#EXTINF:-1 group-title="Open Movies",Sprite Fright (2021)
+https://archive.org/download/sprite-fright/Sprite%20Fright%20-%20Open%20Movie%20by%20Blender%20Studio-804p.mp4
+#EXTINF:-1 group-title="Series",Caminandes S01E01 Llama Drama
+https://archive.org/download/Caminandes1LlamaDrama/01_llama_drama_1080p.mp4
+#EXTINF:-1 group-title="Series",Caminandes S01E02 Gran Dillama
+https://archive.org/download/Caminandes2GranDillama/02_gran_dillama_1080p.mp4
+#EXTINF:-1 group-title="Series",Caminandes S01E03 Llamigos
+https://archive.org/download/CaminandesLlamigos/Caminandes_%20Llamigos-1080p.mp4

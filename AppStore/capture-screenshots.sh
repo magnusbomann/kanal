@@ -4,7 +4,7 @@
 # demo playlist (public test streams and Creative Commons films only — never a
 # real provider, whose posters App Review would read as pirated content).
 #
-#   python3 -m http.server 8740 --bind 127.0.0.1   # in ../Site
+#   python3 -m http.server 8740 --bind 127.0.0.1   # in Site/
 #   ./AppStore/capture-screenshots.sh <udid> <iphone|ipad|tv> <en|nb>
 #
 # Needs a Debug build installed (the -kanal-* launch arguments are compiled out

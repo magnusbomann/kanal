@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kanal — the IPTV player anyone in the house can use</title>
+<meta name="description" content="Kanal is an IPTV player for iPhone, iPad and Apple TV. Paste one link and it does the rest: sorts live TV, films and series, finds the guide, and plays the formats other players refuse. No account, no settings, nothing to explain.">
+<link rel="canonical" href="https://kanalplayer.com/">
+<meta name="theme-color" content="#EFEFEF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0B0B0C" media="(prefers-color-scheme: dark)">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Kanal">
+<meta property="og:title" content="Set it up once. Never explain it again.">
+<meta property="og:description" content="The IPTV player for iPhone, iPad and Apple TV that the rest of the house can use without you in the room.">
+<meta property="og:url" content="https://kanalplayer.com/">
+<meta property="og:image" content="https://kanalplayer.com/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Kanal — set it up once, never explain it again.">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="/assets/app-icon-32.png" type="image/png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="stylesheet" href="/assets/styles.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "Kanal",
+      "alternateName": "Kanal: IPTV Player",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "iOS, iPadOS, tvOS",
+      "url": "https://kanalplayer.com/",
+      "description": "A native IPTV player for iPhone, iPad and Apple TV. One field of setup: paste any M3U or Xtream link and Kanal detects the type, finds the guide and sorts live TV, films and series. Ships no channels.",
+      "featureList": [
+        "One-field setup for M3U and Xtream sources",
+        "Automatic sorting of live TV, films and series",
+        "Electronic programme guide",
+        "Search across languages",
+        "Child profiles",
+        "Phone to Apple TV handoff over the local network",
+        "Plays Matroska and other formats AVPlayer cannot open"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Does Kanal come with channels?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Kanal arrives empty. It ships no channels, hosts nothing and has no catalogue of its own. You bring a subscription you already pay for, and Kanal plays it." }
+        },
+        {
+          "@type": "Question",
+          "name": "What do I need to set it up?",
+          "acceptedAnswer": { "@type": "Answer", "text": "One link from your provider. Kanal works out whether it is an M3U playlist or an Xtream login, finds the programme guide, and sorts the result into live TV, films and series." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does Kanal need an account?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. There is no Kanal account and no Kanal server. Your provider details are stored on your device and are never sent to us." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why do some films not play in other apps?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Most providers serve films and episodes as Matroska, which Apple's built-in player cannot open. Kanal carries a second playback engine and switches to it automatically when it meets a format the system engine refuses." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="shell">
+    <a class="wordmark" href="/">
+      <img class="mark" src="/assets/app-icon-128.png" alt="">
+      <span>Kanal</span>
+    </a>
+    <nav aria-label="Primary">
+      <ul>
+        <li class="nav-secondary"><a href="#setup">Setup</a></li>
+        <li class="nav-secondary"><a href="#search">Search</a></li>
+        <li class="nav-secondary"><a href="#family">Family</a></li>
+        <li class="nav-secondary"><a href="#faq">FAQ</a></li>
+        <li><a href="#get">Get Kanal</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ------------------------------------------------------------ hero -->
+  <section class="hero">
+    <div class="shell hero-grid">
+      <div>
+        <p class="eyebrow">iPhone · iPad · Apple TV</p>
+        <h1 class="display">Set it up once.<br>Never explain it<br><span class="accent-text">again</span>.</h1>
+        <p class="lede">Kanal is an IPTV player the rest of the house can use without you in the room. One field to set up. No settings to get wrong. Nothing you will have to talk anyone through over the phone.</p>
+        <div class="actions hero-actions">
+          <a class="btn btn-primary" href="#get">Get Kanal</a>
+          <a class="btn btn-quiet" href="#setup">See how it works</a>
+        </div>
+        <p class="note" style="margin-block-start:1.25rem">Kanal ships no channels and hosts nothing. You bring the subscription you already pay for.</p>
+      </div>
+
+      <div class="device" role="img" aria-label="Kanal on iPhone: a single field holding a provider link, and a library already sorted into live TV, films and series.">
+        <div class="device-screen">
+          <p class="title">Add your<br>playlist</p>
+          <div class="device-field">https://provider.example/get.php?user…</div>
+          <div class="device-cta">Continue</div>
+          <div class="device-rows">
+            <div class="device-row"><span class="swatch live"></span><span class="badge-live">Live</span> 657 channels</div>
+            <div class="device-row"><span class="swatch"></span> 31 532 films</div>
+            <div class="device-row"><span class="swatch"></span> Series, sorted by season</div>
+            <div class="device-row"><span class="swatch"></span> Guide found automatically</div>
+            <div class="device-row"><span class="swatch"></span> Names cleaned up, duplicates folded</div>
+          </div>
+          <p class="device-foot">Nothing else to fill in.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ----------------------------------------------------------- setup -->
+  <section id="setup">
+    <div class="shell">
+      <div class="section-head">
+        <p class="eyebrow">Setup, in full</p>
+        <h2 class="display">Three steps. There is no step four.</h2>
+        <p class="lede">Every other player opens by asking what an M3U is, where your EPG lives, and which of your forty provider folders hold the films. Kanal doesn’t ask you. It looks.</p>
+      </div>
+
+      <div class="grid steps">
+        <article class="card">
+          <h3>Paste the link</h3>
+          <p>M3U, M3U8 or an Xtream login. One field takes all three, because working out which one you were given is the app’s job, not yours.</p>
+        </article>
+        <article class="card">
+          <h3>Kanal sorts it out</h3>
+          <p>Live channels, films and series told apart. Duplicates folded. Categories named in your language. The programme guide found without being asked for.</p>
+        </article>
+        <article class="card">
+          <h3>Press play</h3>
+          <p>There is no settings screen to visit afterwards. Nothing in it needed your decision, so it isn’t there.</p>
+        </article>
+      </div>
+
+      <p class="closer display">The whole setup fits in a sentence you can say down the phone: paste the link your provider sent you.</p>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------------- search -->
+  <section id="search">
+    <div class="shell split">
+      <div>
+        <p class="eyebrow">Search that forgives</p>
+        <h2 class="display">Nobody should have to know what their film is called in English.</h2>
+        <div class="prose stack">
+          <p>Her provider filed it as <strong>The Lion King</strong>. She types <strong>Løvenes konge</strong>, because that is what it is called where she lives. Kanal finds it.</p>
+          <p>Every search runs against your own library first — offline, on the device, instant. Only when that comes up short does Kanal ask what the words <em>mean</em> and look again under every other name the film carries.</p>
+          <p>And it never guesses. A near-enough match is refused rather than offered, because being sent to the wrong film with no explanation is worse than being told nothing was found.</p>
+        </div>
+        <div class="figures">
+          <div class="figure"><b>12 ms</b><span>per search, measured on a 50 000-entry library</span></div>
+          <div class="figure"><b>Offline</b><span>the common case never touches the network</span></div>
+          <div class="figure"><b>0</b><span>wrong answers in testing — misses, never mistakes</span></div>
+        </div>
+      </div>
+
+      <div class="card search-demo">
+        <div class="search-field">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span>Løvenes konge</span>
+        </div>
+        <p class="arrow-note">Nothing under that name in your library — so Kanal asks what it means.</p>
+        <div class="result">
+          <span class="poster" aria-hidden="true"></span>
+          <span class="meta">
+            <b>The Lion King</b>
+            <span>Film · 1994 · Films › Family</span>
+          </span>
+        </div>
+        <div class="result">
+          <span class="poster" aria-hidden="true"></span>
+          <span class="meta">
+            <b>The Lion King</b>
+            <span>Film · 2019 · Films › Animation</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------- playback -->
+  <section id="playback">
+    <div class="shell split reverse">
+      <div>
+        <p class="eyebrow">Playback</p>
+        <h2 class="display">When a film won’t play, it usually isn’t your provider’s fault.</h2>
+        <div class="prose stack">
+          <p>It is the player. Panels serve films and episodes as Matroska, and the engine built into iPhone and Apple TV cannot open it — which is exactly why live TV works and the films don’t. Measured against one real provider’s catalogue: <strong>31 027 of 31 176 films</strong>.</p>
+          <p>Kanal carries a second engine and moves across mid-open. Both wear the same controls, so you never find out which one you are watching.</p>
+          <p>Apple’s engine stays in charge wherever it is better — live TV, AirPlay, picture-in-picture, and the system’s own subtitle and audio menus.</p>
+        </div>
+      </div>
+      <div class="card">
+        <ul class="ticks">
+          <li>Live TV, films and series, on the same remote</li>
+          <li>Subtitles and audio tracks, including the ones your provider buried</li>
+          <li>AirPlay and picture-in-picture</li>
+          <li>Reconnects on its own when a stream drops</li>
+          <li>A real TV guide: channels down, hours across, both pinned where you left them</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------------- family -->
+  <section id="family">
+    <div class="shell">
+      <div class="band">
+        <div class="split">
+          <div>
+            <p class="eyebrow" style="color:var(--on-ink-2)">For everyone in the house</p>
+            <h2 class="display">Hand a six-year-old the remote.</h2>
+            <div class="prose stack">
+              <p>An IPTV catalogue is hundreds of thousands of rows, almost none of them rated, with an adult section three taps from the front page. So a child’s profile in Kanal starts empty, and fills up only with what a grown-up has allowed.</p>
+              <p>Live TV is the clearest case of all. A channel carries no age limit, because what it shows changes every hour — so a child gets the channels you picked, and no others.</p>
+            </div>
+          </div>
+          <div>
+            <ul class="ticks">
+              <li>Allow a whole section, a rating, or a single title by name</li>
+              <li>Your decisions survive your provider reissuing its links</li>
+              <li>Nothing outside the allowance can be reached — not by search, not by a link, not by resuming what was last watched</li>
+              <li>Profiles switch in one tap, and the grown-up profile is untouched</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------- handoff -->
+  <section id="handoff">
+    <div class="shell split">
+      <div>
+        <p class="eyebrow">Apple TV</p>
+        <h2 class="display">Nobody should have to type a password with a remote.</h2>
+        <div class="prose stack">
+          <p>Your Apple TV shows a code. Your iPhone reads it and sends the playlist straight across the room over your own network — encrypted, and only for as long as that screen is open.</p>
+          <p>No account, no sign-in, no server in the middle. Your provider details never leave the house.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="figures" style="border:0; margin:0; padding:0">
+          <div class="figure"><b>0</b><span>accounts to create</span></div>
+          <div class="figure"><b>0</b><span>servers your details pass through</span></div>
+          <div class="figure"><b>1</b><span>code, and then you are watching</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------- privacy -->
+  <section id="privacy">
+    <div class="shell">
+      <div class="section-head">
+        <p class="eyebrow">Privacy</p>
+        <h2 class="display">We can’t lose your data. We never had it.</h2>
+        <p class="lede">Kanal has no back end. There is nothing to breach, nothing to sell, and nothing for anyone to ask us to hand over.</p>
+      </div>
+      <div class="grid">
+        <article class="card"><h3 class="eyebrow">No account</h3><p class="prose" style="margin-block-start:.6rem">Nothing to sign up for. Nothing to sign in to. Nothing to forget the password to.</p></article>
+        <article class="card"><h3 class="eyebrow">No tracking</h3><p class="prose" style="margin-block-start:.6rem">No analytics, no advertising identifiers, no third-party scripts. Not in the app, and not on this website either.</p></article>
+        <article class="card"><h3 class="eyebrow">Your list stays yours</h3><p class="prose" style="margin-block-start:.6rem">Provider credentials live on your device and are used for exactly one thing: talking to your provider.</p></article>
+        <article class="card"><h3 class="eyebrow">What you watch</h3><p class="prose" style="margin-block-start:.6rem">Your viewing history stays on your devices, and in your own private iCloud if you sync them. Never with us.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- -------------------------------------------------------------- faq -->
+  <section id="faq">
+    <div class="shell">
+      <div class="section-head">
+        <p class="eyebrow">Questions</p>
+        <h2 class="display">The honest answers.</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>Does Kanal come with channels?</summary>
+          <p>No. Kanal arrives empty. It ships no channels, hosts nothing, resells nothing and has no catalogue of its own. It plays a subscription you already pay for, the way a music player plays files you already own.</p>
+        </details>
+        <details>
+          <summary>Is using Kanal legal?</summary>
+          <p>The player is. What you point it at is your responsibility: you need the right to watch whatever you add. Kanal has no way of knowing what a given link contains, and takes no part in supplying it.</p>
+        </details>
+        <details>
+          <summary>Which providers work?</summary>
+          <p>Anything speaking standard M3U or M3U8, and Xtream panels. If your provider gave you a link, or a username, host and password, that is all Kanal needs.</p>
+        </details>
+        <details>
+          <summary>Why can other apps not play my films?</summary>
+          <p>Because most panels serve films and episodes as Matroska, and the player built into Apple’s systems cannot open it. Kanal carries a second engine for exactly this, and switches to it without telling you.</p>
+        </details>
+        <details>
+          <summary>Do I need an account, or an internet connection to Kanal?</summary>
+          <p>Neither. There is no Kanal account and no Kanal server. Your device talks to your provider, to Apple’s iCloud if you sync, and to public film databases for posters — never to us.</p>
+        </details>
+        <details>
+          <summary>What does it cost?</summary>
+          <p>Kanal is free to watch with, for as long as you like: live TV, films and series all play. Kanal Pluss removes the small watermark and the occasional reminder, and is available by the month, by the year with a free week to try it, or once for good. There is no advertising either way.</p>
+        </details>
+        <details>
+          <summary>What languages does Kanal speak?</summary>
+          <p>The interface ships in fourteen languages, from Norwegian and Swedish to Arabic and Brazilian Portuguese. Search understands far more than that — it looks for a film under the name it has in your language, whatever your provider called it.</p>
+        </details>
+        <details>
+          <summary>Is my Apple TV supported?</summary>
+          <p>Yes. iPhone, iPad and Apple TV share one app and one design, tuned for a remote where that matters.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------------- cta -->
+  <section id="get">
+    <div class="shell cta">
+      <p class="eyebrow">Coming to the App Store</p>
+      <h2 class="display">You already pay for the television. Kanal is the part that makes it watchable.</h2>
+      <p class="lede" style="text-align:center">We are in the last stretch before release. Ask to be told the day it lands — that is the only thing you will ever be sent.</p>
+      <div class="actions" style="justify-content:center">
+        <a class="btn btn-primary" href="mailto:hello@kanalplayer.com?subject=Tell%20me%20when%20Kanal%20is%20out">Tell me when it&rsquo;s out</a>
+        <a class="btn btn-quiet" href="/support.html">Support</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <a class="wordmark" href="/" style="font-size:1.15rem">
+          <img class="mark" src="/assets/app-icon-128.png" alt="">
+          <span>Kanal</span>
+        </a>
+        <p style="margin-block-start:0.85rem">A native IPTV player for iPhone, iPad and Apple TV.</p>
+      </div>
+      <nav aria-label="Product">
+        <h2>Product</h2>
+        <ul>
+          <li><a href="/#setup">Setup</a></li>
+          <li><a href="/#search">Search</a></li>
+          <li><a href="/#playback">Playback</a></li>
+          <li><a href="/#family">Family profiles</a></li>
+          <li><a href="/#handoff">Apple TV handoff</a></li>
+        </ul>
+      </nav>
+      <nav aria-label="Support">
+        <h2>Help</h2>
+        <ul>
+          <li><a href="/support.html">Support</a></li>
+          <li><a href="/#faq">FAQ</a></li>
+          <li><a href="mailto:hello@kanalplayer.com">hello@kanalplayer.com</a></li>
+        </ul>
+      </nav>
+      <nav aria-label="Legal">
+        <h2>Legal</h2>
+        <ul>
+          <li><a href="/privacy.html">Privacy</a></li>
+          <li><a href="/terms.html">Terms</a></li>
+          <li><a href="/copyright.html">Copyright &amp; DMCA</a></li>
+          <li><a href="/licenses.html">Open source</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="disclaimer">
+      <p><strong>Kanal is a media player.</strong> It does not provide, host, index, resell or transmit any television channel, film or other content, and it is not affiliated with any content provider. Kanal is supplied empty; any source added to it is chosen and supplied by the person using it, who is responsible for holding the rights to watch it.</p>
+      <p>Apple, iPhone, iPad, Apple TV and AirPlay are trademarks of Apple Inc. All other trademarks are the property of their respective owners.</p>
+      <p>&copy; 2026 Kanal. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -484,7 +484,7 @@ cd Packages/KanalKit && KANAL_LIVE_TESTS=1 swift test --filter LiveIntegrationTe
 ## Before shipping
 
 - **The domain.** The app's legal texts, the Wikimedia user agent
-  (`WikidataProvider`), the App Store metadata in `AppStore/` and the sibling
+  (`WikidataProvider`), the App Store metadata in `AppStore/` and the website in
   `Site/` all say `kanalplayer.com`, which is not registered yet. Register it
   (or pick another and run `Scripts/set-domain.sh <domain>`), deploy `Site/`,
   and make `hello@`, `privacy@` and `legal@` deliver.
