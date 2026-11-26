@@ -1,7 +1,7 @@
 # Kanal — website
 
-Static site. No build step, no framework, no JavaScript at all: the files in
-this folder are the site. It lives inside the app repository and is deployed by
+Static site. No build step, no framework, one small first-party script: the
+files in this folder are the site. It lives inside the app repository and is deployed by
 Vercel from `magnusbomann/kanal`:
 
 | Vercel setting | Value |
@@ -25,7 +25,8 @@ licenses.html     VLCKit LGPL notice, Wikidata, the TMDB attribution TMDB requir
 404.html
 demo.m3u          App Review's test playlist: public test streams and
                   Creative Commons films only. Named in AppStore/metadata.md
-assets/           one stylesheet, one SVG icon set, the OG image
+assets/           styles.css (every page), home.css + home.js (front page only),
+                  shots/ (real app captures), icons, the OG image
 vercel.json       redirects (/privacy, /support…), CSP and security headers
 .vercelignore     keeps this README off the site
 ```
@@ -61,9 +62,18 @@ vercel.json       redirects (/privacy, /support…), CSP and security headers
 
 ## Choices worth knowing about
 
-- **No JavaScript.** The FAQ is `<details>`, the theme is `light-dark()`, and
-  navigation is links. Nothing to hydrate, nothing to block rendering, and the
-  CSP can deny scripts outright.
+- **One script, ours, and optional.** `assets/home.js` (about 90 lines, no
+  dependencies, no network) writes scroll progress into CSS custom properties;
+  every transform on the front page is `calc()` in `assets/home.css`. The CSP
+  allows `script-src 'self'` and nothing else. Without the script, or with
+  reduced motion, the page renders in its settled state and reads top to bottom.
+- **The front page is always dark.** It is a living room with a television in
+  it. The legal pages still follow the visitor's light or dark setting.
+- **No inline styles.** `style-src 'self'` blocks `style=""` attributes, so
+  spacing lives in the stylesheets. The script sets custom properties through
+  the CSSOM, which the CSP permits.
+- **Assets are cached for a year.** `home.css` and `home.js` are linked with a
+  `?v=` date in `index.html`; bump it whenever either file changes.
 - **No web fonts.** The condensed display face is found on the visitor's own
   system (`SF Pro Display` → `Segoe UI Variable` → `Roboto Condensed` →
   `Arial Narrow`), so the headline paints on the first frame with no layout
@@ -75,9 +85,10 @@ vercel.json       redirects (/privacy, /support…), CSP and security headers
   gradient, neutral surfaces and condensed display type as
   `KanalUI/Theme/KanalColor.swift`, and the same rule: one accent action per
   screen.
-- **Scroll-driven reveal animations were tried and removed.** They hide content
-  until a scroll event fires, which fails badly for the exact reader this app is
-  built for.
+- **Scroll moves things; it never reveals them.** An earlier version hid
+  content until a scroll event fired and was removed for that reason. The 3D
+  scenes follow the same rule: nothing is unreadable before it animates, and
+  the lowest opacity any card starts from is 0.3.
 - **Contrast is checked, not assumed.** Body-copy links use `--accent-link`
   rather than the accent itself: the coral is 2.2:1 on a light background and
   would have failed WCAG AA.
@@ -110,10 +121,19 @@ UHF's page has both, and both beat any sentence we could write:
 - **Social proof.** They show 4.6 stars and 5000+ reviews next to the button.
   We have no reviews yet, and inventing them is out of the question. The moment
   there are real ones, they belong immediately to the right of the primary CTA.
-- **Real screenshots.** They show the actual app. We currently show a CSS mock,
-  which is honest but weaker. The app already builds and runs on all three
-  platforms — a set of real captures (iPhone home, the guide, a child's profile,
-  the Apple TV pairing screen) is the single biggest upgrade left for this page.
+- **Real screenshots.** Done for the front page: `assets/shots/` is cut from
+  `AppStore/screenshots/` (Apple TV home, details and player, iPhone home,
+  details and live). Still missing, because no capture exists yet: the guide,
+  a child's profile and the Apple TV pairing screen.
+
+## What may be shown
+
+Hard rule: every image on this site comes from the demo playlist (`demo.m3u`),
+meaning Blender Studio open movies under CC BY and public test streams. No
+poster, still or logo from a commercial film, series or channel, ever, and no
+capture taken against a real provider. Commercial titles may be named in text
+where the copy needs them (the Lion King search example) but never pictured.
+The CC BY credit sits under the poster shelf and in the footer; keep it.
 
 ## Local preview
 
