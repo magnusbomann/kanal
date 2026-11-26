@@ -67,8 +67,8 @@ vercel.json       redirects (/privacy, /support…), CSP and security headers
   every transform on the front page is `calc()` in `assets/home.css`. The CSP
   allows `script-src 'self'` and nothing else. Without the script, or with
   reduced motion, the page renders in its settled state and reads top to bottom.
-- **The front page is always dark.** It is a living room with a television in
-  it. The legal pages still follow the visitor's light or dark setting.
+- **The front page is always light.** It is a bright living room with the
+  television as the one dark object in it (Magnus asked for white, 2026-11-26). The legal pages still follow the visitor's light or dark setting.
 - **No inline styles.** `style-src 'self'` blocks `style=""` attributes, so
   spacing lives in the stylesheets. The script sets custom properties through
   the CSSOM, which the CSP permits.
